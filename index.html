@@ -599,12 +599,12 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
         <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Withdrawn · For Costs</div><div class="v" id="statWithdrawn" style="color:var(--gold);text-shadow:0 0 18px rgba(255,201,77,.25)">$0.00</div><svg class="spark" id="sparkWithdrawn" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">P&amp;L Today</div><div class="v pos" id="statToday">+$0.00</div><svg class="spark" id="sparkToday" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">0%</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Win Streak</div><div class="v"><span id="statStreak">×0</span> <span class="flames" id="streakFlames"></span></div><svg class="spark" id="sparkStreak" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">—</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Win Streak</div><div class="v"><span id="statStreak">—</span> <span class="flames" id="streakFlames"></span></div><svg class="spark" id="sparkStreak" preserveAspectRatio="none" aria-hidden="true"></svg></div>
       </div>
       <div class="combo-zone">
         <div class="combo" id="comboBox" data-tier="0">
-          <div class="combo-num" id="comboNum">&times;0</div>
+          <div class="combo-num" id="comboNum">—</div>
           <div class="combo-meta"><div class="combo-label">WIN-STREAK COMBO</div><div class="combo-sub" id="comboSub">EVERY WIN FORGES A LINK &middot; A LOSS SHATTERS THE CHAIN</div></div>
         </div>
         <div class="chain" id="streakChain" aria-hidden="true"></div>
@@ -991,9 +991,15 @@ var PAYLOAD={
 /* ================= COUNT-UP ================= */
 function countUp(el,to,dur,fmt,overshoot){
   if(!el) return;
+  if(typeof to!=='number'||!isFinite(to)){ el.__cu=(el.__cu||0)+1; el.textContent='—'; return; }
+  /* generation token: the newest render always wins. Without this, a count-up
+     started from the demo snapshot keeps writing after live data lands and
+     finishes on the demo number — the stuck +$13.64 / 58.8% bug. */
+  var gen=(el.__cu=(el.__cu||0)+1);
   if(reduced){ el.textContent=fmt(to); return; }
   var t0=performance.now();
-  function step(t){ var p=Math.min(1,(t-t0)/dur); var e=1-Math.pow(1-p,4); var v=to*e;
+  function step(t){ if(el.__cu!==gen) return;
+    var p=Math.min(1,(t-t0)/dur); var e=1-Math.pow(1-p,4); var v=to*e;
     if(overshoot&&p<1) v=to*(e+Math.sin(p*Math.PI)*0.05*(1-p));
     el.textContent=fmt(v); if(p<1) requestAnimationFrame(step); else el.textContent=fmt(to); }
   requestAnimationFrame(step);
@@ -1009,11 +1015,16 @@ function drawSpark(id,series,color){
   svg.innerHTML='<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" opacity="0.85"/>';
 }
 function renderSparks(){
+  /* Sparklines derive ONLY from the current ledger arrays. An empty array
+     clears the spark (drawSpark no-ops below 2 points) — a lone total is
+     never stretched into a synthetic curve, and a real 0 stays a flat
+     nothing instead of borrowing the demo shape. */
   var cumP=equity.map(function(v){return v-START});
   var runWR=[],w=0; BETS.forEach(function(b,i){ if(b.res==='W')w++; runWR.push(w/(i+1)*100); });
   var runStreak=[],s=0; BETS.forEach(function(b){ s=b.res==='W'?s+1:0; runStreak.push(s); });
-  var todayCum=[],t=0; BETS.filter(function(b){return b.d==='2026-11-01'}).forEach(function(b){ t+=b.pnl; todayCum.push(t); }); if(todayCum.length<2) todayCum=[0,TODAY_PNL];
-  var wdSeries=equity.map(function(){return 0}); wdSeries.push(PAYLOAD.withdrawn_total);
+  var todayKey=(typeof IS_LIVE!=='undefined'&&IS_LIVE&&PAYLOAD.exported_at)? String(PAYLOAD.exported_at).slice(0,10) : (PAYLOAD.generated_at? String(PAYLOAD.generated_at).slice(0,10) : '2026-11-01');
+  var todayCum=[],t=0; BETS.filter(function(b){return b.d===todayKey}).forEach(function(b){ t+=b.pnl; todayCum.push(t); });
+  var wdSeries = equity.length>=2 ? equity.map(function(){return 0}).concat([typeof PAYLOAD.withdrawn_total==='number'?PAYLOAD.withdrawn_total:0]) : [];
   drawSpark('sparkProfit',cumP,'#39ff6a');
   drawSpark('sparkBankroll',equity,'#39ff6a');
   drawSpark('sparkWithdrawn',wdSeries,'#ffc94d');
@@ -1089,6 +1100,13 @@ function renderFurnace(p){
 function comboTier(s){ return s>=8?3 : s>=5?2 : s>=3?1 : 0; }
 function renderCombo(forge){
   var box=document.getElementById('comboBox'); if(!box) return;
+  if(typeof IS_LIVE!=='undefined'&&IS_LIVE&&BETS.length===0){
+    box.setAttribute('data-tier',0);
+    document.getElementById('comboNum').textContent='—';
+    document.getElementById('comboSub').textContent='NO BETS YET · THE FIRST WIN FORGES THE FIRST LINK';
+    var ch0=document.getElementById('streakChain'); if(ch0) ch0.innerHTML='<span class="chain-empty">— CHAIN EMPTY —</span>';
+    return;
+  }
   box.setAttribute('data-tier',comboTier(STREAK));
   document.getElementById('comboNum').textContent='×'+STREAK;
   document.getElementById('comboSub').textContent = STREAK>=8 ? 'LEGENDARY — THE CHAIN BURNS GOLD · ONE LOSS SHATTERS IT ALL'
@@ -1117,24 +1135,33 @@ function shatterChain(){
 
 /* ================= HERO ================= */
 function renderHero(animate){
-  countUp(document.getElementById('statProfit'),PAYLOAD.profit_total,1500,fmtS,true);
-  countUp(document.getElementById('statBankroll'),PAYLOAD.bankroll,1500,fmtM,true);
-  countUp(document.getElementById('statWithdrawn'),PAYLOAD.withdrawn_total,1300,fmtM,false);
-  countUp(document.getElementById('statToday'),TODAY_PNL,1300,fmtS,false);
-  if(typeof IS_LIVE!=='undefined' && IS_LIVE && BETS.length===0){
-    document.getElementById('statWR').textContent='—'; /* no bets yet — a 0.0% win rate would be invented */
-  } else {
-    countUp(document.getElementById('statWR'),WR,1300,function(v){return v.toFixed(1)+'%'},false);
+  /* ZERO IS DATA. A numeric 0 from the payload renders as $0.00 / +$0.00 —
+     it is never treated as "missing" and never falls back to a demo value.
+     Only a null/undefined/non-numeric field renders '—' (no data yet).
+     Win rate at 0 wins / 0 losses is undefined → '—'; streak 0 → '—'. */
+  var live=(typeof IS_LIVE!=='undefined'&&IS_LIVE);
+  function statNum(id,val,fmt,dur,over){
+    var el=document.getElementById(id); if(!el) return;
+    if(typeof val==='number'&&isFinite(val)) countUp(el,val,dur,fmt,over);
+    else { el.__cu=(el.__cu||0)+1; el.textContent='—'; }
   }
-  document.getElementById('statStreak').textContent='×'+STREAK;
+  statNum('statProfit',PAYLOAD.profit_total,fmtS,1500,true);
+  statNum('statBankroll',PAYLOAD.bankroll,fmtM,1500,true);
+  statNum('statWithdrawn',PAYLOAD.withdrawn_total,fmtM,1300,false);
+  statNum('statToday',TODAY_PNL,fmtS,1300,false);
+  var wrEl=document.getElementById('statWR');
+  if(live&&BETS.length===0){
+    if(wrEl){ wrEl.__cu=(wrEl.__cu||0)+1; wrEl.textContent='—'; } /* cancel any stale demo count-up, then hold the dash */
+  } else {
+    countUp(wrEl,WR,1300,function(v){return v.toFixed(1)+'%'},false);
+  }
+  document.getElementById('statStreak').textContent=(live&&STREAK<=0)?'—':'×'+STREAK;
   document.getElementById('streakFlames').textContent = STREAK>=2 ? '🔥'.repeat(Math.min(3, STREAK>=8?3:STREAK>=5?2:1)) : '';
   renderCombo(false);
-  if(typeof IS_LIVE!=='undefined' && IS_LIVE && BETS.length===0){
-    /* live + zero settled bets: win rate / streak have no honest value yet */
-    document.getElementById('statWR').textContent='—';
+  if(live&&STREAK<=0){
     document.getElementById('statStreak').textContent='—';
     var cn=document.getElementById('comboNum'); if(cn) cn.textContent='—';
-    var cs=document.getElementById('comboSub'); if(cs) cs.textContent='NO BETS YET · THE FIRST WIN FORGES THE FIRST LINK';
+    if(BETS.length===0){ var cs=document.getElementById('comboSub'); if(cs) cs.textContent='NO BETS YET · THE FIRST WIN FORGES THE FIRST LINK'; }
   }
   renderSparks(); renderMilestone(PAYLOAD,animate); renderFurnace(PAYLOAD);
 }
@@ -1196,6 +1223,7 @@ function enableDemoMode(){
   FEED_MODE='demo';
   var badge=document.getElementById('modeBadge');
   if(badge){ badge.textContent='DEMO DATA'; badge.classList.remove('live'); }
+  renderHero(false); /* the fetch has definitively failed — only now may the demo snapshot paint */
   if(window.__startDemoFeed) window.__startDemoFeed();
 }
 
@@ -1320,11 +1348,11 @@ function applyPayload(p){
       if(ps.line_rule!==undefined) s.line_rule=ps.line_rule;
       if(ps.market) s.market=ps.market;
       if(typeof ps.bankroll==='number') s.alloc=ps.bankroll;
-      if(typeof ps.pnl==='number') s.pnl=ps.pnl;
+      if(typeof ps.pnl==='number'){ s.pnl=ps.pnl; s.hasData=true; } /* pnl 0 is real — flag it so the card prints +$0.00, not a dash */
       if(ps.win_rate!==undefined) s.wr=(ps.win_rate===null? null : (ps.win_rate<=1? ps.win_rate*100 : ps.win_rate));
       if(typeof ps.wins==='number'||typeof ps.losses==='number') s.count=(ps.wins||0)+(ps.losses||0)+(ps.voids||0);
       if(typeof ps.ladder_rung==='number') s.rung=ps.ladder_rung;
-      if(Array.isArray(ps.equity)&&ps.equity.length) s.spark=ps.equity;
+      if(Array.isArray(ps.equity)) s.spark=ps.equity.length>=2? ps.equity.slice() : null; /* empty equity = no curve — never keep the demo sparkline */
     });
     renderStratCards();
   }
@@ -1476,7 +1504,7 @@ window.renderLadder=renderLadder;
     var eqEl=document.getElementById('eqChart');
     if(eqVals.length<2){
       eqEl.innerHTML='<div class="chart-empty">No equity history yet — no bets have settled.<br/>The curve starts with the first settled result.</div>';
-      document.getElementById('eqSub').textContent='NO SETTLED BETS YET · AWAITING FIRST RESULT';
+      document.getElementById('eqSub').textContent='0 SETTLED BETS · NO EQUITY HISTORY YET';
     } else {
       var mn=Math.min.apply(null,eqVals)-6, mx=Math.max.apply(null,eqVals)+6;
       var LX=function(i){ return pad+i*(W-2*pad)/(eqVals.length-1); };
@@ -1572,7 +1600,8 @@ window.renderLadder=renderLadder;
     return '<div class="league-row"><span class="lg">'+k+'</span><span class="bar"><i style="width:'+pct+'%"></i></span><span class="lr">'+v.w+'/'+v.t+' · '+pct+'%</span></div>';
   }).join('');
   document.getElementById('splitExecLabel').textContent=WINS+' / '+BETS.length+' · '+WR.toFixed(1)+'%';
-  setTimeout(function(){ document.getElementById('splitGoal').style.width='83.4%'; document.getElementById('splitExec').style.width=WR+'%'; },350);
+  setTimeout(function(){ if(typeof FEED_MODE!=='undefined'&&FEED_MODE==='live') return; /* live widths are owned by renderRiskLive (real alpha_goal rate) */
+    document.getElementById('splitGoal').style.width='83.4%'; document.getElementById('splitExec').style.width=WR+'%'; },350);
   window.__recovery=seqs.length? Math.round(recovered/seqs.length*100) : 0;
   /* LIVE override — risk, leagues and splits recomputed from the live payload only */
   window.renderRiskLive=function(p){
@@ -1855,7 +1884,7 @@ var STRATS=[
  {id:'kx',name:'Kalshi Cross-Reference',market:'Prediction markets · signal validation & best-price routing',status:'LOCKED',bcls:'lock',alloc:0,pnl:0,wr:null,count:0,rung:null,tint:'#2affd5',spark:null,note:'Panel wired below — activates when Kalshi routing is enabled.'}
 ];
 function sparkSVG(pts,color){
-  if(!pts) return '<div style="font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:14px">NO SETTLED BETS YET — AWAITING ACTIVATION</div>';
+  if(!pts||pts.length<2) return '<div style="font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:14px">NO SETTLED BETS YET — AWAITING ACTIVATION</div>';
   var w=230,h=40,min=Math.min.apply(null,pts)-3,max=Math.max.apply(null,pts)+3;
   var p=pts.map(function(v,i){ return (i*(w/(pts.length-1))).toFixed(1)+','+(h-3-((v-min)/(max-min))*(h-6)).toFixed(1); }).join(' ');
   return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" style="width:100%"><polyline points="'+p+'" fill="none" stroke="'+color+'" stroke-width="2"/></svg>';
@@ -1874,7 +1903,7 @@ function renderStratCards(){
       +'<div class="sc-mkt">'+s.market+'</div>'
       +rules
       +'<div class="sc-stats"><div><div class="k">BANKROLL SLICE</div><div class="v">'+fmtM(s.alloc)+'</div></div>'
-      +'<div><div class="k">P&amp;L</div><div class="v '+(s.pnl>=0?'pos':'neg')+'">'+(s.count||s.pnl?fmtS(s.pnl):'—')+'</div></div>'
+      +'<div><div class="k">P&amp;L</div><div class="v '+(s.pnl>=0?'pos':'neg')+'">'+(s.hasData||s.count||s.pnl?fmtS(s.pnl):'—')+'</div></div>'
       +'<div><div class="k">WIN RATE</div><div class="v">'+(s.wr===null?'—':s.wr.toFixed(1)+'%')+'</div></div>'
       +'<div><div class="k">RUNG</div><div class="v">'+(s.rung===null?'—':s.rung+' / 6')+'</div></div></div>'
       +sparkSVG(s.spark,s.tint)
@@ -1910,7 +1939,7 @@ window.renderStratCards=renderStratCards;
       var id=btn.getAttribute('data-id');
       if(id==='all'){ renderHero(false); }
       else{ var s=STRATS.filter(function(x){return x.id===id})[0];
-        if(s.count>0){ /* keep permanent payload stats; strategy slice shown in cards */ renderHero(false); }
+        if(s.count>0||s.hasData){ /* live strategy with real (zero) results keeps the real payload stats — count 0 is not "no data" */ renderHero(false); }
         else { document.getElementById('statBankroll').textContent='$0.00'; document.getElementById('statToday').textContent='—'; document.getElementById('statWR').textContent='—'; }
       }
       swap.classList.remove('out');
@@ -2457,8 +2486,15 @@ setTimeout(function(){
   requestAnimationFrame(function(){ boot.classList.add('on'); });
   setTimeout(function(){ boot.classList.add('gone'); }, reduced?150:1500);
   setTimeout(function(){ if(boot.parentElement) boot.parentElement.removeChild(boot); },2600);
-  /* stats count up from zero as the vortex spins up */
-  setTimeout(function(){ renderHero(true); }, reduced?60:950);
+  /* stats count up as the vortex spins up — but never paint the demo snapshot
+     while the first live fetch is still pending: wait for it to settle, the
+     same discipline as bootSettle below. Live zeros then own the cards. */
+  function bootHero(tries){
+    if(typeof FEED_MODE!=='undefined'&&FEED_MODE==='pending'&&tries<6){ setTimeout(function(){ bootHero(tries+1); },1200); return; }
+    if(typeof FEED_MODE!=='undefined'&&FEED_MODE==='pending') return;
+    renderHero(true);
+  }
+  setTimeout(function(){ bootHero(0); }, reduced?60:950);
   /* boot settle theatre: in LIVE mode only a REAL last settle may replay —
      with zero settled bets nothing fires. While the first fetch is still
      pending, wait and re-check rather than guessing. */
