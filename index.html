@@ -405,11 +405,8 @@ body[data-furnace="2"] .rung.now::after,body[data-furnace="3"] .rung.now::after{
 .step img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--green-dim);margin-bottom:6px}
 
 /* kalshi */
-.kalshi{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 14px 34px rgba(0,0,0,.5)}
-.kalshi-blur{filter:blur(6px);opacity:.5;padding:22px;pointer-events:none;user-select:none}
-.k-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;padding:11px 4px;border-bottom:1px dashed var(--line2)}
-.k-row b{color:var(--green)}
-.kalshi-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(10,10,12,.45);text-align:center;padding:20px}
+.kalshi{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 14px 34px rgba(0,0,0,.5);background:var(--panel)}
+.kalshi-lock{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(10,10,12,.45);text-align:center;padding:38px 20px}
 .kalshi-lock .lk{font-size:34px}
 .kalshi-lock h3{font-size:19px;letter-spacing:.14em}
 .kalshi-lock p{color:var(--dim);font-size:13.5px;max-width:440px;margin:0;line-height:1.55}
@@ -864,13 +861,6 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
   <div class="sub-panel" id="sub-sys-markets" hidden>
   <div class="sec-title"><h2>PREDICTION <em>MARKETS</em></h2><span class="sub">NEXT FRONTIER</span></div>
   <section class="kalshi">
-    <div class="kalshi-blur">
-      <div class="k-row"><span>KALSHI · Marseille to win vs Toulouse</span><b>YES 61¢</b></div>
-      <div class="k-row"><span>KALSHI · Over 2.5 goals — Athletic vs Sociedad</span><b>YES 48¢</b></div>
-      <div class="k-row"><span>KALSHI · Cross-reference spread vs book price</span><b>+3.2% EDGE</b></div>
-      <div class="k-row"><span>KALSHI · Signal validation feed</span><b>STANDBY</b></div>
-      <div class="k-row"><span>KALSHI · Best-price routing</span><b>STANDBY</b></div>
-    </div>
     <div class="kalshi-lock">
       <div class="lk">🔒</div>
       <h3>KALSHI — LOCKED</h3>
