@@ -199,6 +199,7 @@ main{max-width:1280px;margin:0 auto;padding:0 20px 70px;position:relative;z-inde
 .sealed-row.unsealing .redact{animation:unseal .9s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes unseal{to{transform:scaleX(.06);opacity:.25}}
 .mkt-tag{font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--teal);border:1px solid rgba(42,255,213,.35);background:rgba(42,255,213,.06);border-radius:7px;padding:5px 9px;flex:none}
+.kickoff-tag{font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--gold);border:1px solid rgba(255,201,77,.4);background:rgba(255,201,77,.06);border-radius:7px;padding:5px 9px;flex:none}
 .pipe{display:flex;align-items:center;gap:0;flex:none}
 .pipe .st{display:flex;flex-direction:column;align-items:center;gap:4px;width:52px}
 .pipe .st i{width:9px;height:9px;border-radius:50%;background:#26262e;border:1px solid #3a3a46;display:block}
@@ -1192,6 +1193,7 @@ function renderSealed(picks){
       +'<span class="sid">'+esc(pk.id)+'</span>'
       +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
       +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
+      +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
       + pipe + note + '</div>';
   }).join('');
 }
