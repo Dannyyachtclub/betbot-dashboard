@@ -554,6 +554,29 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
 @media(max-width:640px){.gh-side{text-align:left}.gh-scorebox{order:3}}
 
 </style>
+
+<style>
+/* ===== v2 queue stage board + system status (2026-11-14) ===== */
+.qsum{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+.qchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--dim);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:3px 10px}
+.qchip b{color:var(--gold);font-weight:700}
+.qchip.live{color:#0b0f0c;background:var(--green);border-color:transparent}
+.qchip.live b{color:#0b0f0c}
+.stage-pill{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;border-radius:7px;padding:3px 9px;border:1px solid rgba(255,255,255,.18);color:var(--dim);flex:none}
+.stage-pill.hot{color:#0b0f0c;background:var(--green);border-color:transparent}
+.stage-pill.warm{color:#0b0f0c;background:var(--gold);border-color:transparent}
+.stage-pill.bad{color:#ffb27a;border-color:rgba(255,154,61,.5)}
+.stage-pill.done{color:var(--gold);border-color:rgba(255,201,77,.45)}
+.stage-meta{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.06em;flex:none}
+.sys-strip{display:flex;gap:8px;flex-wrap:wrap}
+.sys-chip{font-family:var(--mono);font-size:11px;letter-spacing:.07em;color:var(--dim);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px 11px}
+.sys-chip b{color:#fff;font-weight:700}
+.sys-chip.ok b{color:var(--green)}
+.sys-chip.bad b{color:#ff9a3d}
+.receipt-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 12px;margin-top:8px}
+.receipt-row .sid{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.receipt-row .rmeta{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.05em}
+</style>
 </head>
 <body data-furnace="0">
 <div id="boot" aria-hidden="true">
@@ -594,7 +617,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
       <p class="lede">Alpha GOAL finds the edge. The Dragon Desk executes it — an autonomous pipeline that perceives, decides, and places with machine discipline. <b>No emotion. No chasing. Just the system.</b></p>
       <div class="stat-row">
         <div class="stat hero-stat"><div class="k">All-Time Profit · Never Resets</div><div class="v" id="statProfit">+$0.00</div><svg class="spark" id="sparkProfit" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Bet365 Balance · Live</div><div class="v" id="statBankroll">$0.00</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Withdrawn · For Costs</div><div class="v" id="statWithdrawn" style="color:var(--gold);text-shadow:0 0 18px rgba(255,201,77,.25)">$0.00</div><svg class="spark" id="sparkWithdrawn" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">P&amp;L Today</div><div class="v pos" id="statToday">+$0.00</div><svg class="spark" id="sparkToday" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">—</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
@@ -644,7 +667,26 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
       <span class="count" id="sealedCount">0 SIGNALS INBOUND</span>
     </div>
     <p class="sealed-sub">Picks sealed until settlement. The edge stays ours. Watch the pipeline light up — identities stay classified.</p>
+    <div class="qsum" id="queueSummary" style="display:none"></div>
     <div class="sealed-list" id="sealedList"></div>
+  </section>
+
+  <section class="panel" id="sysPanel" style="display:none">
+    <div class="sealed-head">
+      <h2>SYSTEM <em>STATUS</em></h2>
+      <span class="count" id="sysMode">—</span>
+    </div>
+    <div class="sys-strip" id="sysStrip"></div>
+    <p class="sealed-sub" id="sysIncident" style="margin-top:10px"></p>
+  </section>
+
+  <section class="panel" id="tallyPanel" style="display:none">
+    <div class="sealed-head">
+      <h2>TODAY <em>SO FAR</em></h2>
+      <span class="count">PLACEMENT RECEIPTS BELOW</span>
+    </div>
+    <div class="sys-strip" id="tallyStrip"></div>
+    <div id="receiptList"></div>
   </section>
 
       <div class="now-col">
@@ -758,20 +800,6 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
     <button class="sub-btn" data-sub="bets-games">GAME HISTORY</button>
   </div>
   <div class="sub-panel" id="sub-bets-ledger">
-<style>
-#systemTests{max-width:1100px;margin:18px auto;padding:16px 20px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.03)}
-#systemTests h3{margin:0 0 10px;font-size:15px;letter-spacing:.04em}
-#systemTests .st-note{display:block;font-size:11px;opacity:.65;font-weight:400;margin-top:3px;letter-spacing:0}
-#systemTests .st-row{display:flex;gap:14px;align-items:baseline;padding:6px 0;border-top:1px solid rgba(255,255,255,.07);font-size:13px;flex-wrap:wrap}
-#systemTests .st-game{font-weight:600}
-#systemTests .st-meta{opacity:.8}
-#systemTests .st-res{font-weight:700;margin-left:auto}
-#systemTests .st-date{opacity:.55;font-size:12px}
-</style>
-<section id="systemTests" style="display:none">
-  <h3>&#129514; SYSTEM TESTS <span class="st-note">CAPABILITY TESTS ONLY &mdash; NOT STRATEGY BETS &middot; EXCLUDED FROM THE STRATEGY RECORD &amp; P&amp;L</span></h3>
-  <div class="st-rows"></div>
-</section>
 <div class="sec-title" style="margin-top:4px"><h2>TRACK <em>RECORD</em></h2><span class="sub">THE FULL SETTLED HISTORY &mdash; WINS, LOSSES, NOTHING HIDDEN</span></div>
   <div class="record-strip" id="recordStrip"></div>
   <div class="bet-controls">
@@ -1309,27 +1337,11 @@ function recomputeDerived(p){
 }
 
 /* ================= APPLY LIVE PAYLOAD ================= */
-function renderSystemTests(p){
-  var box=document.getElementById('systemTests'); if(!box) return;
-  var rows=(p && Array.isArray(p.system_tests)) ? p.system_tests : [];
-  if(!rows.length){ box.style.display='none'; return; }
-  box.style.display='';
-  var fmtS=function(v){ v=Number(v||0); return (v<0?'-$':'+$')+Math.abs(v).toFixed(2); };
-  var esc=function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); };
-  box.querySelector('.st-rows').innerHTML=rows.map(function(t){
-    var res=t.result||''; var cls=res==='WON'?'#39ff6a':(res==='LOST'?'#ff5d5d':'#ffc94d');
-    return '<div class="st-row"><span class="st-game">'+esc(t.game)+'</span>'
-      +'<span class="st-meta">$'+Number(t.stake||0).toFixed(2)+' @ '+Number(t.odds||0).toFixed(2)+'</span>'
-      +'<span class="st-res" style="color:'+cls+'">'+esc(res)+' '+fmtS(t.pnl)+'</span>'
-      +'<span class="st-date">'+esc(String(t.settled_at||'').slice(0,10))+'</span></div>';
-  }).join('');
-}
 function applyPayload(p){
   if(!p) return;
   IS_LIVE=true; FEED_MODE='live'; LIVE_APPLIED=true;
   /* normalize the live exporter's field names onto the dashboard's shape */
   if(p.bankroll===undefined && typeof p.bankroll_total==='number') p.bankroll=p.bankroll_total;
-  if(p.phone_balance && typeof p.phone_balance.balance==='number') p.bankroll=p.phone_balance.balance;
   if(!Array.isArray(p.sealed_picks)) p.sealed_picks=[];
   if(typeof p.withdrawn_total!=='number') p.withdrawn_total=0;
   if(typeof p.value_created!=='number') p.value_created=(typeof p.bankroll==='number'?p.bankroll:0)+p.withdrawn_total;
@@ -1358,7 +1370,6 @@ function applyPayload(p){
   p.win_streak=STREAK; p.loss_streak=LOSS_STREAK; p.current_rung=CUR_RUNG;
   PAYLOAD=p;
   LIVE_EVENT_COUNT=Array.isArray(p.events)? p.events.length : 0;
-  renderSystemTests(p);
   LIVE_UPTIME_BASE=(p.telemetry&&typeof p.telemetry.uptime_s==='number')? p.telemetry.uptime_s : null;
   LIVE_FETCHED_AT=Date.now();
   if(p.strategies&&p.strategies.length&&typeof STRATS!=='undefined'&&window.renderStratCards){
@@ -1381,6 +1392,7 @@ function applyPayload(p){
   }
   renderHero(true);
   renderSealed(PAYLOAD.sealed_picks);
+  if(window.renderQueueUpgrade) renderQueueUpgrade(p);
   renderLiveFeed(p);
   if(window.renderBetHistory) renderBetHistory();
   if(window.renderGameHistory) renderGameHistory();
@@ -2536,6 +2548,127 @@ setTimeout(function(){
   setTimeout(function(){ bootSettle(0); },3400);
   pollData();
 })();
+</script>
+
+<script>
+/* ================= v2 QUEUE STAGE BOARD + SYSTEM STATUS =================
+   Renders ONLY what the exporter sends. Missing blocks stay hidden —
+   never demo data, never invented numbers. */
+var STAGE_LABEL={queued:'QUEUED',scheduled:'SCHEDULED',pre_arrival:'PRE-ARRIVAL',window_open:'WINDOW OPEN',arrived:'ARRIVED',camping:'CAMPING',decision:'DECISION',placing:'PLACING',placed:'PLACED',settled:'SETTLED',skipped:'SKIPPED',aborted:'ABORTED',expired:'EXPIRED'};
+var MODE_LABEL={idle:'IDLE',in_window:'IN WINDOW',camping:'CAMPING',placing:'PLACING'};
+var SVC_LABEL={betbot:'BOT',droidline:'PHONE BRIDGE',janitor_watcher:'WATCHER',janitor_ctl:'JANITOR',responder:'RESPONDER'};
+var PHASE_LABEL={place_tap:'died at the final tap',stake_entry:'died entering the stake',locate:'died finding the market'};
+function stageCls(st){ if(st==='camping'||st==='placing'||st==='decision') return 'hot'; if(st==='window_open'||st==='arrived'||st==='pre_arrival') return 'warm'; if(st==='skipped'||st==='aborted'||st==='expired') return 'bad'; if(st==='placed'||st==='settled') return 'done'; return ''; }
+function fmtDur(s){ if(s===null||s===undefined||isNaN(s)) return '\u2014'; s=Math.max(0,Math.floor(s)); if(s<60) return s+'s'; var m=Math.floor(s/60); if(m<60) return m+'m '+(s%60)+'s'; var h=Math.floor(m/60); return h+'h '+(m%60)+'m'; }
+function fmtClock(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
+function renderQueueUpgrade(p){
+  if(!p) return;
+  var q=Array.isArray(p.sealed_queue)?p.sealed_queue:null;
+  if(q){
+    var sum=p.queue_summary||{};
+    var qs=document.getElementById('queueSummary');
+    if(qs){
+      var order=['queued','scheduled','pre_arrival','window_open','arrived','camping','decision','placing','placed','settled','skipped','aborted','expired'];
+      var chips=order.filter(function(k){ return (sum[k]||0)>0; }).map(function(k){
+        var live=(k==='camping'||k==='placing'||k==='decision');
+        return '<span class="qchip'+(live?' live':'')+'">'+STAGE_LABEL[k]+' <b>'+sum[k]+'</b></span>';
+      }).join('');
+      qs.innerHTML=chips||'<span class="qchip">QUEUE EMPTY</span>';
+      qs.style.display='flex';
+    }
+    var cnt=document.getElementById('sealedCount');
+    if(cnt) cnt.textContent=q.length+' IN QUEUE \u00b7 '+(sum.active||0)+' ACTIVE';
+    var list=document.getElementById('sealedList');
+    if(list){
+      if(!q.length){
+        list.innerHTML='<div class="feed-empty">Queue empty \u2014 no signals waiting.<span>New picks appear here, sealed, the moment a signal lands.</span></div>';
+      } else {
+        list.innerHTML=q.map(function(pk){
+          var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
+            : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
+          var age = (pk.stage_age_s===null||pk.stage_age_s===undefined) ? null : pk.stage_age_s;
+          var meta = '<span class="stage-meta" data-age="'+(age===null?'':age)+'">in stage '+fmtDur(age)+'</span>';
+          var polls = pk.camp_polls ? '<span class="stage-meta">POLLS '+pk.camp_polls+'</span>' : '';
+          var park = pk.park ? '<span class="stage-meta">'+(pk.park==='parked'?'PARKED \u2713':'PARK FAILED')+'</span>' : '';
+          return '<div class="sealed-row" data-sid="'+esc(pk.id)+'">'
+            +'<span class="sid">'+esc(pk.id)+'</span>'
+            +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
+            +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
+            +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
+            +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
+            + meta + polls + park + note + '</div>';
+        }).join('');
+      }
+    }
+  }
+  var ss=p.system_status;
+  if(ss){
+    var panel=document.getElementById('sysPanel');
+    if(panel){
+      panel.style.display='';
+      var mode=document.getElementById('sysMode');
+      if(mode) mode.textContent='MODE \u00b7 '+(MODE_LABEL[ss.bot_mode]||'\u2014');
+      var chips=[];
+      var linkTxt = ss.phone_link==='ok' ? 'OK' : (ss.phone_link==='down' ? 'DOWN' : '\u2014');
+      var linkCls = ss.phone_link==='ok' ? 'ok' : (ss.phone_link==='down' ? 'bad' : '');
+      chips.push('<span class="sys-chip '+linkCls+'">PHONE LINK <b>'+linkTxt+'</b>'+(ss.phone_last_read_age_s!==null&&ss.phone_last_read_age_s!==undefined?' \u00b7 read '+fmtDur(ss.phone_last_read_age_s)+' ago':'')+'</span>');
+      if(p.phone_balance && typeof p.phone_balance.balance==='number')
+        chips.push('<span class="sys-chip">APP BALANCE <b>$'+p.phone_balance.balance.toFixed(2)+'</b></span>');
+      if(ss.ladder_rung!==null&&ss.ladder_rung!==undefined)
+        chips.push('<span class="sys-chip">LADDER <b>RUNG '+ss.ladder_rung+'</b>'+(typeof ss.base_stake==='number'?' \u00b7 base $'+ss.base_stake.toFixed(2):'')+'</span>');
+      chips.push('<span class="sys-chip ok">HEALS TODAY <b>'+(ss.heals_today===null||ss.heals_today===undefined?'\u2014':ss.heals_today)+'</b></span>');
+      if(ss.services){
+        Object.keys(SVC_LABEL).forEach(function(k){
+          if(!(k in ss.services)) return;
+          var v=ss.services[k];
+          chips.push('<span class="sys-chip '+(v===true?'ok':(v===false?'bad':''))+'">'+SVC_LABEL[k]+' <b>'+(v===true?'UP':(v===false?'DOWN':'\u2014'))+'</b></span>');
+        });
+      }
+      document.getElementById('sysStrip').innerHTML=chips.join('');
+      var inc=document.getElementById('sysIncident');
+      if(inc){
+        if(ss.last_incident){
+          var li=ss.last_incident;
+          inc.textContent='LAST INCIDENT \u00b7 '+li.summary+(li.duration_s!==null&&li.duration_s!==undefined?' \u00b7 recovered in '+fmtDur(li.duration_s):'')+(li.recovered_at?' \u00b7 '+fmtClock(li.recovered_at):'');
+        } else inc.textContent='';
+      }
+    }
+  }
+  var tt=p.today_tally;
+  if(tt){
+    var tp=document.getElementById('tallyPanel');
+    if(tp){
+      tp.style.display='';
+      var tmap=[['received','SIGNALS IN'],['arrived','ARRIVED'],['camped','CAMPED'],['decisions','DECISIONS'],['placed','PLACED'],['skipped','SKIPPED'],['aborted','ABORTED']];
+      document.getElementById('tallyStrip').innerHTML=tmap.map(function(pr){
+        return '<span class="sys-chip">'+pr[1]+' <b>'+(tt[pr[0]]===null||tt[pr[0]]===undefined?'\u2014':tt[pr[0]])+'</b></span>';
+      }).join('');
+      var rc=Array.isArray(p.placement_receipts)?p.placement_receipts:[];
+      document.getElementById('receiptList').innerHTML=rc.map(function(r){
+        var oc = r.outcome==='placed' ? 'done' : (r.outcome==='aborted' ? 'bad' : '');
+        var bits=[];
+        if(r.decision_at) bits.push('decision '+fmtClock(r.decision_at));
+        if(r.decision_to_outcome_s!==null&&r.decision_to_outcome_s!==undefined) bits.push('decision \u2192 end '+fmtDur(r.decision_to_outcome_s));
+        if(r.phase&&PHASE_LABEL[r.phase]) bits.push(PHASE_LABEL[r.phase]);
+        if(r.reason) bits.push(r.reason);
+        return '<div class="receipt-row"><span class="sid">'+esc(r.id)+'</span>'
+          +'<span class="stage-pill '+oc+'">'+esc((r.outcome||'').toUpperCase())+'</span>'
+          +'<span class="rmeta">'+esc(bits.join(' \u00b7 '))+'</span></div>';
+      }).join('');
+    }
+  }
+}
+window.renderQueueUpgrade=renderQueueUpgrade;
+setInterval(function(){
+  document.querySelectorAll('[data-age]').forEach(function(el){
+    var base=parseInt(el.getAttribute('data-age'),10);
+    if(isNaN(base)) return;
+    var t0=parseInt(el.getAttribute('data-t0'),10);
+    var now=Date.now();
+    if(!t0){ el.setAttribute('data-t0',now); t0=now; }
+    el.textContent='in stage '+fmtDur(base+Math.floor((now-t0)/1000));
+  });
+},1000);
 </script>
 </body>
 </html>
