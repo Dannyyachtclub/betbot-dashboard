@@ -2621,8 +2621,8 @@ function renderQueueUpgrade(p){
       var linkTxt = ss.phone_link==='ok' ? 'OK' : (ss.phone_link==='down' ? 'DOWN' : '\u2014');
       var linkCls = ss.phone_link==='ok' ? 'ok' : (ss.phone_link==='down' ? 'bad' : '');
       chips.push('<span class="sys-chip '+linkCls+'">PHONE LINK <b>'+linkTxt+'</b>'+(ss.phone_last_read_age_s!==null&&ss.phone_last_read_age_s!==undefined?' \u00b7 read '+fmtDur(ss.phone_last_read_age_s)+' ago':'')+'</span>');
-      if(p.phone_balance && typeof p.phone_balance.balance==='number')
-        chips.push('<span class="sys-chip">APP BALANCE <b>$'+p.phone_balance.balance.toFixed(2)+'</b></span>');
+      if(p.balance_drift && typeof p.balance_drift.amount==='number' && p.balance_drift.amount!==0)
+        chips.push('<span class="sys-chip">IN APP, NOT YET BOOKED <b>'+(p.balance_drift.amount>0?'+':'-')+'$'+Math.abs(p.balance_drift.amount).toFixed(2)+'</b></span>');
       if(ss.ladder_rung!==null&&ss.ladder_rung!==undefined)
         chips.push('<span class="sys-chip">LADDER <b>RUNG '+ss.ladder_rung+'</b>'+(typeof ss.base_stake==='number'?' \u00b7 base $'+ss.base_stake.toFixed(2):'')+'</span>');
       chips.push('<span class="sys-chip ok">HEALS TODAY <b>'+(ss.heals_today===null||ss.heals_today===undefined?'\u2014':ss.heals_today)+'</b></span>');
