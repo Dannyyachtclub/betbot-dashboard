@@ -1421,7 +1421,7 @@ function pollData(){
     })
     .catch(function(){ if(!LIVE_APPLIED) enableDemoMode(); /* else: keep last good live snapshot */ });
 }
-setInterval(pollData,60000);
+setInterval(pollData,15000);
 
 /* ================= TICKER ================= */
 function renderTicker(){
