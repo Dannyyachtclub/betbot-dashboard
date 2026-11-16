@@ -332,6 +332,8 @@ body[data-furnace="2"] .rung.now::after,body[data-furnace="3"] .rung.now::after{
 .badge.dev{background:rgba(255,201,77,.12);color:var(--gold);border:1px solid rgba(255,201,77,.35)}
 .badge.lock{background:rgba(255,255,255,.05);color:var(--faint);border:1px solid var(--line2)}
 .strat-card .sc-mkt{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:5px}
+.strat-card .sc-since{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:11px;letter-spacing:.05em}
+.strat-card .sc-since b{color:var(--green);font-weight:700}
 .strat-card .sc-rules{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
 .strat-card .sc-rule{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--bone);border:1px solid var(--line2);border-radius:99px;padding:4px 9px;background:rgba(255,255,255,.03)}
 .strat-card .sc-rule b{color:var(--faint);font-weight:700;margin-right:5px}
@@ -1561,6 +1563,8 @@ function applyPayload(p){
       if(typeof ps.wins==='number') s.wins=ps.wins;
       if(typeof ps.losses==='number') s.losses=ps.losses;
       if(typeof ps.voids==='number') s.voids=ps.voids;
+      if(ps.start_date) s.start_date=ps.start_date;
+      if(typeof ps.days_running==='number') s.days_running=ps.days_running;
       if(typeof ps.ladder_rung==='number') s.rung=ps.ladder_rung;
       if(Array.isArray(ps.equity)) s.spark=ps.equity.length>=2? ps.equity.slice() : null; /* empty equity = no curve — never keep the demo sparkline */
     });
@@ -2124,6 +2128,7 @@ function renderStratCards(){
       +'<div><div class="k">WIN RATE</div><div class="v">'+(s.wr===null?'—':s.wr.toFixed(1)+'%')+'</div></div>'
       +'<div><div class="k">RUNG</div><div class="v">'+(s.rung===null?'—':s.rung+' / 6')+'</div></div>'
       +'<div><div class="k">RECORD</div><div class="v">'+(typeof s.wins==='number'?(s.wins||0)+'W · '+(s.losses||0)+'L · '+(s.voids||0)+'P':'—')+'</div></div></div>'
+      +(s.start_date?'<div class="sc-since">RUNNING SINCE <b>'+esc(fmtStartDate(s.start_date))+'</b>'+(typeof s.days_running==='number'?' · DAY <b>'+s.days_running+'</b>':'')+'</div>':'')
       +sparkSVG(s.spark,s.tint)
       +(s.note?'<p style="font-size:12px;color:var(--dim);margin:10px 0 0;line-height:1.55">'+s.note+'</p>':'')
       +'</div>';
@@ -2742,6 +2747,7 @@ var MODE_LABEL={idle:'IDLE',in_window:'IN WINDOW',camping:'CAMPING',placing:'PLA
 var SVC_LABEL={betbot:'BOT',droidline:'PHONE BRIDGE',janitor_watcher:'WATCHER',janitor_ctl:'JANITOR',responder:'RESPONDER'};
 var PHASE_LABEL={place_tap:'died at the final tap',stake_entry:'died entering the stake',locate:'died finding the market'};
 function stageCls(st){ if(st==='camping'||st==='placing'||st==='decision') return 'hot'; if(st==='window_open'||st==='arrived'||st==='pre_arrival') return 'warm'; if(st==='skipped'||st==='aborted'||st==='expired') return 'bad'; if(st==='placed'||st==='settled') return 'done'; return ''; }
+function fmtStartDate(iso){ try{ return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase(); }catch(e){ return iso; } }
 function fmtDur(s){ if(s===null||s===undefined||isNaN(s)) return '\u2014'; s=Math.max(0,Math.floor(s)); if(s<60) return s+'s'; var m=Math.floor(s/60); if(m<60) return m+'m '+(s%60)+'s'; var h=Math.floor(m/60); return h+'h '+(m%60)+'m'; }
 function fmtClock(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
 var PIPE_STAGES=['signal','scheduled','window','placed','settled'];
