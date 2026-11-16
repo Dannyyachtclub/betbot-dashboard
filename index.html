@@ -1492,7 +1492,7 @@ function normalizeLiveBet(raw){
   var pnl=typeof raw.pnl==='number'? raw.pnl : (res==='W'? +(stake*(odds-1)).toFixed(2) : (res==='L'? -stake : 0));
   var d=raw.d||raw.date||(raw.settled_at?String(raw.settled_at).slice(0,10):'')||(raw.t?String(raw.t).slice(0,10):'');
   return {d:d, home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
-    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', strat:raw.strat||raw.strategy||'2h'};
+    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h'};
 }
 function recomputeDerived(p){
   WINS=BETS.filter(function(b){return b.res==='W'}).length;
@@ -1923,7 +1923,7 @@ function betCardHTML(b){
     +'<p style="font-size:11px;color:var(--faint);margin:10px 0 0;font-family:var(--mono)">Result recorded from the settled slip. Final scoreline is not captured by the pipeline.</p></div>';
   return '<article class="bet-card '+cls+'"><button class="bet-main" aria-expanded="false">'
     +'<span class="res '+cls+'">'+lbl+'</span>'
-    +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+'</span></span>'
+    +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(b.line||mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+'</span></span>'
     +'<span class="pnl '+(b.pnl>=0?'pos':'neg')+'">'+fmtS(b.pnl||0)+'</span><span class="chev">▾</span></button>'
     +'<div class="bet-detail"><div class="bet-detail-inner">'+detail+'</div></div></article>';
 }
