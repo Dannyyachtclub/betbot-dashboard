@@ -207,12 +207,21 @@ main{max-width:1280px;margin:0 auto;padding:0 20px 70px;position:relative;z-inde
 .pipe .st.done i{background:var(--green-dim);border-color:var(--green-dim)}
 .pipe .st.now i{background:var(--green);border-color:var(--green);box-shadow:0 0 10px var(--green);animation:dotPulse 4s ease-in-out infinite}
 .pipe .st.now span{color:var(--green)}
-.pipe .ln{width:14px;height:1px;background:#33333f;margin-bottom:16px}
-.pipe .ln.done{background:var(--green-dim)}
+.pipe .ln{width:20px;height:3px;border-radius:2px;background:#26262e;margin-bottom:16px;flex:none}
+.pipe .ln.done{background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 6px rgba(57,255,106,.35)}
+.pipe .ln.flow{position:relative;overflow:hidden;background:#1c2126;box-shadow:inset 0 0 0 1px rgba(57,255,106,.14)}
+.pipe .ln.flow::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(57,255,106,.95) 0 5px,transparent 5px 11px);animation:pipeFlow 1.1s linear infinite}
+@keyframes pipeFlow{from{background-position:0 0}to{background-position:11px 0}}
+.pipe .ln.dead{background:rgba(255,154,61,.16);box-shadow:none}
+.pipe .st.dead i{background:#241f1c;border-color:rgba(255,154,61,.35)}
+.pipe .st.dead span{color:rgba(255,178,122,.5)}
+@media (prefers-reduced-motion: reduce){
+  .pipe .ln.flow::after{animation:none;background:linear-gradient(90deg,var(--green-dim),var(--green))}
+}
 .sealed-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;flex:none}
 .sealed-note.skip{color:#ffb27a;border:1px dashed rgba(255,154,61,.5);border-radius:7px;padding:5px 9px}
 .sealed-note.done{color:var(--gold)}
-@media(max-width:760px){.pipe .st{width:42px}.pipe .ln{width:8px}}
+@media(max-width:760px){.pipe .st{width:42px}.pipe .ln{width:12px}}
 
 /* ---------- vortex ---------- */
 .vortex-wrap{margin-top:16px;padding:0;overflow:hidden}
@@ -684,10 +693,10 @@ main{max-width:1340px;padding:0 24px 96px}
   .vortex-head{padding:16px 18px 4px}
   /* sealed pick stages wrap instead of squeezing */
   .sealed-row{gap:12px;padding:15px}
-  .pipe{flex:1 1 100%;flex-wrap:wrap;gap:10px 2px}
-  .pipe .st{width:auto;min-width:58px;flex:1 1 28%}
-  .pipe .ln{display:none}
-  .pipe .st .lb{font-size:12px}
+  .pipe{flex:1 1 100%;flex-wrap:nowrap;gap:0}
+  .pipe .st{width:auto;min-width:0;flex:0 1 auto}
+  .pipe .st span{white-space:nowrap}
+  .pipe .ln{display:block;flex:1 1 18px;width:auto;min-width:10px}
   /* heatmap: scrollable strip with a floor on cell size */
   .panel:has(>#heatmap){overflow-x:auto;-webkit-overflow-scrolling:touch}
   #heatmap{min-width:620px}
@@ -2753,20 +2762,31 @@ function fmtClock(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTi
 var PIPE_STAGES=['signal','scheduled','window','placed','settled'];
 var PIPE_INDEX={queued:0,scheduled:1,pre_arrival:1,window_open:2,arrived:2,camping:2,decision:2,placing:3,placed:3,settled:4};
 function pipeHTML(stage){
-  if(stage==='skipped'){
-    return '<div class="pipe">'
-      +'<div class="st done"><i></i><span>signal</span></div><div class="ln done"></div>'
-      +'<div class="st done"><i></i><span>scheduled</span></div><div class="ln"></div>'
-      +'<div class="st"><i></i><span>window</span></div><div class="ln"></div>'
-      +'<div class="st"><i></i><span>placed</span></div><div class="ln"></div>'
-      +'<div class="st"><i></i><span>settled</span></div></div>';
+  /* Stage track: segments before the current stage are lit solid; the
+     segment to the NEXT stage carries marching dashes (pipeFlow) in the
+     direction of progress. Terminal-bad picks (skipped/aborted/expired)
+     stop at the stage where they ended -- the board convention is index 1
+     (SCHEDULED), the same stop the old skipped render used -- and the
+     remainder renders in the muted orange 'bad' treatment, no animation.
+     Settled renders fully lit end to end. Driven entirely by pk.stage. */
+  if(stage==='skipped'||stage==='aborted'||stage==='expired'){
+    var stop=1, bp='';
+    PIPE_STAGES.forEach(function(st,i){
+      bp+='<div class="st '+(i<=stop?'done':'dead')+'"><i></i><span>'+st+'</span></div>';
+      if(i<PIPE_STAGES.length-1) bp+='<div class="ln '+(i<stop?'done':'dead')+'"></div>';
+    });
+    return '<div class="pipe dead">'+bp+'</div>';
   }
   var cur=(stage in PIPE_INDEX)?PIPE_INDEX[stage]:1;
+  var settled=(stage==='settled');
   var pipe='';
   PIPE_STAGES.forEach(function(st,i){
-    var cls=i<cur?'done':(i===cur?'now':'');
+    var cls=settled?'done':(i<cur?'done':(i===cur?'now':''));
     pipe+='<div class="st '+cls+'"><i></i><span>'+st+'</span></div>';
-    if(i<PIPE_STAGES.length-1) pipe+='<div class="ln '+(i<cur?'done':'')+'"></div>';
+    if(i<PIPE_STAGES.length-1){
+      var lc=(settled||i<cur)?'done':((i===cur)?'flow':'');
+      pipe+='<div class="ln '+lc+'"></div>';
+    }
   });
   return '<div class="pipe">'+pipe+'</div>';
 }
