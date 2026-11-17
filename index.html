@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r4-20261117" />
+<meta name="dd-build" content="r5-20261117" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r4-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r5-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -893,6 +893,20 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
  .pic-band img,.swarm-art img,figure.rail,figure.rail img,.film-track,.pic-band::before,figure.rail::before{animation:none !important}
 }
 </style>
+<style>
+/* ===== round 5: life inside the banners ===== */
+.pic-band video.band-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;opacity:0;transition:opacity .9s ease}
+figure.rail video.band-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0;opacity:0;transition:opacity .9s ease}
+video.band-vid.on{opacity:1}
+.fxo{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0}
+.fx-candles{background:radial-gradient(46% 62% at 68% 30%,rgba(57,255,106,.20),transparent 70%),radial-gradient(30% 44% at 84% 62%,rgba(255,201,77,.15),transparent 70%);animation:r5pulse 4.6s ease-in-out infinite alternate}
+.fx-ember{background:radial-gradient(58% 46% at 50% 108%,rgba(255,122,26,.30),transparent 70%),radial-gradient(30% 30% at 22% 88%,rgba(255,180,60,.17),transparent 70%);animation:r5flicker 3.1s linear infinite}
+.fx-vault{background:radial-gradient(52% 66% at 50% 44%,rgba(255,201,77,.17),transparent 72%);animation:r5pulse 6.5s ease-in-out infinite alternate}
+.fx-live{background:radial-gradient(36% 42% at 50% 0%,rgba(57,255,106,.19),transparent 70%);animation:r5pulse 3.8s ease-in-out infinite alternate}
+@keyframes r5pulse{from{opacity:.25;transform:scale(1)}to{opacity:.9;transform:scale(1.045)}}
+@keyframes r5flicker{0%,100%{opacity:.55}18%{opacity:.85}36%{opacity:.4}54%{opacity:.95}72%{opacity:.5}86%{opacity:.8}}
+@media (prefers-reduced-motion: reduce){.fxo{animation:none!important;opacity:0!important}video.band-vid{display:none!important}}
+</style>
 </head>
 <body data-furnace="0">
 <div id="boot" aria-hidden="true">
@@ -983,7 +997,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
       </div>
     </div>
   </section>
-<figure class="pic-band"><img src="banner_dragon.jpg" alt="Emerald dragon coiled around a floodlit soccer stadium, roulette wheel, playing cards and gold coins in the foreground"/><figcaption>DRAGON DESK &middot; HOME TURF</figcaption></figure>
+<figure class="pic-band"><img src="banner_dragon.jpg" alt="Emerald dragon coiled around a floodlit soccer stadium, roulette wheel, playing cards and gold coins in the foreground"/><i class="fxo fx-ember" aria-hidden="true"></i><figcaption>DRAGON DESK &middot; HOME TURF</figcaption></figure>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <section class="panel agg-panel">
     <div class="panel-head"><h2>AGGREGATE <em>LEDGER</em></h2><span class="sub">EVERY SETTLED BET · ALL-TIME</span></div>
@@ -996,7 +1010,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
       <div class="agg-cell"><div class="k">ROI</div><div class="v" id="aggRoi">—</div></div>
     </div>
   </section>
-<figure class="pic-band"><img src="banner_roller.jpg" alt="Roulette wheel on green felt with stacks of gold and emerald chips, a soccer ball and a glowing candlestick chart hologram" loading="lazy"/><figcaption>HIGH ROLLER &middot; THE BANKROLL TABLE</figcaption></figure>
+<figure class="pic-band"><img src="banner_roller.jpg" alt="Roulette wheel on green felt with stacks of gold and emerald chips, a soccer ball and a glowing candlestick chart hologram" loading="lazy"/><video class="band-vid" muted loop playsinline preload="none" poster="banner_roller.jpg" data-src="banner_roller.mp4" aria-hidden="true"></video><figcaption>HIGH ROLLER &middot; THE BANKROLL TABLE</figcaption></figure>
 <section class="panel brain-panel">
     <div class="panel-head"><h2>NEURAL <em>CORE</em></h2><span class="sub">DIGITAL BRAIN · LIVE MESH</span></div>
     <canvas id="brainNet" aria-hidden="true"></canvas>
@@ -1033,7 +1047,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
     <canvas id="swarmCv" aria-hidden="true"></canvas>
     <div class="swarm-cap"><span>SWARM STATE · <b id="swarmState">—</b></span><span>Every node is a worker agent — scouting, verifying, executing, signalling across the swarm. It quickens when the system is working a window.</span></div>
   </section>
-<figure class="pic-band"><img src="banner_live.jpg" alt="Phone showing a live soccer match with streams of live data flowing out under stadium lights" loading="lazy"/><figcaption>LIVE GATE &middot; EYES ON THE PITCH</figcaption></figure>
+<figure class="pic-band"><img src="banner_live.jpg" alt="Phone showing a live soccer match with streams of live data flowing out under stadium lights" loading="lazy"/><i class="fxo fx-live" aria-hidden="true"></i><figcaption>LIVE GATE &middot; EYES ON THE PITCH</figcaption></figure>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div class="grid-main now-grid">
 <!-- SEALED PICKS BOARD -->
@@ -1082,7 +1096,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
 </section>
 <section class="deck-panel" id="deck-performance" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
-<figure class="pic-band"><img src="banner_casino.jpg" alt="Candlestick chart skyline rising over a casino trading floor with a roulette wheel, coin stacks and a soccer ball" loading="lazy"/><figcaption>PERFORMANCE &middot; THE LONG GAME</figcaption></figure>
+<figure class="pic-band"><img src="banner_casino.jpg" alt="Candlestick chart skyline rising over a casino trading floor with a roulette wheel, coin stacks and a soccer ball" loading="lazy"/><i class="fxo fx-candles" aria-hidden="true"></i><figcaption>PERFORMANCE &middot; THE LONG GAME</figcaption></figure>
 <div class="rail-row rail-right"><div class="rail-main"><div style="display:flex;flex-direction:column;gap:16px">
       <section class="panel eq-wrap">
         <div class="panel-head"><h2>EQUITY <em>WAVEFORM</em></h2><span class="sub" id="eqSub">BANKROLL OVER TIME</span></div>
@@ -1096,7 +1110,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
         <div class="heat" id="heatmap" style="position:relative;z-index:2"></div>
         <div class="heat-legend"><span>LOSS</span><i style="background:rgba(255,59,92,.75)"></i><i style="background:#1b1b22"></i><i style="background:rgba(57,255,106,.3)"></i><i style="background:rgba(57,255,106,.65)"></i><i style="background:var(--green)"></i><span>PROFIT</span></div>
       </section>
-    </div></div><figure class="rail"><img src="banner_shark.jpg" alt="Great white shark rising through dark water along a glowing green candlestick trend" loading="lazy"/><figcaption>APEX &middot; PATIENT CAPITAL</figcaption></figure></div>
+    </div></div><figure class="rail"><img src="banner_shark.jpg" alt="Great white shark rising through dark water along a glowing green candlestick trend" loading="lazy"/><video class="band-vid" muted loop playsinline preload="none" poster="banner_shark.jpg" data-src="banner_shark.mp4" aria-hidden="true"></video><figcaption>APEX &middot; PATIENT CAPITAL</figcaption></figure></div>
 <div class="grid2">
     <section class="panel">
       <div class="panel-head"><h2>RISK <em>PANEL</em></h2><span class="sub">THE SCARS, SHOWN</span></div>
@@ -1113,7 +1127,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
 </section>
 <section class="deck-panel" id="deck-history" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
-<figure class="pic-band"><img src="banner_vault.jpg" alt="Open gold vault door with a mountain of gold coins, gold bars and cash under a glowing green candlestick chart" loading="lazy"/><figcaption>THE VAULT &middot; EVERY BET ON RECORD</figcaption></figure>
+<figure class="pic-band"><img src="banner_vault.jpg" alt="Open gold vault door with a mountain of gold coins, gold bars and cash under a glowing green candlestick chart" loading="lazy"/><i class="fxo fx-vault" aria-hidden="true"></i><figcaption>THE VAULT &middot; EVERY BET ON RECORD</figcaption></figure>
 <div class="sec-title" style="margin-top:4px"><h2>TRACK <em>RECORD</em></h2><span class="sub">THE FULL SETTLED HISTORY &mdash; WINS, LOSSES, NOTHING HIDDEN</span></div>
   <div class="record-strip" id="recordStrip"></div>
   <div class="bet-controls">
@@ -1146,7 +1160,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
 </section>
 <section class="deck-panel" id="deck-system" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
-<figure class="pic-band"><img src="banner_storm.jpg" alt="Green storm radar sweeping over a dark network map with lightning" loading="lazy"/><figcaption>STORM WATCH &middot; SYSTEM RADAR</figcaption></figure>
+<figure class="pic-band"><img src="banner_storm.jpg" alt="Green storm radar sweeping over a dark network map with lightning" loading="lazy"/><video class="band-vid" muted loop playsinline preload="none" poster="banner_storm.jpg" data-src="banner_storm.mp4" aria-hidden="true"></video><figcaption>STORM WATCH &middot; SYSTEM RADAR</figcaption></figure>
 <div class="sec-title"><h2>STRATEGY <em>PORTFOLIO</em></h2><span class="sub">EACH STRATEGY CARRIES ITS OWN BANKROLL SLICE · NEW SYSTEMS SLOT IN WITHOUT A REBUILD</span></div>
   <section class="panel">
     <div class="tabs" id="stratTabs"></div>
@@ -1191,7 +1205,7 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
     <div class="sys-strip" id="sysStrip"></div>
     <p class="sealed-sub" id="sysIncident" style="margin-top:10px"></p>
   </section>
-<div class="rail-row rail-left"><figure class="rail"><img src="banner_phoenix.jpg" alt="Phoenix with circuit-board feathers and emerald-gold flames rising on a black background" loading="lazy"/><figcaption>PHOENIX WATCH &middot; SELF-HEALING CORE</figcaption></figure><div class="rail-main"><div class="panel tele glass">
+<div class="rail-row rail-left"><figure class="rail"><img src="banner_phoenix.jpg" alt="Phoenix with circuit-board feathers and emerald-gold flames rising on a black background" loading="lazy"/><video class="band-vid" muted loop playsinline preload="none" poster="banner_phoenix.jpg" data-src="banner_phoenix.mp4" aria-hidden="true"></video><figcaption>PHOENIX WATCH &middot; SELF-HEALING CORE</figcaption></figure><div class="rail-main"><div class="panel tele glass">
       <div class="panel-head"><h2>SYSTEM <em>TELEMETRY</em></h2><span class="sub">HETZNER · 8GB NODE</span></div>
       <div class="tele-grid">
         <div><div class="tk">Agent uptime</div><div class="tv" id="teleUptime">—</div></div>
@@ -3381,5 +3395,41 @@ setInterval(function(){
 
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+<script>
+/* Round 5 banner-video player: lazy, visibility-aware, motion-safe.
+   Videos have no src in markup; data-src is promoted only when the
+   figure nears the viewport. Under prefers-reduced-motion nothing is
+   ever loaded or played — the stills (and posters) are the page. */
+(function(){
+  var vids = document.querySelectorAll('video.band-vid');
+  if (!vids.length) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function ensure(v){ if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } }
+  function play(v){ if (reduced.matches) return; var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+  vids.forEach(function(v){
+    v.addEventListener('canplay', function(){ v.classList.add('on'); });
+    v.addEventListener('error', function(){ v.classList.remove('on'); }, true);
+  });
+  if (reduced.matches) return;
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if (en.isIntersecting) { ensure(en.target); play(en.target); }
+        else { en.target.pause(); }
+      });
+    }, { rootMargin: '240px 0px', threshold: 0.05 });
+    vids.forEach(function(v){ io.observe(v); });
+  } else {
+    vids.forEach(function(v){ ensure(v); play(v); });
+  }
+  document.addEventListener('visibilitychange', function(){
+    vids.forEach(function(v){
+      if (document.hidden) { v.pause(); return; }
+      var r = v.getBoundingClientRect();
+      if (r.bottom > -240 && r.top < window.innerHeight + 240) { ensure(v); play(v); }
+    });
+  });
+})();
+</script>
 </body>
 </html>
