@@ -762,6 +762,74 @@ main{max-width:1340px;padding:0 24px 96px}
 }
 
 </style>
+<style id="visual-overhaul">
+/* ================= VISUAL OVERHAUL 2026-11-16 =================
+   Hero language extended down the whole page: floating glass pill
+   nav, cinematic glass bands separated by moving ticker strips,
+   and the neural swarm orb. Presentation only — no data changes. */
+
+/* --- floating glass pill nav (replaces the chunky tab bar) --- */
+.deck-nav{top:58px;width:fit-content;max-width:100%;margin:18px auto 0;
+  flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+  gap:4px;padding:6px;border-radius:99px;
+  background:rgba(11,15,12,.58);
+  -webkit-backdrop-filter:blur(18px) saturate(1.35);backdrop-filter:blur(18px) saturate(1.35);
+  border:1px solid rgba(57,255,106,.22);
+  box-shadow:0 12px 34px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10),0 0 26px rgba(57,255,106,.07)}
+.deck-nav::-webkit-scrollbar{display:none}
+.deck-btn{flex:0 0 auto;white-space:nowrap;min-height:44px;padding:10px 18px;
+  border:1px solid transparent;border-radius:99px;font-size:12.5px;color:var(--dim)}
+.deck-btn:hover{color:var(--bone)}
+.deck-btn i{width:8px;height:8px;background:#3a4149;box-shadow:none}
+.deck-btn.active{color:#eafff0;border-color:rgba(57,255,106,.45);
+  background:linear-gradient(180deg,rgba(57,255,106,.24),rgba(57,255,106,.10));
+  box-shadow:0 0 18px rgba(57,255,106,.35),inset 0 1px 0 rgba(255,255,255,.14)}
+.deck-btn.active i{background:var(--green);box-shadow:0 0 10px var(--green)}
+
+/* --- sub-navs in the same glass pill language --- */
+.sub-nav{border-radius:99px;padding:6px;gap:4px;
+  background:rgba(11,15,12,.55);border-color:rgba(255,255,255,.12);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3)}
+.sub-btn{min-height:40px;padding:9px 15px;font-size:12px}
+.sub-btn.active{background:linear-gradient(180deg,rgba(57,255,106,.22),rgba(57,255,106,.10));
+  border-color:rgba(57,255,106,.45);color:#eafff0;box-shadow:0 0 14px rgba(57,255,106,.22)}
+
+/* --- sections as cinematic glass bands --- */
+.panel{border-radius:20px;
+  background:linear-gradient(165deg,rgba(28,33,29,.66),rgba(11,13,12,.88) 55%,rgba(8,10,10,.94)),
+             radial-gradient(120% 90% at 50% -20%,rgba(57,255,106,.06),transparent 60%);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 0 0 1px rgba(0,0,0,.30),0 22px 48px rgba(0,0,0,.52)}
+@keyframes deckIn{from{opacity:0;transform:translateY(16px) scale(.995)}to{opacity:1;transform:none}}
+
+/* --- moving band ticker strips between sections --- */
+.band-ticker{overflow:hidden;padding:8px 0;border-radius:99px;
+  border-top:1px solid rgba(57,255,106,.16);border-bottom:1px solid rgba(57,255,106,.16);
+  background:linear-gradient(90deg,rgba(57,255,106,.07),rgba(255,201,77,.045) 50%,rgba(57,255,106,.07))}
+.band-track{display:flex;gap:0;white-space:nowrap;width:max-content;
+  animation:bandSlide 32s linear infinite;will-change:transform}
+.band-track span{font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:.22em;color:rgba(206,255,219,.55);padding:0 16px}
+.band-track span.bd{color:rgba(255,201,77,.65);padding:0}
+@keyframes bandSlide{to{transform:translateX(-50%)}}
+
+/* --- the neural orb gets a bigger stage --- */
+.swarm-panel{background:radial-gradient(130% 170% at 50% -10%,rgba(57,255,106,.10),transparent 60%),
+             radial-gradient(90% 90% at 50% 115%,rgba(255,201,77,.05),transparent 60%),
+             linear-gradient(180deg,#0a0f0b,#050705)}
+#swarmCv{height:460px;border-radius:14px;
+  background:radial-gradient(100% 100% at 50% 50%,#070a08,#040504)}
+@media(max-width:760px){
+  #swarmCv{height:330px}
+  .deck-nav{top:54px}
+  .deck-btn{padding:10px 14px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .band-track{animation:none}
+  .deck-panel{animation:none}
+}
+</style>
 </head>
 <body data-furnace="0">
 <div id="boot" aria-hidden="true">
@@ -852,6 +920,7 @@ main{max-width:1340px;padding:0 24px 96px}
       </div>
     </div>
   </section>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <section class="panel agg-panel">
     <div class="panel-head"><h2>AGGREGATE <em>LEDGER</em></h2><span class="sub">EVERY SETTLED BET · ALL-TIME</span></div>
     <div class="agg-grid">
@@ -870,6 +939,7 @@ main{max-width:1340px;padding:0 24px 96px}
   </section>
 </section>
 <section class="deck-panel" id="deck-pipeline" hidden>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <section class="panel vortex-wrap">
     <div class="vortex-head">
       <h2>THE <em>VORTEX</em> — LIVE PIPELINE</h2>
@@ -885,16 +955,18 @@ main{max-width:1340px;padding:0 24px 96px}
     </div>
     <div class="legend" id="nodeLegend"></div>
   </section>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <section class="panel swarm-panel">
     <div class="panel-head"><h2>AGENT <em>SWARM</em></h2><svg class="circuit-decor" width="150" height="30" viewBox="0 0 150 30" fill="none" aria-hidden="true">
 <path d="M2 15h34l8-9h30l8 9h24l8-9h34" stroke="#39ff6a" stroke-width="1.4"/>
 <circle cx="2" cy="15" r="2.6" fill="#39ff6a"/><circle cx="74" cy="15" r="2.6" fill="#ffc94d"/>
 <circle cx="106" cy="15" r="2.6" fill="#39ff6a"/><circle cx="148" cy="15" r="2.6" fill="#39ff6a"/>
 <path d="M44 15v9h20M96 15v-8h18" stroke="#39ff6a" stroke-width="1.2" opacity=".7"/>
-</svg><span class="sub">PIXEL DIVISION · THOUSANDS OF WORKERS, ONE MACHINE</span></div>
+</svg><span class="sub">NEURAL DIVISION · HUNDREDS OF AGENTS, ONE BRAIN</span></div>
     <canvas id="swarmCv" aria-hidden="true"></canvas>
-    <div class="swarm-cap"><span>SWARM STATE · <b id="swarmState">—</b></span><span>Every pixel is a worker agent — scouting, verifying, executing. The swarm quickens when the system is working a window.</span></div>
+    <div class="swarm-cap"><span>SWARM STATE · <b id="swarmState">—</b></span><span>Every node is a worker agent — scouting, verifying, executing, signalling across the swarm. It quickens when the system is working a window.</span></div>
   </section>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div class="grid-main now-grid">
 <!-- SEALED PICKS BOARD -->
   <section class="panel sealed-wrap">
@@ -941,6 +1013,7 @@ main{max-width:1340px;padding:0 24px 96px}
   </div>
 </section>
 <section class="deck-panel" id="deck-performance" hidden>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div style="display:flex;flex-direction:column;gap:16px">
       <section class="panel eq-wrap">
         <div class="panel-head"><h2>EQUITY <em>WAVEFORM</em></h2><span class="sub" id="eqSub">BANKROLL OVER TIME</span></div>
@@ -970,6 +1043,7 @@ main{max-width:1340px;padding:0 24px 96px}
   <p style="font-size:12.5px;color:var(--dim);line-height:1.65;margin:14px 2px 0">Risk is shown, not hidden: drawdown, worst sequence and the fixed ladder sit together so the cost of a cold run — and the exact recovery path — is always one tap away.</p>
 </section>
 <section class="deck-panel" id="deck-history" hidden>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div class="sec-title" style="margin-top:4px"><h2>TRACK <em>RECORD</em></h2><span class="sub">THE FULL SETTLED HISTORY &mdash; WINS, LOSSES, NOTHING HIDDEN</span></div>
   <div class="record-strip" id="recordStrip"></div>
   <div class="bet-controls">
@@ -1001,6 +1075,7 @@ main{max-width:1340px;padding:0 24px 96px}
   <p class="bet-note">Settled games only. In-play and upcoming picks never appear here — they stay on the sealed board with identities hidden until settlement. Scores are exporter-supplied (<span class="mono">home_score / away_score</span>); a dash means the pipeline has not captured that score yet.</p>
 </section>
 <section class="deck-panel" id="deck-system" hidden>
+<div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div class="sec-title"><h2>STRATEGY <em>PORTFOLIO</em></h2><span class="sub">EACH STRATEGY CARRIES ITS OWN BANKROLL SLICE · NEW SYSTEMS SLOT IN WITHOUT A REBUILD</span></div>
   <section class="panel">
     <div class="tabs" id="stratTabs"></div>
@@ -3004,73 +3079,187 @@ setInterval(function(){
 
 </script>
 <script>
-
-/* ================= PIXEL AI SWARM (redesign) =================
-   Flow-field particle swarm. Behaviour is tied to the live payload:
-   system_status.bot_mode + queue_summary.active set the swarm's
-   energy (idle = slow ambient drift; working a window = fast,
-   converging). On fetch failure it stays ambient and the state
-   label keeps its honest dash. */
+/* ================= NEURAL SWARM ORB (visual overhaul) =================
+   A rotating neural orb: hundreds of agent nodes distributed on a
+   two-lobed sphere (brain-like), linked to their nearest neighbours,
+   with signal pulses constantly travelling the edges and hub flares
+   where a node broadcasts to its neighbours. Behaviour is tied to the
+   live payload exactly as the old pixel swarm was: bot_mode +
+   queue_summary.live set the state label and the energy — idle is a
+   slow, dim, sleeping brain; a genuinely live stage is faster,
+   brighter, with pulse storms. On fetch failure the label keeps its
+   honest dash. */
 (function(){
   var cv=document.getElementById('swarmCv'); if(!cv) return;
   var ctx=cv.getContext('2d');
   var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var URL='https://raw.githubusercontent.com/Dannyyachtclub/betbot-dashboard-data/main/dashboard.json';
-  var W=0,H=0,parts=[],energy=0.3,target=0.3,visible=true,t=0;
-  var MAXP=window.innerWidth<760?380:950;
-  function rs(){ var r=cv.getBoundingClientRect(); W=r.width; H=r.height;
-    var dpr=Math.min(2,window.devicePixelRatio||1);
-    cv.width=Math.max(1,W*dpr); cv.height=Math.max(1,H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.fillStyle='#070907'; ctx.fillRect(0,0,W,H); }
-  rs(); window.addEventListener('resize',rs);
-  function seed(n){ for(var i=0;i<n;i++) parts.push({x:Math.random()*W,y:Math.random()*H,
-    vx:0,vy:0,sz:Math.random()<0.12?2.1:1.2,gold:Math.random()<0.16}); }
-  seed(MAXP);
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(es){ visible=es[0].isIntersecting; }).observe(cv); }
+  var W=0,H=0,visible=true,energy=0.25,target=0.25,t=0,rotY=0.7,lastTs=0,bgGrad=null,flareIn=3;
+  var MAXN=window.innerWidth<760?560:1150;
+  var DPR=Math.min(1.75,window.devicePixelRatio||1);
+  var nodes=[],edges=[],pulses=[],hubs=[],adj=[],flares=[];
+
+  function build(){
+    nodes=[];edges=[];pulses=[];hubs=[];adj=[];flares=[];
+    var ga=Math.PI*(3-Math.sqrt(5)), i, j;
+    for(i=0;i<MAXN;i++){
+      var y=1-(i/(MAXN-1))*2;
+      var r=Math.sqrt(Math.max(0,1-y*y)), th=ga*i;
+      var x=Math.cos(th)*r, z=Math.sin(th)*r;
+      var fis=(x>=0?1:-1)*0.10*Math.exp(-Math.pow(x/0.30,2))*(1-Math.abs(y)*0.35);
+      nodes.push({x:x+fis, y:y*0.84, z:z*0.92, gold:Math.random()<0.14, hub:false, sx:0, sy:0, sc:1, sh:0});
+      adj.push([]);
+    }
+    var D2=15/MAXN;
+    for(i=0;i<MAXN;i++){
+      for(j=i+1;j<MAXN;j++){
+        var dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, dz=nodes[i].z-nodes[j].z;
+        if(dx*dx+dy*dy+dz*dz<D2){ var ei=edges.length; edges.push([i,j]); adj[i].push(ei); adj[j].push(ei); }
+      }
+    }
+    for(i=0;i<MAXN;i++){ if(adj[i].length>=5){ nodes[i].hub=true; hubs.push(i); } }
+  }
+
+  function rs(){
+    var r=cv.getBoundingClientRect(); W=r.width; H=r.height;
+    cv.width=Math.max(1,Math.round(W*DPR)); cv.height=Math.max(1,Math.round(H*DPR));
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    bgGrad=ctx.createLinearGradient(0,0,0,H);
+    bgGrad.addColorStop(0,'#060a08'); bgGrad.addColorStop(0.55,'#050705'); bgGrad.addColorStop(1,'#04060a');
+  }
+
   function poll(){
     fetch(URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){ return r.json(); })
     .then(function(d){
       if(!d||d.demo) return;
       var mode=(d.system_status&&d.system_status.bot_mode)||'';
       var live=(d.queue_summary&&typeof d.queue_summary.live==='number')?d.queue_summary.live:null;
-      if(live===null){ var sq=Array.isArray(d.sealed_queue)?d.sealed_queue:[]; live=0; for(var qi=0;qi<sq.length;qi++){ var stg=sq[qi].stage; if(stg==='window_open'||stg==='arrived'||stg==='camping'||stg==='decision'||stg==='placing') live++; } }
-      target=live>0?1:0.3;
+      if(live===null){ var sq=Array.isArray(d.sealed_queue)?d.sealed_queue:[]; live=0;
+        for(var qi=0;qi<sq.length;qi++){ var stg=sq[qi].stage;
+          if(stg==='window_open'||stg==='arrived'||stg==='camping'||stg==='decision'||stg==='placing') live++; } }
+      target=live>0?1:0.25;
       var st=document.getElementById('swarmState');
       if(st) st.textContent=(mode?mode.toUpperCase():'—')+(live>0?' · '+live+' LIVE':' · STANDBY');
     }).catch(function(){});
   }
-  poll(); setInterval(poll,60000);
-  function frame(){
-    requestAnimationFrame(frame);
-    if(!visible||cv.getBoundingClientRect().width===0) return;
-    t+=0.0035*(0.4+energy);
-    energy+=(target-energy)*0.012;
-    ctx.fillStyle='rgba(7,9,7,0.14)'; ctx.fillRect(0,0,W,H);
-    var cx=W/2, cy=H/2;
-    for(var i=0;i<parts.length;i++){ var p=parts[i];
-      var ang=(Math.cos(p.x*0.0042+t*1.7)+Math.sin(p.y*0.0051-t*1.3))*Math.PI*(0.55+energy*0.5);
-      var swirl=energy*0.55;
-      var dx=cx-p.x, dy=cy-p.y, dl=Math.sqrt(dx*dx+dy*dy)||1;
-      p.vx+=Math.cos(ang)*0.055 + (dx/dl)*swirl*0.045 + (-dy/dl)*swirl*0.06;
-      p.vy+=Math.sin(ang)*0.055 + (dy/dl)*swirl*0.045 + (dx/dl)*swirl*0.06;
-      p.vx*=0.94; p.vy*=0.94;
-      p.x+=p.vx*(0.7+energy*1.5); p.y+=p.vy*(0.7+energy*1.5);
-      if(p.x<0){p.x=W;} if(p.x>W){p.x=0;} if(p.y<0){p.y=H;} if(p.y>H){p.y=0;}
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
-      ctx.fillStyle=p.gold?'rgba(255,201,77,.85)':'rgba(57,255,106,.8)';
-      ctx.fill(); }
-  }
-  if(reduced){
-    ctx.fillStyle='#070907'; ctx.fillRect(0,0,W,H);
-    parts.forEach(function(p){ ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
-      ctx.fillStyle=p.gold?'rgba(255,201,77,.8)':'rgba(57,255,106,.7)'; ctx.fill(); });
-    window.addEventListener('resize',function(){ rs();
-      parts.forEach(function(p){ ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
-        ctx.fillStyle=p.gold?'rgba(255,201,77,.8)':'rgba(57,255,106,.7)'; ctx.fill(); }); });
-  } else requestAnimationFrame(frame);
-})();
 
+  function project(){
+    var cy=Math.cos(rotY), sy=Math.sin(rotY);
+    var tilt=0.42+0.05*Math.sin(t*0.23), ct=Math.cos(tilt), st=Math.sin(tilt);
+    var R=Math.min(W,H)*0.34*(1+0.018*Math.sin(t*0.7));
+    var cx=W/2, cyy=H*0.52, F=2.8, i, n, x1, z1, y2, z2, sc;
+    for(i=0;i<nodes.length;i++){ n=nodes[i];
+      x1=n.x*cy-n.z*sy; z1=n.x*sy+n.z*cy;
+      y2=n.y*ct-z1*st; z2=n.y*st+z1*ct;
+      sc=F/(F+z2);
+      n.sx=cx+x1*R*sc; n.sy=cyy+y2*R*sc; n.sc=sc;
+      n.sh=1-(z2+1.05)/2.1; if(n.sh<0)n.sh=0; if(n.sh>1)n.sh=1;
+    }
+    return R;
+  }
+
+  function spawnPulse(ei){
+    if(ei===undefined) ei=(Math.random()*edges.length)|0;
+    pulses.push({e:ei, t:0, sp:0.30+Math.random()*0.55, gold:Math.random()<0.18});
+  }
+
+  function step(dt){
+    energy+=(target-energy)*Math.min(1,dt*0.7);
+    rotY+=dt*(0.05+0.33*energy);
+    var want=Math.round(8+energy*46), i;
+    if(pulses.length<want){ var add=Math.min(want-pulses.length, 1+((Math.random()*3)|0));
+      for(i=0;i<add;i++) spawnPulse(); }
+    for(i=pulses.length-1;i>=0;i--){ var p=pulses[i];
+      p.t+=dt*p.sp*(0.45+energy*1.15);
+      if(p.t>=1) pulses.splice(i,1); }
+    flareIn-=dt;
+    if(flareIn<=0 && hubs.length){
+      var h=hubs[(Math.random()*hubs.length)|0];
+      flares.push({n:h, age:0});
+      for(i=0;i<adj[h].length;i++) spawnPulse(adj[h][i]);
+      flareIn=(2.2+Math.random()*2.6)*(1.65-energy);
+    }
+    for(i=flares.length-1;i>=0;i--){ flares[i].age+=dt; if(flares[i].age>0.9) flares.splice(i,1); }
+  }
+
+  function draw(){
+    var R=project(), cx=W/2, cyy=H*0.52, i, e, a, b;
+    ctx.fillStyle=bgGrad||'#050705'; ctx.fillRect(0,0,W,H);
+    /* core glow */
+    var g=ctx.createRadialGradient(cx,cyy,0,cx,cyy,R*1.65);
+    g.addColorStop(0,'rgba(57,255,106,'+(0.10+0.13*energy)+')');
+    g.addColorStop(0.45,'rgba(57,255,106,'+(0.04+0.05*energy)+')');
+    g.addColorStop(1,'rgba(57,255,106,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cyy,R*1.65,0,Math.PI*2); ctx.fill();
+    /* halo rings */
+    ctx.save();
+    ctx.strokeStyle='rgba(57,255,106,'+(0.10+0.10*energy)+')'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(cx,cyy,R*1.22,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(255,201,77,'+(0.05+0.06*energy)+')';
+    ctx.setLineDash([46,30]); ctx.lineDashOffset=-t*14;
+    ctx.beginPath(); ctx.arc(cx,cyy,R*1.34,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+    /* edges, bucketed by depth shade */
+    var bucket, sh2;
+    ctx.lineWidth=1;
+    for(bucket=0;bucket<4;bucket++){
+      ctx.beginPath();
+      for(i=0;i<edges.length;i++){ e=edges[i]; a=nodes[e[0]]; b=nodes[e[1]];
+        sh2=(a.sh+b.sh)/2;
+        if(sh2<0.15) continue;
+        if(((sh2*4)|0)!==bucket && !(bucket===3&&sh2>=1)) continue;
+        ctx.moveTo(a.sx,a.sy); ctx.lineTo(b.sx,b.sy);
+      }
+      ctx.strokeStyle='rgba(57,255,106,'+((0.03+bucket*0.05)*(0.5+0.6*energy))+')';
+      ctx.stroke();
+    }
+    /* signal pulses with trails */
+    for(i=0;i<pulses.length;i++){ var p=pulses[i]; e=edges[p.e]; if(!e) continue;
+      a=nodes[e[0]]; b=nodes[e[1]];
+      var t0=Math.max(0,p.t-0.15);
+      var x1=a.sx+(b.sx-a.sx)*t0, y1=a.sy+(b.sy-a.sy)*t0;
+      var x2=a.sx+(b.sx-a.sx)*p.t, y2=a.sy+(b.sy-a.sy)*p.t;
+      var sh3=(a.sh+b.sh)/2, col=p.gold?'255,201,77':'140,255,180';
+      ctx.strokeStyle='rgba('+col+','+(0.35*sh3+0.15)+')'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.fillStyle='rgba('+col+','+(0.16*sh3+0.05)+')';
+      ctx.beginPath(); ctx.arc(x2,y2,4.6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba('+(p.gold?'255,214,110':'190,255,215')+','+(0.55*sh3+0.25)+')';
+      ctx.beginPath(); ctx.arc(x2,y2,1.8,0,Math.PI*2); ctx.fill();
+    }
+    /* nodes */
+    for(i=0;i<nodes.length;i++){ var n=nodes[i];
+      var al=(0.16+0.84*n.sh)*(0.5+0.5*energy);
+      var rr=(n.hub?2.3:(n.gold?1.7:1.35))*n.sc;
+      if(n.hub){ ctx.fillStyle='rgba(57,255,106,'+(al*0.16)+')';
+        ctx.beginPath(); ctx.arc(n.sx,n.sy,rr*2.5,0,Math.PI*2); ctx.fill(); }
+      ctx.fillStyle=n.gold?'rgba(255,201,77,'+al+')':'rgba(57,255,106,'+al+')';
+      ctx.beginPath(); ctx.arc(n.sx,n.sy,rr,0,Math.PI*2); ctx.fill();
+    }
+    /* hub flare bursts */
+    for(i=0;i<flares.length;i++){ var f=flares[i], fn=nodes[f.n], fa=1-f.age/0.9;
+      ctx.strokeStyle='rgba(160,255,195,'+(fa*0.5)+')'; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.arc(fn.sx,fn.sy,6+f.age*46,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle='rgba(220,255,230,'+(fa*0.8)+')';
+      ctx.beginPath(); ctx.arc(fn.sx,fn.sy,2.6,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  build(); rs();
+  window.addEventListener('resize',function(){ rs(); if(reduced) draw(); });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ visible=es[0].isIntersecting; }).observe(cv); }
+  poll(); setInterval(poll,60000);
+  if(reduced){ draw(); return; }
+  function frame(ts){
+    requestAnimationFrame(frame);
+    if(!lastTs) lastTs=ts;
+    var dt=Math.min(0.05,(ts-lastTs)/1000); lastTs=ts;
+    if(!visible||document.hidden||W===0||H===0) return;
+    t+=dt; step(dt); draw();
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 <script>
 
