@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
+<meta name="dd-build" content="r2-20261117" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<script>window.__BUILD="r2-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="icon" href="data:," />
 <title>Betbot Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -830,6 +833,20 @@ main{max-width:1340px;padding:0 24px 96px}
   .deck-panel{animation:none}
 }
 </style>
+
+<style>
+/* ===== round 2: picture banners + fitted heatmap ===== */
+.pic-band{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(57,255,106,.30);box-shadow:0 0 26px rgba(57,255,106,.10),0 18px 34px rgba(0,0,0,.45);background:#070907;margin:0}
+.pic-band img{display:block;width:100%;height:clamp(118px,23vw,215px);object-fit:cover;object-position:center}
+.pic-band::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,6,8,.22),rgba(5,6,8,0) 32%,rgba(5,6,8,0) 60%,rgba(5,6,8,.5))}
+.pic-band figcaption{position:absolute;left:14px;bottom:10px;z-index:2;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.24em;color:rgba(234,255,240,.9);text-shadow:0 1px 10px rgba(0,0,0,.85)}
+.swarm-art{position:relative;height:118px;border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid rgba(57,255,106,.16);background:#070907}
+.swarm-art img{width:100%;height:100%;object-fit:cover;object-position:center 38%;opacity:.5;display:block}
+.swarm-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,9,7,.05),rgba(7,9,7,.88))}
+#heatmap{min-width:0;grid-auto-columns:42px;justify-content:center}
+.heat i.nb{background-color:#14141b;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px)}
+@media(max-width:760px){#heatmap{grid-auto-columns:34px}.swarm-art{height:92px}}
+</style>
 </head>
 <body data-furnace="0">
 <div id="boot" aria-hidden="true">
@@ -920,6 +937,7 @@ main{max-width:1340px;padding:0 24px 96px}
       </div>
     </div>
   </section>
+<figure class="pic-band"><img src="banner_dragon.jpg" alt="Emerald dragon coiled around a floodlit soccer stadium, roulette wheel, playing cards and gold coins in the foreground"/><figcaption>DRAGON DESK &middot; HOME TURF</figcaption></figure>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <section class="panel agg-panel">
     <div class="panel-head"><h2>AGGREGATE <em>LEDGER</em></h2><span class="sub">EVERY SETTLED BET · ALL-TIME</span></div>
@@ -963,9 +981,11 @@ main{max-width:1340px;padding:0 24px 96px}
 <circle cx="106" cy="15" r="2.6" fill="#39ff6a"/><circle cx="148" cy="15" r="2.6" fill="#39ff6a"/>
 <path d="M44 15v9h20M96 15v-8h18" stroke="#39ff6a" stroke-width="1.2" opacity=".7"/>
 </svg><span class="sub">NEURAL DIVISION · HUNDREDS OF AGENTS, ONE BRAIN</span></div>
+    <div class="swarm-art"><img src="banner_brain.jpg" alt="Glowing neural brain woven from connected nodes and signal lines" loading="lazy"/></div>
     <canvas id="swarmCv" aria-hidden="true"></canvas>
     <div class="swarm-cap"><span>SWARM STATE · <b id="swarmState">—</b></span><span>Every node is a worker agent — scouting, verifying, executing, signalling across the swarm. It quickens when the system is working a window.</span></div>
   </section>
+<figure class="pic-band"><img src="banner_live.jpg" alt="Phone showing a live soccer match with streams of live data flowing out under stadium lights" loading="lazy"/><figcaption>LIVE GATE &middot; EYES ON THE PITCH</figcaption></figure>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
 <div class="grid-main now-grid">
 <!-- SEALED PICKS BOARD -->
@@ -1014,6 +1034,7 @@ main{max-width:1340px;padding:0 24px 96px}
 </section>
 <section class="deck-panel" id="deck-performance" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
+<figure class="pic-band"><img src="banner_casino.jpg" alt="Candlestick chart skyline rising over a casino trading floor with a roulette wheel, coin stacks and a soccer ball" loading="lazy"/><figcaption>PERFORMANCE &middot; THE LONG GAME</figcaption></figure>
 <div style="display:flex;flex-direction:column;gap:16px">
       <section class="panel eq-wrap">
         <div class="panel-head"><h2>EQUITY <em>WAVEFORM</em></h2><span class="sub" id="eqSub">BANKROLL OVER TIME</span></div>
@@ -1023,7 +1044,7 @@ main{max-width:1340px;padding:0 24px 96px}
         <div id="ekgChart" style="position:relative;z-index:2"></div>
       </section>
       <section class="panel">
-        <div class="panel-head"><h2>P&amp;L <em>HEATMAP</em></h2><span class="sub">LAST 12 WEEKS · GREEN = PROFIT DAY</span></div>
+        <div class="panel-head"><h2>P&amp;L <em>HEATMAP</em></h2><span class="sub" id="heatSub">SINCE NOV 2 · GREEN = PROFIT DAY</span></div>
         <div class="heat" id="heatmap" style="position:relative;z-index:2"></div>
         <div class="heat-legend"><span>LOSS</span><i style="background:rgba(255,59,92,.75)"></i><i style="background:#1b1b22"></i><i style="background:rgba(57,255,106,.3)"></i><i style="background:rgba(57,255,106,.65)"></i><i style="background:var(--green)"></i><span>PROFIT</span></div>
       </section>
@@ -1853,14 +1874,17 @@ window.renderLadder=renderLadder;
 
 /* ================= HEATMAP ================= */
 (function(){
-  var dm=dailyMap(), cells='', end=new Date(2026,10,1), total=84;
-  var maxPos=18;
-  for(var k=total-1;k>=0;k--){
-    var dt=new Date(end); dt.setDate(end.getDate()-k);
-    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-    var v=dm[key], bg='#1b1b22', title=key+' · no bets';
-    if(v!==undefined){ if(v>0){ var a=0.25+0.75*Math.min(1,v/maxPos); bg='rgba(57,255,106,'+a.toFixed(2)+')'; } else { bg='rgba(255,59,92,.8)'; } title=key+' · '+fmtS(v); }
-    cells+='<i class="'+(k===0?'today':'')+'" style="background:'+bg+'" title="'+title+'"></i>';
+  var dm=dailyMap(), cells='', maxPos=18;
+  var hStart=new Date(2026,10,2), hEnd=new Date(); hEnd.setHours(0,0,0,0);
+  for(var hd=new Date(hStart); hd<=hEnd; hd.setDate(hd.getDate()+1)){
+    var key=hd.getFullYear()+'-'+String(hd.getMonth()+1).padStart(2,'0')+'-'+String(hd.getDate()).padStart(2,'0');
+    var v=dm[key], hCls='', hStyle='', title=key+' · no bets settled';
+    if(v!==undefined){ title=key+' · '+fmtS(v);
+      if(v>0){ var a=0.25+0.75*Math.min(1,v/maxPos); hStyle='background:rgba(57,255,106,'+a.toFixed(2)+')'; }
+      else if(v<0){ hStyle='background:rgba(255,59,92,.8)'; }
+      else { hStyle='background:rgba(255,201,77,.45)'; title=key+' · '+fmtS(v)+' · push day'; } }
+    else hCls='nb';
+    cells+='<i class="'+(hd.getTime()===hEnd.getTime()?'today':'')+(hCls?' '+hCls:'')+'"'+(hStyle?' style="'+hStyle+'"':'')+' title="'+title+'"></i>';
   }
   document.getElementById('heatmap').innerHTML=cells;
   /* LIVE override — no daily P&L in the payload = no heatmap, just the honest note */
@@ -1875,13 +1899,24 @@ window.renderLadder=renderLadder;
       return;
     }
     el.style.display='';
-    var cells2='', end2=new Date(), total2=84, maxPos2=18;
-    for(var k2=total2-1;k2>=0;k2--){
-      var dt2=new Date(end2); dt2.setDate(end2.getDate()-k2);
-      var key2=dt2.getFullYear()+'-'+String(dt2.getMonth()+1).padStart(2,'0')+'-'+String(dt2.getDate()).padStart(2,'0');
-      var v2=dm[key2], bg2='#1b1b22', title2=key2+' · no bets';
-      if(v2!==undefined){ if(v2>0){ var a2=0.25+0.75*Math.min(1,v2/maxPos2); bg2='rgba(57,255,106,'+a2.toFixed(2)+')'; } else { bg2='rgba(255,59,92,.8)'; } title2=key2+' · '+fmtS(v2); }
-      cells2+='<i class="'+(k2===0?'today':'')+'" style="background:'+bg2+'" title="'+title2+'"></i>';
+    var hs=document.getElementById('heatSub');
+    if(hs){ var MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      var sdp=String(s0.start_date||'2026-11-02').split('-');
+      var lbl='SINCE '+MON[parseInt(sdp[1],10)-1]+' '+parseInt(sdp[2],10);
+      if(s0.days_running) lbl+=' · DAY '+s0.days_running;
+      hs.textContent=lbl+' · GREEN = PROFIT DAY'; }
+    var cells2='', maxPos2=18;
+    var hStart2=new Date(2026,10,2), hEnd2=new Date(); hEnd2.setHours(0,0,0,0);
+    if(s0.start_date){ var spp=s0.start_date.split('-'); hStart2=new Date(parseInt(spp[0],10),parseInt(spp[1],10)-1,parseInt(spp[2],10)); }
+    for(var hd2=new Date(hStart2); hd2<=hEnd2; hd2.setDate(hd2.getDate()+1)){
+      var key2=hd2.getFullYear()+'-'+String(hd2.getMonth()+1).padStart(2,'0')+'-'+String(hd2.getDate()).padStart(2,'0');
+      var v2=dm[key2], hCls2='', hStyle2='', title2=key2+' · no bets settled';
+      if(v2!==undefined){ title2=key2+' · '+fmtS(v2);
+        if(v2>0){ var a2=0.25+0.75*Math.min(1,v2/maxPos2); hStyle2='background:rgba(57,255,106,'+a2.toFixed(2)+')'; }
+        else if(v2<0){ hStyle2='background:rgba(255,59,92,.8)'; }
+        else { hStyle2='background:rgba(255,201,77,.45)'; title2=key2+' · '+fmtS(v2)+' · push day'; } }
+      else hCls2='nb';
+      cells2+='<i class="'+(hd2.getTime()===hEnd2.getTime()?'today':'')+(hCls2?' '+hCls2:'')+'"'+(hStyle2?' style="'+hStyle2+'"':'')+' title="'+title2+'"></i>';
     }
     el.innerHTML=cells2;
   };
@@ -3248,13 +3283,15 @@ setInterval(function(){
   build(); rs();
   window.addEventListener('resize',function(){ rs(); if(reduced) draw(); });
   if('IntersectionObserver' in window){
-    new IntersectionObserver(function(es){ visible=es[0].isIntersecting; }).observe(cv); }
+    new IntersectionObserver(function(es){ visible=es[0].isIntersecting;
+    if(visible){ if(cv.clientWidth&&(cv.clientWidth!==W||cv.clientHeight!==H)) rs(); if(reduced) draw(); } }).observe(cv); }
   poll(); setInterval(poll,60000);
   if(reduced){ draw(); return; }
   function frame(ts){
     requestAnimationFrame(frame);
     if(!lastTs) lastTs=ts;
     var dt=Math.min(0.05,(ts-lastTs)/1000); lastTs=ts;
+    if(cv.clientWidth&&(cv.clientWidth!==W||cv.clientHeight!==H)) rs();
     if(!visible||document.hidden||W===0||H===0) return;
     t+=dt; step(dt); draw();
   }
