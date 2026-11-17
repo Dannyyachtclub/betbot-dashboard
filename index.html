@@ -4,10 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r3-20261117" />
+<meta name="dd-build" content="r4-20261117" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r3-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
-<link rel="icon" href="data:," />
+<script>window.__BUILD="r4-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#0a0a0c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="BetBot" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <title>Betbot Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,7 +101,7 @@ body[data-furnace="3"] .fire-strip{display:block}
 .clocks{margin-left:auto;display:flex;gap:18px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .clocks b{color:var(--bone);font-weight:600}
 .follow-btn{margin-left:6px;background:transparent;color:var(--faint);border:1px dashed var(--line2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;letter-spacing:.06em;cursor:not-allowed}
-@media(max-width:760px){.clocks .hide-m{display:none}.brand{font-size:13px}.follow-btn{display:none}}
+@media(max-width:760px){.clocks .hide-m{display:none}.brand{font-size:13px}.follow-btn{display:none}.topbar{flex-wrap:wrap;padding:10px 14px;gap:8px 10px}.clocks{margin-left:auto}}
 
 /* ---------- layout / panels: kill the flat ---------- */
 main{max-width:1280px;margin:0 auto;padding:0 20px 70px;position:relative;z-index:2}
@@ -3372,5 +3380,6 @@ setInterval(function(){
 })();
 
 </script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
 </html>
