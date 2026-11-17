@@ -207,6 +207,10 @@ main{max-width:1280px;margin:0 auto;padding:0 20px 70px;position:relative;z-inde
 .pipe .st.done i{background:var(--green-dim);border-color:var(--green-dim)}
 .pipe .st.now i{background:var(--green);border-color:var(--green);box-shadow:0 0 10px var(--green);animation:dotPulse 4s ease-in-out infinite}
 .pipe .st.now span{color:var(--green)}
+.pipe .st.next i{background:#454b54;border-color:#5b636e}
+.pipe .st.next span{color:var(--dim)}
+.completed-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint);margin:16px 0 2px}
+.completed-list .sealed-row{opacity:.85}
 .pipe .ln{width:20px;height:3px;border-radius:2px;background:#26262e;margin-bottom:16px;flex:none}
 .pipe .ln.done{background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 6px rgba(57,255,106,.35)}
 .pipe .ln.flow{position:relative;overflow:hidden;background:#1c2126;box-shadow:inset 0 0 0 1px rgba(57,255,106,.14)}
@@ -901,6 +905,7 @@ main{max-width:1340px;padding:0 24px 96px}
     <p class="sealed-sub">Picks sealed until settlement. The edge stays ours. Watch the pipeline light up — identities stay classified.</p>
     <div class="qsum" id="queueSummary" style="display:none"></div>
     <div class="sealed-list" id="sealedList"></div>
+    <div class="sealed-list completed-list" id="completedList"></div>
   </section>
 
   
@@ -1403,8 +1408,9 @@ function renderSealed(picks){
         +'<div class="st"><i></i><span>placed</span></div><div class="ln"></div>'
         +'<div class="st"><i></i><span>settled</span></div></div>';
     } else {
+      var sealLive=(pk.status==='in_window'||pk.status==='placed');
       SEAL_STAGES.forEach(function(st,i){
-        var cls=i<cur?'done':(i===cur?'now':'');
+        var cls=i<cur?'done':(i===cur?(sealLive?'now':'next'):'');
         pipe+='<div class="st '+cls+'"><i></i><span>'+st+'</span></div>';
         if(i<SEAL_STAGES.length-1) pipe+='<div class="ln '+(i<cur?'done':'')+'"></div>';
       });
@@ -2761,6 +2767,7 @@ function fmtDur(s){ if(s===null||s===undefined||isNaN(s)) return '\u2014'; s=Mat
 function fmtClock(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
 var PIPE_STAGES=['signal','scheduled','window','placed','settled'];
 var PIPE_INDEX={queued:0,scheduled:1,pre_arrival:1,window_open:2,arrived:2,camping:2,decision:2,placing:3,placed:3,settled:4};
+var PIPE_LIVE={window_open:1,arrived:1,camping:1,decision:1,placing:1};
 function pipeHTML(stage){
   /* Stage track: segments before the current stage are lit solid; the
      segment to the NEXT stage carries marching dashes (pipeFlow) in the
@@ -2779,12 +2786,13 @@ function pipeHTML(stage){
   }
   var cur=(stage in PIPE_INDEX)?PIPE_INDEX[stage]:1;
   var settled=(stage==='settled');
+  var liveStage=!!PIPE_LIVE[stage];
   var pipe='';
   PIPE_STAGES.forEach(function(st,i){
-    var cls=settled?'done':(i<cur?'done':(i===cur?'now':''));
+    var cls=settled?'done':(i<cur?'done':(i===cur?(liveStage?'now':'next'):''));
     pipe+='<div class="st '+cls+'"><i></i><span>'+st+'</span></div>';
     if(i<PIPE_STAGES.length-1){
-      var lc=(settled||i<cur)?'done':((i===cur)?'flow':'');
+      var lc=(settled||i<cur)?'done':((i===cur&&liveStage)?'flow':'');
       pipe+='<div class="ln '+lc+'"></div>';
     }
   });
@@ -2794,21 +2802,23 @@ function renderQueueUpgrade(p){
   if(!p) return;
   var oc=document.getElementById('openCard');
   if(oc){ var hasOpen=(Array.isArray(p.open_bets)&&p.open_bets.length>0)||p.open_bet_hidden===true; oc.style.display=hasOpen?'':'none'; }
-  var q=Array.isArray(p.sealed_queue)?p.sealed_queue:null;
+  var QUEUE_DONE={settled:1,skipped:1,aborted:1,expired:1};
+  var q=Array.isArray(p.sealed_queue)?p.sealed_queue.filter(function(pk){ return !QUEUE_DONE[pk.stage]; }):null;
   if(q){
     var sum=p.queue_summary||{};
     var qs=document.getElementById('queueSummary');
     if(qs){
-      var order=['queued','scheduled','pre_arrival','window_open','arrived','camping','decision','placing','placed','settled','skipped','aborted','expired'];
+      var order=['queued','scheduled','pre_arrival','window_open','arrived','camping','decision','placing','placed'];
       var chips=order.filter(function(k){ return (sum[k]||0)>0; }).map(function(k){
         var live=(k==='camping'||k==='placing'||k==='decision');
         return '<span class="qchip'+(live?' live':'')+'">'+STAGE_LABEL[k]+' <b>'+sum[k]+'</b></span>';
       }).join('');
+      if((sum.completed||0)>0) chips+='<span class="qchip">COMPLETED <b>'+sum.completed+'</b></span>';
       qs.innerHTML=chips||'<span class="qchip">QUEUE EMPTY</span>';
       qs.style.display='flex';
     }
     var cnt=document.getElementById('sealedCount');
-    if(cnt) cnt.textContent=q.length+' IN QUEUE \u00b7 '+(sum.active||0)+' ACTIVE';
+    if(cnt) cnt.textContent=q.length+' IN QUEUE \u00b7 '+((typeof sum.live==='number')?sum.live:q.filter(function(pk){ return !!PIPE_LIVE[pk.stage]; }).length)+' LIVE';
     var list=document.getElementById('sealedList');
     if(list){
       if(!q.length){
@@ -2830,6 +2840,24 @@ function renderQueueUpgrade(p){
             + meta + polls + park + pipeHTML(pk.stage) + note + '</div>';
         }).join('');
       }
+    }
+  }
+  var comp=Array.isArray(p.sealed_completed)?p.sealed_completed.filter(function(pk){ return !!QUEUE_DONE[pk.stage]; }):[];
+  var cl=document.getElementById('completedList');
+  if(cl){
+    if(!comp.length){ cl.innerHTML=''; }
+    else {
+      cl.innerHTML='<div class="completed-head">COMPLETED TODAY \u00b7 FINAL STAGE \u00b7 NO LONGER IN QUEUE</div>'+comp.map(function(pk){
+        var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
+          : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
+        return '<div class="sealed-row" data-sid="'+esc(pk.id)+'">'
+          +'<span class="sid">'+esc(pk.id)+'</span>'
+          +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
+          +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
+          +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
+          +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
+          + pipeHTML(pk.stage) + note + '</div>';
+      }).join('');
     }
   }
   var ss=p.system_status;
@@ -3005,10 +3033,11 @@ setInterval(function(){
     .then(function(d){
       if(!d||d.demo) return;
       var mode=(d.system_status&&d.system_status.bot_mode)||'';
-      var active=(d.queue_summary&&typeof d.queue_summary.active==='number')?d.queue_summary.active:0;
-      target=active>0?1:(mode&&mode!=='idle'?0.72:0.3);
+      var live=(d.queue_summary&&typeof d.queue_summary.live==='number')?d.queue_summary.live:null;
+      if(live===null){ var sq=Array.isArray(d.sealed_queue)?d.sealed_queue:[]; live=0; for(var qi=0;qi<sq.length;qi++){ var stg=sq[qi].stage; if(stg==='window_open'||stg==='arrived'||stg==='camping'||stg==='decision'||stg==='placing') live++; } }
+      target=live>0?1:0.3;
       var st=document.getElementById('swarmState');
-      if(st) st.textContent=(mode?mode.toUpperCase():'—')+(active>0?' · '+active+' ACTIVE':'');
+      if(st) st.textContent=(mode?mode.toUpperCase():'—')+(live>0?' · '+live+' LIVE':' · STANDBY');
     }).catch(function(){});
   }
   poll(); setInterval(poll,60000);
