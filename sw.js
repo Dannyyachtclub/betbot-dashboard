@@ -56,15 +56,18 @@ self.addEventListener('fetch', function (e) {
      normal network path and the build self-check sees the live stamp. */
   if (url.pathname.replace(/\/+$/, '').endsWith('/version.json')) return;
 
-  /* Live data feed — network-first, cache only as an offline fallback. */
+  /* Live data feed — network-first, cache only as an offline fallback.
+     The page fetches with a cache-busting ?t= query, so the copy is kept
+     under the canonical (query-free) URL or the fallback could never hit. */
   if (url.hostname === 'raw.githubusercontent.com' &&
       url.pathname.endsWith('/dashboard.json')) {
+    var canonical = url.origin + url.pathname;
     e.respondWith(
       fetch(req).then(function (res) {
         var copy = res.clone();
-        caches.open(RUNTIME).then(function (c) { c.put(req, copy); });
+        caches.open(RUNTIME).then(function (c) { c.put(canonical, copy); });
         return res;
-      }).catch(function () { return caches.match(req); })
+      }).catch(function () { return caches.match(canonical); })
     );
     return;
   }
