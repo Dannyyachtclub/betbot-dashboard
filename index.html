@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r74-20261117" />
+<meta name="dd-build" content="r75-20261117" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r74-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r75-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -1157,10 +1157,11 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
   <section class="panel sealed-wrap">
     <div class="sealed-head">
       <h2>ALPHA GOAL BOARD — <em>SEALED PICKS</em></h2>
-      <span class="count" id="sealedCount">0 SIGNALS INBOUND</span>
+      <span class="count" id="sealedCount">0 IN QUEUE</span>
     </div>
     <p class="sealed-sub">Picks sealed until settlement. The edge stays ours. Watch the pipeline light up — identities stay classified.</p>
     <div class="qsum" id="queueSummary" style="display:none"></div>
+    <div class="queue-day-head" id="queueDayHead" style="display:none"></div>
     <div class="sealed-list" id="sealedList"></div>
     <div class="sealed-list completed-list" id="completedList"></div>
   </section>
@@ -1203,9 +1204,10 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
 <div class="rail-row rail-right"><div class="rail-main"><div style="display:flex;flex-direction:column;gap:16px">
       <section class="panel eq-wrap wm wm-casino">
         <div class="panel-head"><h2>EQUITY <em>WAVEFORM</em></h2><span class="sub" id="eqSub">BANKROLL OVER TIME</span></div>
+        <div class="view-toggle" id="eqViewToggle" role="group" aria-label="Chart period view"><button type="button" data-view="daily" class="on">DAILY</button><button type="button" data-view="weekly">WEEKLY</button><button type="button" data-view="monthly">MONTHLY</button></div>
         <div id="eqChart" style="position:relative;z-index:2"></div>
         <hr class="hairline"/>
-        <div class="panel-head" style="margin-bottom:4px"><h2 style="font-size:12px">DAILY P&amp;L · <em>EKG</em></h2><span class="sub">SPIKE = WIN DAY · DIP = LOSS DAY</span></div>
+        <div class="panel-head" style="margin-bottom:4px"><h2 style="font-size:12px">DAILY P&amp;L · <em>EKG</em></h2><span class="sub" id="ekgSub">SPIKE = WIN DAY · DIP = LOSS DAY</span></div>
         <div id="ekgChart" style="position:relative;z-index:2"></div>
       </section>
       <section class="panel">
@@ -1658,12 +1660,18 @@ var SEAL_STAGES=['signal','scheduled','window','placed','settled'];
 var SEAL_INDEX={signal:0,scheduled:1,in_window:2,placed:3,settled:4};
 function redactW(id,salt){ var h=0; for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i)+salt*17)%97; return 62+(h%58); }
 function renderSealed(picks){
-  document.getElementById('sealedCount').textContent=picks.length+' SIGNALS INBOUND';
-  if(!picks.length){
-    document.getElementById('sealedList').innerHTML='<div class="feed-empty">No picks today — no signals have come in yet.<span>New picks appear here, sealed, the moment a signal lands.</span></div>';
-    return;
-  }
-  document.getElementById('sealedList').innerHTML=picks.map(function(pk){
+  /* r7.5 — the board is SPLIT, never blended: upcoming picks render
+     in the queue list (kickoff order), finished picks render below
+     in the completed list under a FINISHED GAMES head.
+     renderQueueUpgrade re-renders both from the richer stage arrays
+     on every live poll; this split keeps every other render path
+     (first paint, demo) honest too. */
+  var FIN={skipped:1,settled:1,aborted:1,expired:1};
+  var up=[], fin=[];
+  (picks||[]).forEach(function(pk){ (FIN[pk.status]?fin:up).push(pk); });
+  function koKey(pk){ var s=(''+(pk&&pk.kickoff||'')).trim(); var m=s.match(/(\d{1,2}):(\d{2})\s*([AaPp])[Mm]/); if(m){ var h=parseInt(m[1],10)%12; if(m[3].toUpperCase()==='P') h+=12; return h*60+parseInt(m[2],10); } return null; }
+  up=up.map(function(pk,i){ return {pk:pk,i:i,k:koKey(pk)}; }).sort(function(a,b){ if(a.k===null&&b.k===null) return a.i-b.i; if(a.k===null) return 1; if(b.k===null) return -1; return (a.k-b.k)||(a.i-b.i); }).map(function(x){ return x.pk; });
+  function rowHTML(pk){
     var skipped=pk.status==='skipped', settled=pk.status==='settled';
     var cur=SEAL_INDEX[pk.status]; if(cur===undefined) cur=1;
     var pipe='';
@@ -1692,7 +1700,13 @@ function renderSealed(picks){
       +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
       +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
       + pipe + note + '</div>';
-  }).join('');
+  }
+  var cntEl=document.getElementById('sealedCount'); if(cntEl) cntEl.textContent=up.length+' IN QUEUE';
+  var listEl=document.getElementById('sealedList');
+  if(listEl){ listEl.innerHTML = up.length ? up.map(rowHTML).join('')
+    : '<div class="feed-empty">Queue empty — no signals waiting.<span>New picks appear here, sealed, the moment a signal lands.</span></div>'; }
+  var compEl=document.getElementById('completedList');
+  if(compEl){ compEl.innerHTML = fin.length ? '<div class="completed-head">FINISHED GAMES · NO LONGER IN QUEUE</div>'+fin.map(rowHTML).join('') : ''; }
 }
 renderSealed(PAYLOAD.sealed_picks);
 
@@ -1997,50 +2011,97 @@ window.renderLadder=renderLadder;
   }
   window.renderEquityLive=function(p){
     var s0=(p.strategies&&p.strategies[0])||{};
-    var eqRaw=(Array.isArray(s0.equity)&&s0.equity.length)? s0.equity : (Array.isArray(p.equity)? p.equity : []);
-    var eqVals=eqRaw.map(numVal).filter(function(v){return v!==null});
-    /* an equity series can also be reconstructed from settled bets — but only from REAL ones */
-    if(eqVals.length<2 && BETS.length){
+    var period=window.__chartPeriod||'daily';
+    var VIEWLBL={daily:'DAILY',weekly:'WEEKLY',monthly:'MONTHLY'};
+    /* r7.5 — dated series straight from the exporter:
+       strategies[0].equity / daily_pnl are [["2026-11-15", 510.65], ...].
+       DAILY / WEEKLY / MONTHLY genuinely re-bucket them: equity takes
+       the bankroll at each period end, P&L sums each period. */
+    function datedPairs(raw){
+      if(!Array.isArray(raw)) return [];
+      var out=[];
+      raw.forEach(function(it){
+        if(Array.isArray(it)&&it.length>=2&&typeof it[1]==='number'&&isFinite(it[1])) out.push({date:String(it[0]).slice(0,10),v:it[1]});
+        else if(it&&typeof it==='object'&&!Array.isArray(it)){ var dt=it.date||it.d||it.day||it.t; var vv=numVal(it); if(dt&&vv!==null) out.push({date:String(dt).slice(0,10),v:vv}); }
+      });
+      out.sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:0); });
+      return out;
+    }
+    function parseD(ds){ var pp=String(ds).slice(0,10).split('-'); return new Date(parseInt(pp[0],10),parseInt(pp[1],10)-1,parseInt(pp[2],10)); }
+    function isoD(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+    function mondayOf(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+    var MONS3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    function bucketOf(ds){
+      if(period==='monthly') return {key:ds.slice(0,7), label:MONS3[parseInt(ds.slice(5,7),10)-1]+' '+ds.slice(0,4)};
+      if(period==='weekly'){ var m=mondayOf(parseD(ds)); return {key:isoD(m), label:'WK '+MONS3[m.getMonth()]+' '+m.getDate()}; }
+      return {key:ds, label:MONS3[parseInt(ds.slice(5,7),10)-1]+' '+parseInt(ds.slice(8,10),10)};
+    }
+    function bucketize(pairs, mode){
+      var order=[], byKey={};
+      pairs.forEach(function(pt){ var b=bucketOf(pt.date); if(!byKey[b.key]){ byKey[b.key]={label:b.label,v:0}; order.push(b.key); } byKey[b.key].v=(mode==='sum')? +(byKey[b.key].v+pt.v).toFixed(2) : pt.v; });
+      return order.map(function(k){ return {label:byKey[k].label, v:byKey[k].v}; });
+    }
+    /* ---- equity curve: bankroll at each period end, START prepended ---- */
+    var eqPairs=datedPairs((Array.isArray(s0.equity)&&s0.equity.length)? s0.equity : p.equity);
+    if(eqPairs.length<2 && BETS.length){
       var run=(typeof p.bankroll==='number'? p.bankroll:START)-BETS.reduce(function(s,b){return s+(b.pnl||0)},0);
-      eqVals=[+run.toFixed(2)]; BETS.forEach(function(b){ run+=(b.pnl||0); eqVals.push(+run.toFixed(2)); });
+      var sorted=BETS.slice().sort(function(a,b){ return a.d<b.d?-1:(a.d>b.d?1:0); });
+      eqPairs=[]; sorted.forEach(function(b){ run+=(b.pnl||0); eqPairs.push({date:b.d, v:+run.toFixed(2)}); });
     }
     var eqEl=document.getElementById('eqChart');
-    if(eqVals.length<2){
+    if(!eqPairs.length){
       eqEl.innerHTML='<div class="chart-empty">No equity history yet — no bets have settled.<br/>The curve starts with the first settled result.</div>';
       document.getElementById('eqSub').textContent='0 SETTLED BETS · NO EQUITY HISTORY YET';
     } else {
+      var startV=(typeof p.bankroll==='number'&&typeof p.profit_total==='number')? +(p.bankroll-p.profit_total).toFixed(2) : eqPairs[0].v;
+      var eqPlot=[{label:'START',v:startV}].concat(bucketize(eqPairs,'last'));
+      var eqVals=eqPlot.map(function(x){ return x.v; });
       var mn=Math.min.apply(null,eqVals)-6, mx=Math.max.apply(null,eqVals)+6;
       var LX=function(i){ return pad+i*(W-2*pad)/(eqVals.length-1); };
       var LY=function(v){ return H-22-((v-mn)/(mx-mn))*(H-46); };
       var lpts=eqVals.map(function(v,i){ return [LX(i),LY(v)]; });
       var lpath=smoothPath(lpts);
       var larea=lpath+' L'+LX(eqVals.length-1)+','+(H-22)+' L'+LX(0)+','+(H-22)+' Z';
+      var elabels='';
+      eqPlot.forEach(function(x,i){
+        if(!(eqPlot.length<=8 || i===0 || i===eqPlot.length-1 || i%Math.ceil(eqPlot.length/8)===0)) return;
+        var anch=i===0?'start':(i===eqPlot.length-1?'end':'middle');
+        elabels+='<text x="'+LX(i)+'" y="'+(H-5)+'" text-anchor="'+anch+'" fill="#6b6963" font-family="JetBrains Mono" font-size="9">'+x.label+'</text>';
+      });
       eqEl.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Equity waveform from live data">'
         +'<defs><linearGradient id="eqGradL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#39ff6a" stop-opacity=".30"/><stop offset="1" stop-color="#39ff6a" stop-opacity="0"/></linearGradient></defs>'
         +'<path d="'+larea+'" fill="url(#eqGradL)"/><path class="eq-line" d="'+lpath+'"/>'
         +'<circle cx="'+LX(eqVals.length-1)+'" cy="'+LY(eqVals[eqVals.length-1])+'" r="4.5" fill="#39ff6a"/>'
-        +'<text x="'+(W-pad)+'" y="'+(LY(eqVals[eqVals.length-1])-10)+'" text-anchor="end" fill="#39ff6a" font-family="JetBrains Mono" font-weight="800" font-size="14">'+fmtM(eqVals[eqVals.length-1])+'</text></svg>';
-      document.getElementById('eqSub').textContent='LIVE · '+eqVals.length+' POINTS · FROM THE BOT EXPORTER';
+        +'<text x="'+(W-pad)+'" y="'+(LY(eqVals[eqVals.length-1])-10)+'" text-anchor="end" fill="#39ff6a" font-family="JetBrains Mono" font-weight="800" font-size="14">'+fmtM(eqVals[eqVals.length-1])+'</text>'
+        + elabels + '</svg>';
+      document.getElementById('eqSub').textContent='LIVE · '+VIEWLBL[period]+' VIEW · '+eqVals.length+' POINTS · FROM THE BOT EXPORTER';
     }
-    var dpRaw=(Array.isArray(s0.daily_pnl)&&s0.daily_pnl.length)? s0.daily_pnl : (Array.isArray(p.daily_pnl)? p.daily_pnl : []);
-    var dpVals=dpRaw.map(numVal).filter(function(v){return v!==null});
-    if(!dpVals.length && BETS.length){ var dm2=dailyMap(); dpVals=Object.keys(dm2).sort().map(function(k){return dm2[k]}); }
+    /* ---- P&L per period (the EKG) ---- */
+    var dpPairs=datedPairs((Array.isArray(s0.daily_pnl)&&s0.daily_pnl.length)? s0.daily_pnl : p.daily_pnl);
+    if(!dpPairs.length && BETS.length){ var dm2=dailyMap(); dpPairs=Object.keys(dm2).sort().map(function(k){ return {date:k, v:dm2[k]}; }); }
+    var dpB=bucketize(dpPairs,'sum');
+    var dpVals=dpB.map(function(x){ return x.v; });
     var ekEl=document.getElementById('ekgChart');
+    var ekSub=document.getElementById('ekgSub');
+    if(ekSub) ekSub.textContent = period==='daily' ? 'SPIKE = WIN DAY · DIP = LOSS DAY' : (period==='weekly' ? 'SPIKE = WIN WEEK · DIP = LOSS WEEK' : 'SPIKE = WIN MONTH · DIP = LOSS MONTH');
     if(!dpVals.length){
       ekEl.innerHTML='<div class="chart-empty">No daily P&amp;L yet — no settled bets to chart.</div>';
     } else {
       var EW2=660,EH2=92,ep2=16, base2=EH2*0.58, mxA=Math.max.apply(null,dpVals.map(function(v){return Math.abs(v)}))||1;
       var stp=(EW2-2*ep2)/Math.max(1,dpVals.length-1), dd='M'+ep2+','+base2, dts='';
       dpVals.forEach(function(v,i){
-        var x=ep2+i*stp, amp=v/mxA*(EH2*0.42), y=v>=0? base2-amp : base2-amp*0.55;
+        var x=dpVals.length===1? EW2/2 : ep2+i*stp, amp=v/mxA*(EH2*0.42), y=v>=0? base2-amp : base2-amp*0.55;
         dd+=' L'+(x-stp*0.30).toFixed(1)+','+base2+' L'+(x-stp*0.10).toFixed(1)+','+base2+' L'+x.toFixed(1)+','+y.toFixed(1)+' L'+(x+stp*0.12).toFixed(1)+','+base2;
         dts+='<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+(v>=0?'#39ff6a':'#ff3b5c')+'"/>';
+        var anch=dpVals.length===1?'middle':(i===0?'start':(i===dpVals.length-1?'end':'middle'));
+        dts+='<text x="'+x+'" y="'+(EH2-2)+'" text-anchor="'+anch+'" fill="#6b6963" font-family="JetBrains Mono" font-size="8.5">'+dpB[i].label+'</text>';
       });
       dd+=' L'+(EW2-ep2)+','+base2;
-      ekEl.innerHTML='<svg viewBox="0 0 '+EW2+' '+EH2+'" role="img" aria-label="Daily profit and loss from live data" style="width:100%;height:auto;display:block">'
+      ekEl.innerHTML='<svg viewBox="0 0 '+EW2+' '+EH2+'" role="img" aria-label="Profit and loss per period from live data" style="width:100%;height:auto;display:block">'
         +'<line class="ekg-base" x1="'+ep2+'" y1="'+base2+'" x2="'+(EW2-ep2)+'" y2="'+base2+'"/><path class="ekg-line" d="'+dd+'"/>'+dts+'</svg>';
     }
   };
+
 })();
 
 /* ================= HEATMAP ================= */
@@ -3183,6 +3244,10 @@ function kickoffKey(pk){
 var QFLOW='<div class="qflow" aria-hidden="true"><i></i><i></i><i></i></div>';
 function renderQueueUpgrade(p){
   if(!p) return;
+  var MONS=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  var DOWS=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  var MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var DOW3=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   var oc=document.getElementById('openCard');
   if(oc){ var hasOpen=(Array.isArray(p.open_bets)&&p.open_bets.length>0)||p.open_bet_hidden===true; oc.style.display=hasOpen?'':'none'; }
   var QUEUE_DONE={settled:1,skipped:1,aborted:1,expired:1};
@@ -3203,6 +3268,41 @@ function renderQueueUpgrade(p){
     }
     var cnt=document.getElementById('sealedCount');
     if(cnt) cnt.textContent=q.length+' IN QUEUE \u00b7 '+((typeof sum.live==='number')?sum.live:q.filter(function(pk){ return !!PIPE_LIVE[pk.stage]; }).length)+' LIVE';
+    /* r7.5 — queue day heading, computed from the data: each pick's
+       game day is its kickoff clock time placed on/after its
+       stage_since date (a 2:00 PM kickoff ingested at 8:31 PM
+       belongs to the next day). One shared day -> a plain
+       TODAY/TOMORROW heading; a multi-day queue -> a range heading
+       plus a day tag on every queue card (qMulti/qDates below). */
+    var qDates={}, qDays={};
+    q.forEach(function(pk){
+      var t0=Date.parse(pk.stage_since||''); if(isNaN(t0)) return;
+      var k=kickoffKey(pk); if(k===null) return;
+      var base=new Date(t0);
+      var cand=new Date(base.getFullYear(),base.getMonth(),base.getDate(),Math.floor(k/60),k%60,0,0);
+      if(cand.getTime()<=t0) cand.setDate(cand.getDate()+1);
+      var key=cand.getFullYear()+'-'+cand.getMonth()+'-'+cand.getDate();
+      qDays[key]=cand;
+      qDates[pk.id]=DOW3[cand.getDay()]+' '+MON3[cand.getMonth()]+' '+cand.getDate();
+    });
+    var qDayList=Object.keys(qDays).map(function(k2){ return qDays[k2]; }).sort(function(a,b){ return a-b; });
+    var qMulti=qDayList.length>1;
+    var qh=document.getElementById('queueDayHead');
+    if(qh){
+      if(!q.length||!qDayList.length){ qh.style.display='none'; qh.textContent=''; }
+      else if(qDayList.length===1){
+        var gd=qDayList[0];
+        var startOf=function(x){ return new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(); };
+        var diff=Math.round((startOf(gd)-startOf(new Date()))/86400000);
+        var rel=diff===0?"TODAY'S GAMES":(diff===1?"TOMORROW'S GAMES":'GAMES');
+        qh.textContent='UP NEXT — '+rel+' · '+DOWS[gd.getDay()]+', '+MONS[gd.getMonth()]+' '+gd.getDate();
+        qh.style.display='';
+      } else {
+        var qf=qDayList[0], ql=qDayList[qDayList.length-1];
+        qh.textContent='UP NEXT — GAMES IN QUEUE · '+MON3[qf.getMonth()]+' '+qf.getDate()+' – '+MON3[ql.getMonth()]+' '+ql.getDate();
+        qh.style.display='';
+      }
+    }
     var list=document.getElementById('sealedList');
     if(list){
       if(!q.length){
@@ -3220,6 +3320,7 @@ function renderQueueUpgrade(p){
             +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
             +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
             +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
+            +(qMulti&&qDates[pk.id]?'<span class="day-tag">'+qDates[pk.id]+'</span>':'')
             +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
             + meta + polls + park + pipeHTML(pk.stage) + note + '</div>';
         }).join('');
@@ -3227,23 +3328,61 @@ function renderQueueUpgrade(p){
     }
   }
   var comp=Array.isArray(p.sealed_completed)?p.sealed_completed.filter(function(pk){ return !!QUEUE_DONE[pk.stage]; }):[];
+  /* r7.5 — FINISHED GAMES: newest first (by stage_since), each card
+     stamped with its day and a plain-English result word. A settled
+     pick is matched to its bet's WON / LOST / VOID (and final score)
+     ONLY when the match is provable from the payload itself:
+     exactly one settled pick and exactly one settled bet on the
+     same day — the sealed record and the bet ledger cannot be told
+     apart any finer than that page-side. Otherwise the card
+     honestly reads SETTLED and points at Bet History, where the
+     named result lives. */
+  comp=comp.map(function(pk,i){ return {pk:pk,i:i,t:Date.parse(pk.stage_since||'')||0}; }).sort(function(a,b){ return (b.t-a.t)||(a.i-b.i); }).map(function(x){ return x.pk; });
+  var outcomeByPick={};
+  (function(){
+    var picksByDay={}, betsByDay={};
+    comp.forEach(function(pk){ if(pk.stage!=='settled') return; var dk=pk.stage_since?String(pk.stage_since).slice(0,10):''; (picksByDay[dk]=picksByDay[dk]||[]).push(pk); });
+    (Array.isArray(p.settled_bets)?p.settled_bets:[]).forEach(function(b){ var dk=b.d||''; (betsByDay[dk]=betsByDay[dk]||[]).push(b); });
+    Object.keys(picksByDay).forEach(function(dk){
+      var ps=picksByDay[dk], bs=betsByDay[dk]||[];
+      if(ps.length===1&&bs.length===1) outcomeByPick[ps[0].id]=bs[0];
+    });
+  })();
   var cl=document.getElementById('completedList');
   if(cl){
     if(!comp.length){ cl.innerHTML=''; }
     else {
-      cl.innerHTML='<div class="completed-head">COMPLETED TODAY \u00b7 FINAL STAGE \u00b7 NO LONGER IN QUEUE</div>'+comp.map(function(pk){
-        var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
-          : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
+      cl.innerHTML='<div class="completed-head">FINISHED GAMES · '+comp.length+' · NO LONGER IN QUEUE</div>'+comp.map(function(pk){
+        var ob=outcomeByPick[pk.id]||null;
+        var word, pillCls, note;
+        if(ob){
+          word = ob.res==='W' ? 'WON' : (ob.res==='L' ? 'LOST' : 'VOID');
+          pillCls = ob.res==='W' ? 'done' : (ob.res==='L' ? 'bad' : '');
+          note = ob.final_score ? '<span class="sealed-note done">FINAL SCORE '+esc(ob.final_score)+'</span>'
+            : '<span class="sealed-note done">UNSEALED → BET HISTORY ↓</span>';
+        } else if(pk.stage==='settled'){
+          word='SETTLED'; pillCls='done';
+          note='<span class="sealed-note done">UNSEALED → BET HISTORY ↓</span>';
+        } else {
+          word=(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase());
+          pillCls=stageCls(pk.stage);
+          note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
+            : '<span class="sealed-note skip">NO BET PLACED</span>';
+        }
+        var dayTag='';
+        if(pk.stage_since){ var dd=new Date(pk.stage_since); if(!isNaN(dd)) dayTag='<span class="day-tag">'+DOW3[dd.getDay()]+' '+MON3[dd.getMonth()]+' '+dd.getDate()+'</span>'; }
         return '<div class="sealed-row" data-sid="'+esc(pk.id)+'">'
           +'<span class="sid">'+esc(pk.id)+'</span>'
           +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
           +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
           +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
-          +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
+          + dayTag
+          +'<span class="stage-pill '+pillCls+'">'+word+'</span>'
           + pipeHTML(pk.stage) + note + '</div>';
       }).join('');
     }
   }
+
   var ss=p.system_status;
   if(ss){
     var panel=document.getElementById('sysPanel');
@@ -4091,5 +4230,26 @@ body[data-furnace="3"] .fire-strip{background:linear-gradient(90deg,#ff8a2a,#e8b
 .veil-cloud.left,.veil-cloud.right,.veil-flash,.veil-fog,.veil-glow,.veil-emblem{animation:none!important}
 }
 </style>
+
+<style id="r75css">
+.queue-day-head{font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--gold-hot,#ffd76a);margin:14px 0 4px}
+.day-tag{font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#c9c4bb;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.05);border-radius:7px;padding:5px 9px;flex:none}
+.view-toggle{display:flex;gap:6px;margin:2px 0 10px;position:relative;z-index:2}
+.view-toggle button{font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--dim);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:6px 12px;cursor:pointer}
+.view-toggle button.on{color:#0b0b10;background:var(--gold,#e8b33c);border-color:var(--gold,#e8b33c)}
+.view-toggle button:focus-visible{outline:2px solid var(--gold,#e8b33c);outline-offset:2px}
+</style>
+<script id="r75js">
+(function(){
+  var tg=document.getElementById('eqViewToggle'); if(!tg) return;
+  function sync(){ var cur=window.__chartPeriod||'daily'; var bs=tg.querySelectorAll('button'); for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-view')===cur); }
+  tg.addEventListener('click', function(e){
+    var b=e.target&&e.target.closest? e.target.closest('button') : null; if(!b) return;
+    window.__chartPeriod=b.getAttribute('data-view'); sync();
+    if(window.renderEquityLive && typeof PAYLOAD!=='undefined' && PAYLOAD) window.renderEquityLive(PAYLOAD);
+  });
+  sync();
+})();
+</script>
 </body>
 </html>
