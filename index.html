@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r7-20261117" />
+<meta name="dd-build" content="r72-20261117" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r7-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r72-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -3841,7 +3841,15 @@ nav#deckNav.deck-nav{flex-wrap:wrap!important;overflow:visible!important;justify
   nav#deckNav.deck-nav{gap:4px;padding:6px}
   nav#deckNav .deck-btn{padding:7px 9px;font-size:11px;letter-spacing:.04em}
 }
-#hlStrip{scroll-behavior:smooth}
+#hlStrip{scroll-behavior:auto}
+/* r7.2 — one glide system for both bars: slow continuous glide, pointer drag, auto-resume on release */
+#hlStrip{overflow:hidden;touch-action:pan-y;cursor:grab}
+.hl-track{display:flex;flex:0 0 auto;gap:10px;flex-wrap:nowrap;width:max-content;will-change:transform}
+.hl-track .hl-item{flex:0 0 auto}
+.ticker{touch-action:pan-y;cursor:grab}
+.ticker.glide-on .ticker-track{animation:none!important}
+.ticker:hover .ticker-track{animation-play-state:running}
+#hlStrip.hl-dragging,.ticker.hl-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 /* r7.1 — history pagers */
 .hist-pager{display:flex;flex-direction:column;gap:10px;align-items:center;margin:14px 0 6px}
 .hist-pager .pg-info{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);text-align:center}
@@ -3851,7 +3859,7 @@ nav#deckNav.deck-nav{flex-wrap:wrap!important;overflow:visible!important;justify
 .pg-btn:disabled{opacity:.35;cursor:default}
 </style>
 <script>
-/* r7.1 — history pager clicks + stats strip auto-slide (press & hold to pause) */
+/* r7.1 — history pager clicks · r7.2 — one glide system for the stats strip + games ticker: slow continuous glide, pointer drag, auto-resume on release */
 (function(){
   function wirePager(id, setPage, render){
     var el=document.getElementById(id); if(!el) return;
@@ -3863,28 +3871,118 @@ nav#deckNav.deck-nav{flex-wrap:wrap!important;overflow:visible!important;justify
   }
   wirePager('betPager', function(v){ betPage=(v==='prev')?betPage-1:(v==='next')?betPage+1:parseInt(v,10); }, renderBetHistory);
   wirePager('ghPager', function(v){ ghPage=(v==='prev')?ghPage-1:(v==='next')?ghPage+1:parseInt(v,10); }, renderGameHistory);
-  var strip=document.getElementById('hlStrip');
-  if(strip){
-    var held=false;
-    var reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function step(){
-      if(held||document.hidden) return;
-      if(strip.scrollWidth<=strip.clientWidth+4) return;
-      var item=strip.querySelector('.hl-item');
-      var w=item? item.getBoundingClientRect().width+14 : 150;
-      var max=strip.scrollWidth-strip.clientWidth;
-      var nx=strip.scrollLeft+w;
-      if(nx>max+2) nx=0;
-      strip.scrollTo({left:nx, behavior:'smooth'});
+  /* ---- r7.2 glide engine: shared by the stats strip and the games
+     ticker. Each bar slides slowly and continuously on its own (rAF
+     translateX, seamless wrap at one set width). Touching a bar hands
+     it to the pointer: drag to move it; the moment the pointer lets
+     go, the glide resumes. Nothing ever stays paused.
+     prefers-reduced-motion: no glide, no restructuring. ---- */
+  var reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var GLIDE_SPEED=32; /* px per second, same for both bars */
+  function makeGlide(view, track, getSetW){
+    var off=0, dragging=false, pid=null, startX=0, startOff=0, resumeAt=0, lastT=0;
+    function wrap(o,w){ while(o<=-w) o+=w; while(o>0) o-=w; return o; }
+    function frame(t){
+      var w=getSetW();
+      if(w>0){
+        if(!dragging && lastT && t>=resumeAt){
+          var dt=Math.min(t-lastT,50);
+          off=wrap(off-dt*GLIDE_SPEED/1000, w);
+        }
+        track.style.transform='translateX('+off+'px)';
+      } else if(track.style.transform){
+        track.style.transform='';
+      }
+      lastT=t;
+      requestAnimationFrame(frame);
     }
-    if(!reduceMotion) setInterval(step, 2800);
-    strip.addEventListener('pointerdown', function(){ held=true; });
-    ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
-      strip.addEventListener(ev, function(){ held=false; });
+    requestAnimationFrame(frame);
+    view.addEventListener('pointerdown', function(e){
+      if(getSetW()<=0) return;
+      dragging=true; pid=e.pointerId; startX=e.clientX; startOff=off;
+      try{ view.setPointerCapture(pid); }catch(err){}
+      view.classList.add('hl-dragging');
     });
-    strip.addEventListener('touchstart', function(){ held=true; }, {passive:true});
-    strip.addEventListener('touchend', function(){ held=false; });
-    strip.addEventListener('touchcancel', function(){ held=false; });
+    view.addEventListener('pointermove', function(e){
+      if(!dragging||e.pointerId!==pid) return;
+      if(e.buttons===0){ endDrag(); return; }
+      var w=getSetW(); if(w<=0) return;
+      off=wrap(startOff+(e.clientX-startX), w);
+      track.style.transform='translateX('+off+'px)';
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging=false; pid=null;
+      view.classList.remove('hl-dragging');
+      resumeAt=performance.now()+700; /* short settle, then glide resumes */
+    }
+    view.addEventListener('pointerup', endDrag);
+    view.addEventListener('pointercancel', endDrag);
+  }
+  var strip=document.getElementById('hlStrip');
+  if(strip && !reduceMotion){
+    var originals=[].slice.call(strip.querySelectorAll('.hl-item'));
+    if(originals.length){
+      var sTrack=document.createElement('div');
+      sTrack.className='hl-track';
+      originals.forEach(function(it){ sTrack.appendChild(it); });
+      strip.appendChild(sTrack);
+      var pairs=[]; /* [original .hv, clone .hv] — clones mirror live values */
+      function cloneSet(){
+        originals.forEach(function(it){
+          var c=it.cloneNode(true);
+          c.setAttribute('aria-hidden','true');
+          c.removeAttribute('id');
+          [].forEach.call(c.querySelectorAll('[id]'), function(n){ n.removeAttribute('id'); });
+          sTrack.appendChild(c);
+          var oh=it.querySelector('.hv'), ch=c.querySelector('.hv');
+          if(oh&&ch) pairs.push([oh,ch]);
+        });
+      }
+      var oneSet=sTrack.scrollWidth;
+      cloneSet();
+      var guardN=0;
+      while(sTrack.scrollWidth < strip.clientWidth + oneSet && guardN<5){ cloneSet(); guardN++; }
+      function syncClones(){
+        pairs.forEach(function(p){
+          if(p[1].textContent!==p[0].textContent) p[1].textContent=p[0].textContent;
+          if(p[1].className!==p[0].className) p[1].className=p[0].className;
+        });
+      }
+      syncClones();
+      var hlMo=new MutationObserver(syncClones);
+      originals.forEach(function(it){
+        var hv=it.querySelector('.hv');
+        if(hv) hlMo.observe(hv,{childList:true,characterData:true,subtree:true,
+                                attributes:true,attributeFilter:['class']});
+      });
+      makeGlide(strip, sTrack, function(){
+        var n=originals.length;
+        if(sTrack.children.length<=n) return 0;
+        var d=sTrack.children[n].offsetLeft-sTrack.children[0].offsetLeft;
+        return d>0? d:0;
+      });
+    }
+  }
+  var ticker=document.querySelector('.ticker');
+  var tTrack=document.getElementById('tickerTrack');
+  if(ticker && tTrack && !reduceMotion){
+    ticker.classList.add('glide-on'); /* CSS tape animation off; this engine drives */
+    var tSetW=0;
+    function tickerSetW(){
+      if(tTrack.children.length>=2){
+        var d=tTrack.children[1].offsetLeft-tTrack.children[0].offsetLeft;
+        if(d>0) tSetW=d;
+      } else tSetW=0;
+      return tSetW;
+    }
+    /* renderTicker() rebuilds the tape's innerHTML on every data poll;
+       the transform lives on the track element itself, so the glide
+       survives rebuilds — just re-measure the set width on change. */
+    new MutationObserver(tickerSetW).observe(tTrack,{childList:true});
+    window.addEventListener('resize', tickerSetW);
+    tickerSetW();
+    makeGlide(ticker, tTrack, tickerSetW);
   }
 })();
 </script>
