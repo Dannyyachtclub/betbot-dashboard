@@ -1,4 +1,4 @@
-/* BetBot Terminal service worker — build r75-20261117.
+/* BetBot Terminal service worker — build r76-20261117.
  *
  * Deliberately minimal. Its only jobs: make the app installable and let
  * the shell open fast / offline. Freshness of DATA always wins:
@@ -13,7 +13,7 @@
  *  - Static art (banners, icons, fonts) is cache-first: it only changes
  *    when the build stamp (and therefore this cache name) changes.
  */
-var BUILD = 'r75-20261117';
+var BUILD = 'r76-20261117';
 var SHELL = 'betbot-shell-' + BUILD;
 var RUNTIME = 'betbot-runtime-' + BUILD;
 var CORE = [
@@ -86,8 +86,16 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
+  /* Media (banner videos) — hands off (r76). Video range requests
+     and the Cache API are a bad mix: 206 partial responses cannot be
+     cached, and a cached full-body answer to a range request stalls
+     mobile media stacks — the banners sat frozen on the phone while
+     the stills showed. Videos stream straight from the host with
+     their range requests intact. */
+  if (/\.(?:mp4|webm|mov|m4v)$/i.test(url.pathname)) return;
+
   /* Static art and fonts — cache-first, then network (and keep a copy). */
-  if (/\.(?:jpe?g|png|webp|svg|gif|mp4|webm|woff2?|ttf|css)$/i.test(url.pathname)) {
+  if (/\.(?:jpe?g|png|webp|svg|gif|woff2?|ttf|css)$/i.test(url.pathname)) {
     e.respondWith(
       caches.match(req).then(function (hit) {
         return hit || fetch(req).then(function (res) {

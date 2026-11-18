@@ -3887,8 +3887,9 @@ setInterval(function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   function ensure(v){ if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } }
   function play(v){ if (reduced.matches) return; var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+  function nearView(v){ var r = v.getBoundingClientRect(); return r.bottom > -240 && r.top < window.innerHeight + 240; }
   vids.forEach(function(v){
-    v.addEventListener('canplay', function(){ v.classList.add('on'); });
+    v.addEventListener('canplay', function(){ v.classList.add('on'); if (!reduced.matches && nearView(v)) play(v); });
     v.addEventListener('error', function(){ v.classList.remove('on'); }, true);
   });
   if (reduced.matches) return;
@@ -4249,6 +4250,89 @@ body[data-furnace="3"] .fire-strip{background:linear-gradient(90deg,#ff8a2a,#e8b
     if(window.renderEquityLive && typeof PAYLOAD!=='undefined' && PAYLOAD) window.renderEquityLive(PAYLOAD);
   });
   sync();
+})();
+</script>
+
+<style id="r76-style">
+/* ===== r7.6 — enrichment: milestone meter, ladder rail, band glide,
+   watermark drift, card feedback. Gold stays money-only (bankroll
+   meter + ladder stakes). Reduced-motion: all motion off. ===== */
+.ms-meter{margin:10px 2px 2px}
+.ms-lab{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--dim)}
+.ms-dot{width:7px;height:7px;border-radius:50%;background:var(--gold,#e8b33c);box-shadow:0 0 8px rgba(232,179,60,.8);animation:dotPulse 3s ease-in-out infinite;flex:none}
+.ms-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:6px;overflow:hidden}
+.ms-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#8a6414,var(--gold,#e8b33c),var(--gold-hot,#ffd76a));transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.ladder-rail{display:flex;gap:5px;margin:0 0 10px}
+.lr-seg{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.09)}
+.lr-seg.hit{background:linear-gradient(90deg,#8a6414,var(--gold,#e8b33c))}
+.lr-seg.now{background:var(--gold-hot,#ffd76a);animation:lrPulse 1.8s ease-in-out infinite}
+@keyframes lrPulse{0%,100%{box-shadow:0 0 2px rgba(255,215,106,.2)}50%{box-shadow:0 0 12px rgba(255,215,106,.75)}}
+.band-track{animation:tape 40s linear infinite;will-change:transform}
+.deck-panel::before{animation:wmDrift 26s ease-in-out infinite alternate}
+@keyframes wmDrift{from{background-position:100% -12px}to{background-position:100% 16px}}
+.sealed-row{transition:transform .18s ease}
+@media(hover:hover){.sealed-row:hover{transform:translateY(-1px)}}
+.sealed-row:active{transform:scale(.996)}
+@media (prefers-reduced-motion: reduce){
+.band-track{animation:none}
+.deck-panel::before{animation:none}
+.lr-seg.now{animation:none}
+.ms-dot{animation:none}
+.ms-fill{transition:none}
+}
+</style>
+<script id="r76js">
+/* r7.6 — data-driven enrichment: milestone meter + ladder progress rail.
+   Reads only the live PAYLOAD the page already renders from (and the
+   ladder DOM those renderers produced). No numbers are invented:
+   the meter is bankroll_total against milestones.next; the rail
+   mirrors the rendered rungs (done / now / ahead). */
+(function(){
+  function money(n){ return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+  var strip = document.getElementById('hlStrip');
+  var fill = null, lab = null;
+  if (strip && strip.parentNode) {
+    var meter = document.createElement('div');
+    meter.className = 'ms-meter'; meter.id = 'msMeter';
+    meter.innerHTML = '<div class="ms-lab"><span class="ms-dot"></span><span class="ms-txt">\u2014</span></div><div class="ms-bar"><div class="ms-fill"></div></div>';
+    strip.parentNode.insertBefore(meter, strip.nextSibling);
+    fill = meter.querySelector('.ms-fill'); lab = meter.querySelector('.ms-txt');
+  }
+  function updMeter(){
+    try {
+      var P = (typeof PAYLOAD !== 'undefined' && PAYLOAD) ? PAYLOAD : null;
+      if (!P || !P.milestones || typeof P.bankroll_total !== 'number') return;
+      var next = P.milestones.next, bank = P.bankroll_total;
+      if (!(next > 0) || !fill || !lab) return;
+      var pct = Math.max(0, Math.min(100, bank / next * 100));
+      fill.style.width = pct.toFixed(1) + '%';
+      lab.textContent = 'ROAD TO ' + money(next).replace(/\.00$/, '') + ' \u00B7 ' + money(bank) + ' BANKED \u00B7 ' + pct.toFixed(0) + '% OF THE WAY';
+    } catch (e) {}
+  }
+  var lad = document.getElementById('ladder');
+  var rail = null;
+  if (lad && lad.parentNode) {
+    rail = document.createElement('div');
+    rail.className = 'ladder-rail'; rail.id = 'ladderRail';
+    lad.parentNode.insertBefore(rail, lad);
+  }
+  function updRail(){
+    if (!rail || !lad) return;
+    var rungs = lad.querySelectorAll('.rung');
+    if (!rungs.length) { if (rail.innerHTML) rail.innerHTML = ''; rail.__sig = ''; return; }
+    var nowIdx = -1, doneN = 0, i;
+    for (i = 0; i < rungs.length; i++) {
+      if (rungs[i].classList.contains('now')) nowIdx = i;
+      if (rungs[i].classList.contains('done')) doneN++;
+    }
+    var filled = nowIdx >= 0 ? nowIdx : doneN;
+    var html = '';
+    for (i = 0; i < rungs.length; i++) html += '<span class="lr-seg' + (i < filled ? ' hit' : '') + (i === nowIdx ? ' now' : '') + '"></span>';
+    if (rail.__sig !== html) { rail.innerHTML = html; rail.__sig = html; }
+  }
+  function tick(){ updMeter(); updRail(); }
+  tick(); setInterval(tick, 4000);
+  if (lad && 'MutationObserver' in window) new MutationObserver(updRail).observe(lad, { childList: true });
 })();
 </script>
 </body>
