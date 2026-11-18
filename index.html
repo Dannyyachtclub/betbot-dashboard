@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r72-20261117" />
+<meta name="dd-build" content="r73-20261117" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r72-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r73-20261117";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -222,6 +222,26 @@ main{max-width:1280px;margin:0 auto;padding:0 20px 70px;position:relative;z-inde
 .pipe .st.next span{color:var(--dim)}
 .completed-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint);margin:16px 0 2px}
 .completed-list .sealed-row{opacity:.85}
+/* r7.3 — queue speed-track flow, gold trim, winner celebration.
+   Reduced motion: static chevrons + static glow, no flashing. */
+#sealedList{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='210' viewBox='0 0 100 70'%3E%3Cpath d='M2 4 L50 44 L98 4 L98 26 L50 66 L2 26 Z' fill='%2339ff6a' fill-opacity='0.055'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right -46px top -24px;background-size:300px auto}
+.sealed-row{border-color:rgba(255,201,77,.34);box-shadow:inset 3px 0 0 rgba(255,201,77,.65),0 8px 20px rgba(0,0,0,.28)}
+.sealed-row.first{border-color:rgba(255,201,77,.78);box-shadow:inset 3px 0 0 var(--gold),0 0 22px rgba(255,201,77,.16),0 8px 20px rgba(0,0,0,.28)}
+.upnext{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.14em;color:#171106;background:linear-gradient(180deg,#ffd970,var(--gold));border-radius:6px;padding:3px 8px;box-shadow:0 0 12px rgba(255,201,77,.45);flex:none}
+.qflow{display:flex;flex-direction:column;align-items:center;gap:1px;margin:-2px 0;position:relative;z-index:2}
+.qflow i{display:block;width:22px;height:9px;background:var(--green);clip-path:polygon(0 0,50% 58%,100% 0,100% 40%,50% 100%,0 40%);opacity:.22;animation:qChase 1.5s ease-in-out infinite}
+.qflow i:nth-child(2){animation-delay:.16s}
+.qflow i:nth-child(3){animation-delay:.32s}
+@keyframes qChase{0%,100%{opacity:.16}50%{opacity:1;filter:drop-shadow(0 0 6px rgba(57,255,106,.85))}}
+.bet-card.w,.gh-card.w{position:relative;animation:winAura 2.8s ease-in-out infinite}
+.bet-card.w::after,.gh-card.w::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:12px 12px 0 0;background:linear-gradient(90deg,#ff5a2a,#ffc94d,#ff8a3c,#ffc94d,#ff5a2a);background-size:200% 100%;animation:winFlame 1.6s linear infinite;pointer-events:none}
+@keyframes winAura{0%,100%{box-shadow:0 0 0 1px rgba(255,201,77,.18),0 0 16px rgba(255,140,40,.10),0 10px 24px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 1px rgba(255,201,77,.5),0 0 34px rgba(255,140,40,.32),0 10px 24px rgba(0,0,0,.35)}}
+@keyframes winFlame{0%{background-position:0% 0;opacity:.75}50%{opacity:1}100%{background-position:200% 0;opacity:.75}}
+@media (prefers-reduced-motion: reduce){
+.qflow i{animation:none!important;opacity:.5}
+.bet-card.w,.gh-card.w{animation:none!important;box-shadow:0 0 0 1px rgba(255,201,77,.4),0 0 22px rgba(255,140,40,.20),0 10px 24px rgba(0,0,0,.35)}
+.bet-card.w::after,.gh-card.w::after{animation:none!important;opacity:.9}
+}
 .pipe .ln{width:20px;height:3px;border-radius:2px;background:#26262e;margin-bottom:16px;flex:none}
 .pipe .ln.done{background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 6px rgba(57,255,106,.35)}
 .pipe .ln.flow{position:relative;overflow:hidden;background:#1c2126;box-shadow:inset 0 0 0 1px rgba(57,255,106,.14)}
@@ -882,7 +902,6 @@ figure.rail figcaption{position:absolute;top:14px;right:11px;z-index:2;writing-m
 .filmstrip:hover .film-track{animation-play-state:paused}
 .film-track img{height:88px;width:158px;object-fit:cover;object-position:center;border-radius:10px;border:1px solid rgba(57,255,106,.18);display:block;flex:none;margin-right:10px}
 .film-track img.fv{object-position:center 22%}
-.film-cap{position:absolute;left:12px;top:17px;z-index:2;font-family:var(--mono);font-size:9.5px;font-weight:800;letter-spacing:.24em;color:rgba(234,255,240,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);background:rgba(5,6,8,.5);padding:3px 7px;border-radius:6px}
 @media(max-width:980px){
  .rail-row.rail-right,.rail-row.rail-left{grid-template-columns:1fr}
  figure.rail{min-height:0;height:190px;order:2}
@@ -908,16 +927,10 @@ video.band-vid.on{opacity:1}
 @media (prefers-reduced-motion: reduce){.fxo{animation:none!important;opacity:0!important}video.band-vid{display:none!important}}
 </style>
 <style>
-/* ===== round 6: every banner alive, static gallery, dragon logo ===== */
-.gallery-static{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(57,255,106,.22);background:#070907;padding:36px 12px 12px;box-shadow:0 14px 30px rgba(0,0,0,.4)}
-.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.gallery-grid img{display:block;width:100%;height:100%;aspect-ratio:16/10;object-fit:cover;object-position:center;border-radius:10px;border:1px solid rgba(57,255,106,.18)}
-.gallery-grid img.fv{object-position:center 18%}
-@media (hover:hover){.gallery-grid img{transition:transform .45s ease}.gallery-grid img:hover{transform:scale(1.045)}}
-@media (max-width:640px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+/* ===== round 6: every banner alive, dragon logo ===== */
 /* ===== round 7 fix: dragon BREAKS OUT of the badge (user: logo must pop, 3D) ===== */ .topbar .logo-badge{position:relative;flex:0 0 auto;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#26351f 0%,#11170f 55%,#070907 100%);box-shadow:0 0 0 2px rgba(57,255,106,.55),0 0 18px rgba(57,255,106,.35),inset 0 2px 6px rgba(255,255,255,.16),inset 0 -10px 16px rgba(0,0,0,.7),0 14px 22px rgba(0,0,0,.5);z-index:2} .topbar .avatar.logo-dragon{position:absolute;width:160%;height:160%;left:-31%;top:-38%;max-width:none;border:none;border-radius:0;object-fit:contain;background:transparent;box-shadow:none;filter:brightness(1.13) saturate(1.06) drop-shadow(0 8px 10px rgba(0,0,0,.68)) drop-shadow(0 0 16px rgba(57,255,106,.40));z-index:3} @media (max-width:640px){.topbar .logo-badge{width:52px;height:52px}.topbar .avatar.logo-dragon{width:152%;height:152%;left:-27%;top:-37%}} figure.pic-band.dragon-fig img{animation:r3kb 30s ease-in-out infinite alternate,r6glow 5.4s ease-in-out infinite alternate}
 @keyframes r6glow{from{filter:brightness(1)}to{filter:brightness(1.14)}}
-@media (prefers-reduced-motion: reduce){figure.pic-band.dragon-fig img{animation:none!important}.gallery-grid img{transition:none!important}}
+@media (prefers-reduced-motion: reduce){figure.pic-band.dragon-fig img{animation:none!important}}
 </style>
 <style>
 /* ===== round 7: DI Quantum Core — maximize motion, watermarks, solid history ===== */
@@ -1075,7 +1088,6 @@ video.band-vid.on{opacity:1}
     <div class="brain-cap">A living map of the machine mind — perception, decision and execution nodes trading pulses around the clock.</div>
   </section>
 <section class="panel act-panel wm wm-live"><div class="panel-head"><h2>SYSTEM <em>ACTIVITY</em></h2><span class="sub">LIVE FEED &middot; STRAIGHT FROM THE BOT</span></div><div class="act-list" id="actList"><div class="act-empty">&mdash;</div></div></section>
-<div class="gallery-static"><span class="film-cap">THE GALLERY &middot; EIGHT FRAMES</span><div class="gallery-grid"><img src="banner_emblem.jpg" alt="" loading="lazy"/><img src="gallery_casino.jpg" alt="" loading="lazy"/><img src="gallery_live.jpg" alt="" loading="lazy"/><img src="gallery_phoenix.jpg" alt="" loading="lazy"/><img src="gallery_roller.jpg" alt="" loading="lazy"/><img src="gallery_shark.jpg" alt="" loading="lazy"/><img src="gallery_storm.jpg" alt="" loading="lazy"/><img src="gallery_vault.jpg" alt="" loading="lazy"/></div></div>
 </section>
 <section class="deck-panel" id="deck-pipeline" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
@@ -1768,7 +1780,7 @@ function applyPayload(p){
     recomputeDerived(p);
   }
   if(!Array.isArray(p.settled_games)){
-    p.settled_games=BETS.map(function(b){ return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d, home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null), bet_placed:true, outcome:b.res, pnl:b.pnl, market:b.market, odds:b.odds, stake:b.stake}; });
+    p.settled_games=BETS.map(function(b){ return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d, home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null), final_score:(typeof b.final_score==='string'?b.final_score:null), bet_placed:true, outcome:b.res, pnl:b.pnl, market:b.market, odds:b.odds, stake:b.stake}; });
   }
   SETTLED_GAMES=p.settled_games;
   if(s0){
@@ -2159,6 +2171,7 @@ function betCardHTML(b){
   var res=(b.res||'W').toUpperCase();
   var cls=res==='W'?'w':(res==='L'?'l':'v');
   var lbl=res==='W'?'WON':(res==='L'?'LOST':'VOID');
+  var scoreTxt=(typeof b.final_score==='string'&&b.final_score)?b.final_score:((typeof b.home_score==='number'&&typeof b.away_score==='number')?(b.home_score+'-'+b.away_score):'');
   var dateLbl=new Date((b.d||'2026-11-01')+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
   var mkt=b.market||'2H Over 0.5 Goals', line=b.line||'Over 0.5';
   var detail='<div class="dgrid">'
@@ -2170,6 +2183,7 @@ function betCardHTML(b){
     +'<div><div class="dk">Stake</div><div class="dv">'+fmtM(+b.stake||0)+'</div></div>'
     +'<div><div class="dk">Ladder rung</div><div class="dv">Rung '+(b.rung||1)+' of 6</div></div>'
     +'<div><div class="dk">Result</div><div class="dv">'+lbl+'</div></div>'
+    +'<div><div class="dk">Final score</div><div class="dv">'+(scoreTxt||'—')+'</div></div>'
     +'<div><div class="dk">Placed</div><div class="dv">'+(b.min||'—')+'\' · 2nd half</div></div></div>'
     +'<div class="gate"><h4>Gate receipts — why this bet fired</h4><ul>'
     +'<li><span class="pass">PASS</span><span>Clock in window — placed at <b>'+(b.min||'—')+'\'</b> (63–75\')</span></li>'
@@ -2177,10 +2191,10 @@ function betCardHTML(b){
     +'<li><span class="pass">PASS</span><span>Odds band — <b>'+(+b.odds||0).toFixed(2)+'</b> · at or above the 1.65 floor</span></li>'
     +'<li><span class="pass">PASS</span><span>One-goal outcome — line ranked by what one goal does: full cash preferred over half-cash · push lines never taken</span></li>'
     +'<li><span class="pass">PASS</span><span>Ladder stake verified — <b>rung '+(b.rung||1)+' · '+fmtM(+b.stake||0)+'</b></span></li></ul>'
-    +'<p style="font-size:11px;color:var(--faint);margin:10px 0 0;font-family:var(--mono)">Result recorded from the settled slip. Final scoreline is not captured by the pipeline.</p></div>';
+    +'<p style="font-size:11px;color:var(--faint);margin:10px 0 0;font-family:var(--mono)">'+(scoreTxt?'Result and final scoreline recorded from the settled slip.':'Result recorded from the settled slip. Final scoreline is not captured by the pipeline.')+'</p></div>';
   return '<article class="bet-card '+cls+'"><button class="bet-main" aria-expanded="false">'
     +'<span class="res '+cls+'">'+lbl+'</span>'
-    +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(b.line||mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+'</span></span>'
+    +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(b.line||mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+(scoreTxt?' · FT '+scoreTxt:'')+'</span></span>'
     +'<span class="pnl '+(b.pnl>=0?'pos':'neg')+'">'+fmtS(b.pnl||0)+'</span><span class="chev">▾</span></button>'
     +'<div class="bet-detail"><div class="bet-detail-inner">'+detail+'</div></div></article>';
 }
@@ -2296,14 +2310,14 @@ function normalizeGame(g){
   if(!betPlaced && !outcome) outcome='NB';
   if(betPlaced && !outcome) outcome='W';
   return {home:home||'—', away:away||'—', league:g.league||'—', date:g.date||g.d||'2026-11-01',
-    home_score:(g.home_score===undefined?null:g.home_score), away_score:(g.away_score===undefined?null:g.away_score),
+    home_score:(g.home_score===undefined?null:g.home_score), away_score:(g.away_score===undefined?null:g.away_score), final_score:(typeof g.final_score==='string'&&g.final_score)?g.final_score:null,
     bet_placed:betPlaced, outcome:outcome, pnl:+(g.pnl||0), market:g.market||'2H Over 0.5', odds:g.odds, stake:g.stake,
     note:g.note||g.reason||g.skip_reason||''};
 }
 function gamesSource(){
   if(Array.isArray(PAYLOAD.settled_games)) return PAYLOAD.settled_games.map(normalizeGame);
   var src=Array.isArray(PAYLOAD.settled_bets)? PAYLOAD.settled_bets : BETS;
-  return src.map(function(b){ return normalizeGame({home:b.home,away:b.away,league:b.league,date:b.d,home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null),bet_placed:true,outcome:b.res,pnl:b.pnl,market:b.market||'2H Over 0.5',odds:b.odds,stake:b.stake}); });
+  return src.map(function(b){ return normalizeGame({home:b.home,away:b.away,league:b.league,date:b.d,home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null),final_score:(typeof b.final_score==='string'?b.final_score:null),bet_placed:true,outcome:b.res,pnl:b.pnl,market:b.market||'2H Over 0.5',odds:b.odds,stake:b.stake}); });
 }
 function renderGameStats(src){
   var el=document.getElementById('gameStats'); if(!el) return;
@@ -2316,7 +2330,9 @@ function renderGameStats(src){
 }
 function gameCardHTML(g){
   var hasScore = g.home_score!==null && g.home_score!==undefined && g.away_score!==null && g.away_score!==undefined;
-  var scoreHTML = hasScore ? '<div class="gh-score">'+g.home_score+' — '+g.away_score+'</div>' : '<div class="gh-score missing">— : —</div><div style="font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:3px;line-height:1.4">SCORE NOT<br/>CAPTURED YET</div>';
+  var fsTxt='';
+  if(!hasScore && g.final_score){ var fp=String(g.final_score).split('-'); fsTxt=(fp.length===2&&fp[0].trim()!==''&&fp[1].trim()!=='')?fp[0].trim()+' — '+fp[1].trim():String(g.final_score); }
+  var scoreHTML = hasScore ? '<div class="gh-score">'+g.home_score+' — '+g.away_score+'</div>' : (fsTxt ? '<div class="gh-score">'+esc(fsTxt)+'</div>' : '<div class="gh-score missing">— : —</div><div style="font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:3px;line-height:1.4">SCORE NOT<br/>CAPTURED YET</div>');
   var oc = g.bet_placed ? g.outcome : 'NB';
   var ocCls = oc==='W'?'w':(oc==='L'?'l':(oc==='V'?'v':'nb'));
   var ocLbl = oc==='W'?'WON':(oc==='L'?'LOST':(oc==='V'?'VOID':'NO BET'));
@@ -3120,12 +3136,26 @@ function pipeHTML(stage){
   });
   return '<div class="pipe">'+pipe+'</div>';
 }
+/* r7.3 — kickoff sort key: "2:00 PM" style strings (ISO as fallback)
+   become minutes into the day; unparseable kickoffs keep payload order
+   at the end of the board. QFLOW is the speed-track connector rendered
+   between consecutive queue cards. */
+function kickoffKey(pk){
+  var s=(''+(pk&&pk.kickoff||'')).trim();
+  var m=s.match(/(\d{1,2}):(\d{2})\s*([AaPp])[Mm]/);
+  if(m){ var h=parseInt(m[1],10)%12; if(m[3].toUpperCase()==='P') h+=12; return h*60+parseInt(m[2],10); }
+  var t=Date.parse(s);
+  if(!isNaN(t)){ var d=new Date(t); return d.getHours()*60+d.getMinutes(); }
+  return null;
+}
+var QFLOW='<div class="qflow" aria-hidden="true"><i></i><i></i><i></i></div>';
 function renderQueueUpgrade(p){
   if(!p) return;
   var oc=document.getElementById('openCard');
   if(oc){ var hasOpen=(Array.isArray(p.open_bets)&&p.open_bets.length>0)||p.open_bet_hidden===true; oc.style.display=hasOpen?'':'none'; }
   var QUEUE_DONE={settled:1,skipped:1,aborted:1,expired:1};
-  var q=Array.isArray(p.sealed_queue)?p.sealed_queue.filter(function(pk){ return !QUEUE_DONE[pk.stage]; }):null;
+  var q=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).filter(function(pk){ return !QUEUE_DONE[pk.stage]; });
+  q=q.map(function(pk,i){ return {pk:pk,i:i,k:kickoffKey(pk)}; }).sort(function(a,b){ if(a.k===null&&b.k===null) return a.i-b.i; if(a.k===null) return 1; if(b.k===null) return -1; return (a.k-b.k)||(a.i-b.i); }).map(function(x){ return x.pk; });
   if(q){
     var sum=p.queue_summary||{};
     var qs=document.getElementById('queueSummary');
@@ -3146,15 +3176,15 @@ function renderQueueUpgrade(p){
       if(!q.length){
         list.innerHTML='<div class="feed-empty">Queue empty \u2014 no signals waiting.<span>New picks appear here, sealed, the moment a signal lands.</span></div>';
       } else {
-        list.innerHTML=q.map(function(pk){
+        list.innerHTML=q.map(function(pk,qi){
           var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
             : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
           var age = (pk.stage_age_s===null||pk.stage_age_s===undefined) ? null : pk.stage_age_s;
           var meta = '<span class="stage-meta" data-age="'+(age===null?'':age)+'">in stage '+fmtDur(age)+'</span>';
           var polls = pk.camp_polls ? '<span class="stage-meta">POLLS '+pk.camp_polls+'</span>' : '';
           var park = pk.park ? '<span class="stage-meta">'+(pk.park==='parked'?'PARKED \u2713':'PARK FAILED')+'</span>' : '';
-          return '<div class="sealed-row" data-sid="'+esc(pk.id)+'">'
-            +'<span class="sid">'+esc(pk.id)+'</span>'
+          return (qi?QFLOW:'')+'<div class="sealed-row'+(qi===0?' first':'')+'" data-sid="'+esc(pk.id)+'">'
+            +'<span class="sid">'+esc(pk.id)+'</span>'+(qi===0?'<span class="upnext">UP NEXT</span>':'')
             +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
             +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
             +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
