@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <meta name="dd-build" content="r77-20261118" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r77-20261118";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r78-20261119";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -426,7 +426,7 @@ body[data-furnace="2"] .rung.now::after,body[data-furnace="3"] .rung.now::after{
 .bet-main .chev{color:var(--faint);font-size:13px;flex:none;transition:transform .3s}
 .bet-card.open .chev{transform:rotate(180deg)}
 .bet-detail{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1)}
-.bet-card.open .bet-detail{max-height:420px}
+.bet-card.open .bet-detail{max-height:1150px}
 .bet-detail-inner{border-top:1px dashed var(--line);padding:16px 18px 18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:640px){.bet-detail-inner{grid-template-columns:1fr}}
 .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;font-size:13px}
@@ -1177,6 +1177,14 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
     <div id="receiptList"></div>
   </section>
 
+  <section class="panel" id="nearMissPanel" style="display:none">
+    <details class="nm-details">
+      <summary class="nm-summary">NEAR MISSES \u2014 GAMES WITH NO BET <span class="count" id="nearMissCount"></span></summary>
+      <p class="sealed-sub">Games the bot watched where no bet was placed \u2014 the price never reached the 1.65 minimum, or the game was skipped for the reason shown. Real records only; tap a game to see its journey.</p>
+      <div id="nearMissList"></div>
+    </details>
+  </section>
+
       <div class="now-col">
 <div class="lock-card" id="openCard" style="display:none">
       <h3>◉ BET IN PLAY</h3>
@@ -1369,7 +1377,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
 
   <footer>
     <div>DI QUANTUM CORE · ALPHA GOAL × BETBOT<br/>Live data from the bot exporter — refreshed every 60s. Settled results only; open positions stay sealed.</div>
-    <div style="text-align:right">DISCORD REMAINS THE OPS CONSOLE OF RECORD.<br/>PAST PERFORMANCE NEVER GUARANTEES FUTURE RESULTS.</div>
+    <div style="text-align:right"><a href="continuity.html" style="color:var(--faint);text-decoration:none;border-bottom:1px dotted var(--faint)">HOW THIS SYSTEM WORKS \u2014 AND HOW TO REBUILD IT</a><br/>DISCORD REMAINS THE OPS CONSOLE OF RECORD.<br/>PAST PERFORMANCE NEVER GUARANTEES FUTURE RESULTS.</div>
   </footer>
 </main>
 <script>
@@ -1692,7 +1700,7 @@ function renderSealed(picks){
       pipe='<div class="pipe">'+pipe+'</div>';
     }
     var note = skipped ? '<span class="sealed-note skip">NO QUALIFYING LINE</span>'
-      : settled ? '<span class="sealed-note done">UNSEALED → BET HISTORY ↓</span>'
+      : settled ? '<span class="sealed-note done">SEE IT IN BET HISTORY</span>'
       : '<span class="sealed-note" style="color:var(--faint)">'+pk.status.replace('_',' ').toUpperCase()+'</span>';
     return '<div class="sealed-row'+(settled?' unsealing':'')+'" data-sid="'+esc(pk.id)+'">'
       +'<span class="sid">'+esc(pk.id)+'</span>'
@@ -2291,7 +2299,7 @@ function betCardHTML(b){
     +'<span class="res '+cls+'">'+lbl+'</span>'
     +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(b.line||mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+(scoreTxt?' · FT '+scoreTxt:'')+'</span></span>'
     +'<span class="pnl '+(b.pnl>=0?'pos':'neg')+'">'+fmtS(b.pnl||0)+'</span><span class="chev">▾</span></button>'
-    +'<div class="bet-detail"><div class="bet-detail-inner">'+detail+'</div></div></article>';
+    +'<div class="bet-detail"><div class="bet-detail-inner">'+detail+(typeof journeyHTML==='function'?journeyHTML(b):'')+'</div></div></article>';
 }
 function renderRecordStrip(src){
   var el=document.getElementById('recordStrip'); if(!el) return;
@@ -3190,10 +3198,10 @@ setTimeout(function(){
 /* ================= v2 QUEUE STAGE BOARD + SYSTEM STATUS =================
    Renders ONLY what the exporter sends. Missing blocks stay hidden —
    never demo data, never invented numbers. */
-var STAGE_LABEL={queued:'QUEUED',scheduled:'SCHEDULED',pre_arrival:'PRE-ARRIVAL',window_open:'WINDOW OPEN',arrived:'ARRIVED',camping:'CAMPING',decision:'DECISION',placing:'PLACING',placed:'PLACED',settled:'SETTLED',skipped:'SKIPPED',aborted:'ABORTED',expired:'EXPIRED'};
-var MODE_LABEL={idle:'IDLE',in_window:'IN WINDOW',camping:'CAMPING',placing:'PLACING'};
-var SVC_LABEL={betbot:'BOT',droidline:'PHONE BRIDGE',janitor_watcher:'WATCHER',janitor_ctl:'JANITOR',responder:'RESPONDER'};
-var PHASE_LABEL={place_tap:'died at the final tap',stake_entry:'died entering the stake',locate:'died finding the market'};
+var STAGE_LABEL={queued:'IN LINE',scheduled:'IN LINE',pre_arrival:'GETTING IN POSITION',window_open:'WINDOW OPEN',arrived:'IN POSITION',camping:'WATCHING THE PRICE',decision:'PRICE FOUND',placing:'PLACING THE BET',placed:'BET PLACED',settled:'FINISHED',skipped:'SKIPPED \u2014 NO BET',aborted:'NOT PLACED',expired:'WINDOW MISSED'};
+var MODE_LABEL={idle:'WAITING',in_window:'IN THE WINDOW',camping:'WATCHING THE PRICE',placing:'PLACING THE BET'};
+var SVC_LABEL={betbot:'BETTING BOT',droidline:'PHONE LINK',janitor_watcher:'WATCHER',janitor_ctl:'CLEANUP',responder:'AUTO-RECOVERY'};
+var PHASE_LABEL={place_tap:'stopped at the final tap',stake_entry:'stopped while entering the stake',locate:'stopped while finding the market'};
 function stageCls(st){ if(st==='camping'||st==='placing'||st==='decision') return 'hot'; if(st==='window_open'||st==='arrived'||st==='pre_arrival') return 'warm'; if(st==='skipped'||st==='aborted'||st==='expired') return 'bad'; if(st==='placed'||st==='settled') return 'done'; return ''; }
 function fmtStartDate(iso){ try{ return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase(); }catch(e){ return iso; } }
 function fmtDur(s){ if(s===null||s===undefined||isNaN(s)) return '\u2014'; s=Math.max(0,Math.floor(s)); if(s<60) return s+'s'; var m=Math.floor(s/60); if(m<60) return m+'m '+(s%60)+'s'; var h=Math.floor(m/60); return h+'h '+(m%60)+'m'; }
@@ -3314,7 +3322,7 @@ function renderQueueUpgrade(p){
           var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
             : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
           var age = (pk.stage_age_s===null||pk.stage_age_s===undefined) ? null : pk.stage_age_s;
-          var meta = '<span class="stage-meta" data-age="'+(age===null?'':age)+'">in stage '+fmtDur(age)+'</span>';
+          var meta = '<span class="stage-meta" data-age="'+(age===null?'':age)+'">in this step for '+fmtDur(age)+'</span>';
           var polls = pk.camp_polls ? '<span class="stage-meta">POLLS '+pk.camp_polls+'</span>' : '';
           var park = pk.park ? '<span class="stage-meta">'+(pk.park==='parked'?'PARKED \u2713':'PARK FAILED')+'</span>' : '';
           return (qi?QFLOW:'')+'<div class="sealed-row'+(qi===0?' first':'')+'" data-sid="'+esc(pk.id)+'">'
@@ -3361,10 +3369,10 @@ function renderQueueUpgrade(p){
           word = ob.res==='W' ? 'WON' : (ob.res==='L' ? 'LOST' : 'VOID');
           pillCls = ob.res==='W' ? 'done' : (ob.res==='L' ? 'bad' : '');
           note = ob.final_score ? '<span class="sealed-note done">FINAL SCORE '+esc(ob.final_score)+'</span>'
-            : '<span class="sealed-note done">UNSEALED → BET HISTORY ↓</span>';
+            : '<span class="sealed-note done">SEE IT IN BET HISTORY</span>';
         } else if(pk.stage==='settled'){
           word='SETTLED'; pillCls='done';
-          note='<span class="sealed-note done">UNSEALED → BET HISTORY ↓</span>';
+          note='<span class="sealed-note done">SEE IT IN BET HISTORY</span>';
         } else {
           word=(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase());
           pillCls=stageCls(pk.stage);
@@ -3397,10 +3405,10 @@ function renderQueueUpgrade(p){
       var linkCls = ss.phone_link==='ok' ? 'ok' : (ss.phone_link==='down' ? 'bad' : '');
       chips.push('<span class="sys-chip '+linkCls+'">PHONE LINK <b>'+linkTxt+'</b>'+(ss.phone_last_read_age_s!==null&&ss.phone_last_read_age_s!==undefined?' \u00b7 read '+fmtDur(ss.phone_last_read_age_s)+' ago':'')+'</span>');
       if(p.balance_drift && typeof p.balance_drift.amount==='number' && p.balance_drift.amount!==0)
-        chips.push('<span class="sys-chip">IN APP, NOT YET BOOKED <b>'+(p.balance_drift.amount>0?'+':'-')+'$'+Math.abs(p.balance_drift.amount).toFixed(2)+'</b></span>');
+        chips.push('<span class="sys-chip">IN THE APP, NOT YET IN THE BOOKS <b>'+(p.balance_drift.amount>0?'+':'-')+'$'+Math.abs(p.balance_drift.amount).toFixed(2)+'</b></span>');
       if(ss.ladder_rung!==null&&ss.ladder_rung!==undefined)
         chips.push('<span class="sys-chip">LADDER <b>RUNG '+ss.ladder_rung+'</b>'+(typeof ss.base_stake==='number'?' \u00b7 base $'+ss.base_stake.toFixed(2):'')+'</span>');
-      chips.push('<span class="sys-chip ok">HEALS TODAY <b>'+(ss.heals_today===null||ss.heals_today===undefined?'\u2014':ss.heals_today)+'</b></span>');
+      chips.push('<span class="sys-chip ok">SELF-FIXES TODAY <b>'+(ss.heals_today===null||ss.heals_today===undefined?'\u2014':ss.heals_today)+'</b></span>');
       if(ss.services){
         Object.keys(SVC_LABEL).forEach(function(k){
           if(!(k in ss.services)) return;
@@ -3413,7 +3421,7 @@ function renderQueueUpgrade(p){
       if(inc){
         if(ss.last_incident){
           var li=ss.last_incident;
-          inc.textContent='LAST INCIDENT \u00b7 '+li.summary+(li.duration_s!==null&&li.duration_s!==undefined?' \u00b7 recovered in '+fmtDur(li.duration_s):'')+(li.recovered_at?' \u00b7 '+fmtClock(li.recovered_at):'');
+          inc.textContent='LAST PROBLEM \u00b7 '+li.summary+(li.duration_s!==null&&li.duration_s!==undefined?' \u00b7 fixed in '+fmtDur(li.duration_s):'')+(li.recovered_at?' \u00b7 '+fmtClock(li.recovered_at):'');
         } else inc.textContent='';
       }
     }
@@ -3423,7 +3431,7 @@ function renderQueueUpgrade(p){
     var tp=document.getElementById('tallyPanel');
     if(tp){
       tp.style.display='';
-      var tmap=[['received','SIGNALS IN'],['arrived','ARRIVED'],['camped','CAMPED'],['decisions','DECISIONS'],['placed','PLACED'],['skipped','SKIPPED'],['aborted','ABORTED']];
+      var tmap=[['received','PICKS IN'],['arrived','IN POSITION'],['camped','WATCHED THE PRICE'],['decisions','PRICES FOUND'],['placed','BETS PLACED'],['skipped','SKIPPED'],['aborted','NOT PLACED']];
       document.getElementById('tallyStrip').innerHTML=tmap.map(function(pr){
         return '<span class="sys-chip">'+pr[1]+' <b>'+(tt[pr[0]]===null||tt[pr[0]]===undefined?'\u2014':tt[pr[0]])+'</b></span>';
       }).join('');
@@ -3431,8 +3439,8 @@ function renderQueueUpgrade(p){
       document.getElementById('receiptList').innerHTML=rc.map(function(r){
         var oc = r.outcome==='placed' ? 'done' : (r.outcome==='aborted' ? 'bad' : '');
         var bits=[];
-        if(r.decision_at) bits.push('decision '+fmtClock(r.decision_at));
-        if(r.decision_to_outcome_s!==null&&r.decision_to_outcome_s!==undefined) bits.push('decision \u2192 end '+fmtDur(r.decision_to_outcome_s));
+        if(r.decision_at) bits.push('price found '+fmtClock(r.decision_at));
+        if(r.decision_to_outcome_s!==null&&r.decision_to_outcome_s!==undefined) bits.push('start to finish '+fmtDur(r.decision_to_outcome_s));
         if(r.phase&&PHASE_LABEL[r.phase]) bits.push(PHASE_LABEL[r.phase]);
         if(r.reason) bits.push(r.reason);
         return '<div class="receipt-row"><span class="sid">'+esc(r.id)+'</span>'
@@ -3450,7 +3458,7 @@ setInterval(function(){
     var t0=parseInt(el.getAttribute('data-t0'),10);
     var now=Date.now();
     if(!t0){ el.setAttribute('data-t0',now); t0=now; }
-    el.textContent='in stage '+fmtDur(base+Math.floor((now-t0)/1000));
+    el.textContent='in this step for '+fmtDur(base+Math.floor((now-t0)/1000));
   });
 },1000);
 </script>
@@ -4337,5 +4345,101 @@ body[data-furnace="3"] .fire-strip{background:linear-gradient(90deg,#ff8a2a,#e8b
   if (lad && 'MutationObserver' in window) new MutationObserver(updRail).observe(lad, { childList: true });
 })();
 </script>
+
+<style>
+.journey{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:12px;margin-top:2px}
+.journey h4{margin:0 0 10px;font-size:11px;letter-spacing:.14em;color:var(--dim);font-family:var(--mono);font-weight:600}
+.jstep{display:flex;gap:10px;padding:5px 0;align-items:flex-start}
+.jstep .jdot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--accent,#7ee787);margin-top:4px;box-shadow:0 0 6px rgba(126,231,135,.5)}
+.jstep .jtime{flex:0 0 74px;font-family:var(--mono);font-size:10.5px;color:var(--faint);padding-top:2px}
+.jstep .jbody{font-size:12.5px;line-height:1.5;color:var(--dim)}
+.jstep .jbody b{color:var(--text,#e8e8e8);font-weight:600}
+.jtoggle{margin-top:8px;background:none;border:1px solid var(--line);border-radius:8px;color:var(--dim);font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:5px 10px;cursor:pointer}
+.jtoggle:hover{color:var(--text,#e8e8e8)}
+.jsteps{display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.jsteps.open{display:block}
+.nm-details summary{cursor:pointer;list-style:none;font-family:var(--mono);letter-spacing:.1em;font-size:13px;color:var(--text,#e8e8e8)}
+.nm-details summary::-webkit-details-marker{display:none}
+.nm-details summary .count{color:var(--faint);font-size:11px;margin-left:8px}
+.nm-row{border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:10px 12px;margin-top:8px}
+.nm-row .nm-game{font-size:13.5px;font-weight:600;color:var(--text,#e8e8e8)}
+.nm-row .nm-meta{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:2px}
+.nm-row .nm-reason{font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.5}
+</style>
+<script>
+/* ================= r78: journeys + near misses =================
+   Renders ONLY what the exporter sends (game_journeys / near_misses).
+   A game's name is shown only where the exporter published one —
+   upcoming games stay sealed and show steps without a name. */
+function esc78(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmtClock78(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',timeZone:'America/Regina'}); }catch(e){ return ''; } }
+function journeyStepsHTML(j){
+  if(!j||!Array.isArray(j.steps)||!j.steps.length) return '';
+  return j.steps.map(function(st){
+    return '<div class="jstep"><span class="jdot"></span><span class="jtime">'+esc78(fmtClock78(st.t))+'</span><span class="jbody"><b>'+esc78(st.title)+'</b> &mdash; '+esc78(st.detail)+'</span></div>';
+  }).join('');
+}
+function journeyHTML(b){
+  try{
+    var j=(window.PAYLOAD&&PAYLOAD.game_journeys&&b&&b.journey_id)?PAYLOAD.game_journeys[b.journey_id]:null;
+    var steps=journeyStepsHTML(j);
+    if(!steps) return '';
+    return '<div class="journey"><h4>THIS GAME\u2019S JOURNEY</h4>'+steps+'</div>';
+  }catch(e){ return ''; }
+}
+window.journeyHTML=journeyHTML;
+function renderNearMisses78(p){
+  var panel=document.getElementById('nearMissPanel'); if(!panel) return;
+  var list=Array.isArray(p.near_misses)?p.near_misses:[];
+  if(!list.length){ panel.style.display='none'; return; }
+  panel.style.display='';
+  var cnt=document.getElementById('nearMissCount'); if(cnt) cnt.textContent=list.length+' GAMES';
+  var journeys=p.game_journeys||{};
+  document.getElementById('nearMissList').innerHTML=list.map(function(nm,i){
+    var meta=[];
+    if(nm.kickoff) meta.push('KICKOFF '+esc78(nm.kickoff));
+    if(nm.market) meta.push(esc78(nm.market).toUpperCase());
+    if(nm.best_price!==null&&nm.best_price!==undefined) meta.push('BEST PRICE SEEN '+Number(nm.best_price).toFixed(2)+' \u00b7 NEEDED 1.65');
+    if(nm.polls) meta.push(nm.polls+' PRICE CHECKS');
+    var steps=journeyStepsHTML(journeys[nm.journey_id]);
+    return '<div class="nm-row"><div class="nm-game">'+esc78(nm.game||'Game')+'</div>'
+      +(meta.length?'<div class="nm-meta">'+meta.join(' \u00b7 ')+'</div>':'')
+      +'<div class="nm-reason">'+esc78(nm.reason||'No bet was placed')+'</div>'
+      +(steps?'<button class="jtoggle" data-jt="'+i+'">SEE THE JOURNEY \u25be</button><div class="jsteps" id="jsteps-'+i+'">'+steps+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+function decorateQueueJourneys78(p){
+  var journeys=p.game_journeys||{};
+  document.querySelectorAll('#sealedList .sealed-row[data-sid]').forEach(function(row,idx){
+    var sid=row.getAttribute('data-sid');
+    var steps=journeyStepsHTML(journeys[sid]);
+    if(!steps) return;
+    if(row.querySelector('.jtoggle')) return;
+    var btn=document.createElement('button');
+    btn.className='jtoggle'; btn.textContent='JOURNEY \u25be';
+    var box=document.createElement('div');
+    box.className='jsteps'; box.innerHTML=steps;
+    btn.addEventListener('click',function(ev){ ev.stopPropagation(); box.classList.toggle('open'); });
+    row.appendChild(btn); row.appendChild(box);
+  });
+}
+document.addEventListener('click',function(ev){
+  var t=ev.target&&ev.target.closest?ev.target.closest('[data-jt]'):null;
+  if(!t) return;
+  var box=document.getElementById('jsteps-'+t.getAttribute('data-jt'));
+  if(box) box.classList.toggle('open');
+});
+(function(){
+  var orig=window.renderQueueUpgrade;
+  if(typeof orig!=='function') return;
+  window.renderQueueUpgrade=function(p){
+    orig(p);
+    try{ renderNearMisses78(p); }catch(e){}
+    try{ decorateQueueJourneys78(p); }catch(e){}
+  };
+})();
+</script>
+
 </body>
 </html>

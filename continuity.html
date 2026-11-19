@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Continuity — How This System Works, and How to Rebuild It</title>
+<style>
+  :root{--bg:#0a0c10;--panel:#11141a;--line:rgba(255,255,255,.1);--text:#e9e7e2;--dim:#a7a49b;--faint:#6f6c64;--gold:#d8b25c}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.65}
+  main{max-width:820px;margin:0 auto;padding:28px 20px 60px}
+  header{display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:8px}
+  header img{width:64px;height:64px;object-fit:contain}
+  h1{font-size:24px;margin:0;line-height:1.25}
+  h2{font-size:18px;margin:34px 0 8px;color:var(--gold);letter-spacing:.02em}
+  p,li{font-size:15.5px;color:var(--dim)}
+  p b,li b{color:var(--text)}
+  .sub{color:var(--faint);font-size:13.5px;margin-top:4px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:12px 0}
+  .card p{margin:6px 0}
+  ol,ul{padding-left:22px}
+  li{margin:7px 0}
+  a{color:var(--gold)}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:14px;color:var(--faint);font-size:13px}
+  .warn{border-left:3px solid var(--gold);padding-left:12px}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="logo_triad.jpg" alt="DI Quantum Core emblem"/>
+    <div>
+      <h1>Continuity — how this system works, and how to rebuild it somewhere else</h1>
+      <div class="sub">A plain inventory of the pieces, the data, and the order to put them back together. No passwords, keys, or addresses live on this page — on purpose.</div>
+    </div>
+  </header>
+
+  <h2>What the system is</h2>
+  <p>One automated betting pipeline. Game picks are posted in a Discord channel (the Alpha GOAL feed). A program on a cloud server reads each pick, and when the game's betting window opens late in the second half, it drives an Android phone — through the phone's own Bet365 app — to watch the price and place one bet per game, only when the price is at or above the agreed minimum of 1.65. Every bet, skip, and balance change is written into a set of books on the server, and this website is a read-only window into those books.</p>
+
+  <h2>The pieces</h2>
+  <div class="card">
+    <p><b>Discord server — “Danny &amp; Imran's Bot”.</b> The front door. Picks arrive in the signals channel; a status channel carries the living record; a logs channel carries the running story in plain words; a reports channel carries summaries. The betting program reads the picks channel and writes to the others.</p>
+    <p><b>Cloud server (Hetzner, 8 GB of memory).</b> The brain. It runs these services:</p>
+    <ul>
+      <li><b>betbot</b> — the betting program itself: reads picks, keeps the queue, watches prices in each window, places bets through the phone, settles results, and keeps the books.</li>
+      <li><b>droidline-serve</b> and <b>s22shadow-bridge</b> — the phone bridge: the two halves of the connection that let the server see the phone's screen and tap it.</li>
+      <li><b>janitor-watcher</b> and <b>janitor-ctl</b> — the watchdog pair: they notice a stuck or dead piece and restart it.</li>
+      <li><b>betbot-responder</b> — automatic recovery for the phone connection when it drops.</li>
+      <li><b>betbot-dashboard-live</b> — the read-only exporter: once a minute it reads the books (never writes them) and publishes the website's data file.</li>
+      <li><b>A local AI model (Ollama running a model called betbot-qwen)</b> — reads the free-text picks posts in Discord and turns them into structured games for the queue. It runs entirely on the server; no outside AI service is involved.</li>
+    </ul>
+    <p><b>The Android phone (Samsung S22).</b> The hands. It runs the Bet365 app, signed in to the betting account, plus a small automation app (the Executor) that the bridge talks to. The phone places every bet through the real app — there is no other betting connection. The phone must stay charged, unlocked, and signed in; if it sleeps or signs out, the system can heal a sign-out but cannot wake a sleeping phone.</p>
+    <p><b>The books (on the server).</b> A database file holding every bet, the queue, and the bankroll, plus a plain-text event log and a small health file. These files are the system's memory — everything else can be rebuilt, these must be carried over.</p>
+    <p><b>This website.</b> Two GitHub repositories: one holds the site itself (published with GitHub Pages), the other holds only the data file the exporter publishes each minute. The site never talks to the server or the phone directly.</p>
+    <p><b>A private network (Tailscale)</b> joins the server, the phone, and the operator's own computer, so the pieces can reach each other without being open to the public internet.</p>
+  </div>
+
+  <h2>Save this first — the data that matters</h2>
+  <ol>
+    <li><b>The books database</b> — every bet ever placed, the current queue, the bankroll, and the ladder position. Without it, the record starts over.</li>
+    <li><b>The event log</b> — the blow-by-blow history the post-mortems and this site's game journeys are built from.</li>
+    <li><b>The rules and settings files</b> — the strategy numbers (the 1.65 minimum, the staking ladder), the channel list, and the read positions that tell the intake where it stopped reading Discord.</li>
+    <li><b>The health file</b> — the last known phone and balance readings.</li>
+  </ol>
+  <p class="warn"><b>Passwords and tokens are never part of the move.</b> Nothing on this page contains one, and none should ever be written into a file that travels. On a new home, the owner signs in to each account again and enters each secret through that service's own secure setup, one at a time.</p>
+
+  <h2>Accounts a rebuild needs</h2>
+  <ul>
+    <li>The Discord server and its bot (the picks feed lives there).</li>
+    <li>The cloud server account (the brain's home).</li>
+    <li>The GitHub account holding the two dashboard repositories.</li>
+    <li>The Bet365 account, signed in on the phone.</li>
+    <li>The private network account that joins server, phone, and operator computer.</li>
+  </ul>
+
+  <h2>Rebuild order</h2>
+  <ol>
+    <li><b>Preserve the data first.</b> Copy the books, the event log, the rules/settings, and the health file off the old server before anything is switched off.</li>
+    <li><b>Stand up the new server</b> and install the services listed above — with the betting service itself left <b>off</b>.</li>
+    <li><b>Install the local AI model</b> and confirm it loads and answers on the new server (it needs most of the server's memory; keep the server's scratch space on disk, not in memory).</li>
+    <li><b>Restore the books and settings</b> into the new server's program folder.</li>
+    <li><b>Reconnect Discord in read-only fashion</b> and confirm a fresh picks post is read and queued correctly before trusting it.</li>
+    <li><b>Reconnect the phone path</b> (bridge + Executor), then verify by eye: a balance read through the bridge matches the balance shown in the app.</li>
+    <li><b>Point the exporter at the data repository</b>, deploy the website, and confirm the site shows the same balance, record, and queue as the books.</li>
+    <li><b>Only then turn betting on</b> — and only after the balance has been verified two independent ways.</li>
+    <li><b>Keep the old system off.</b> Two copies of the betting program running at once would double-place bets. A move is finished when the old home is stopped for good.</li>
+  </ol>
+
+  <h2>Rules that travel with the system</h2>
+  <ul>
+    <li>One betting instance, ever. One program places bets; everything else is read-only or recovery.</li>
+    <li>The price minimum is 1.65, under every line, with no upper limit. Stakes come from the ladder, which is recalculated from the current bankroll after every change.</li>
+    <li>A bet counts as real only when there is a placement receipt <b>and</b> a matching movement in the balance. A row in the books alone is never proof.</li>
+    <li>The next bet is staked only after the previous one is settled and booked, with two agreeing balance readings.</li>
+    <li>If a second-half goal is scored before a game's window opens, the game is skipped — judged from a halftime score snapshot taken while the game was being staged.</li>
+  </ul>
+
+  <footer>DI Quantum Core · Alpha GOAL × BetBot — continuity notes. This page describes the system as it stands; it holds no credentials and no network addresses.</footer>
+</main>
+</body>
+</html>
