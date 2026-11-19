@@ -1,4 +1,4 @@
-/* BetBot Terminal service worker — build r78-20261119.
+/* BetBot Terminal service worker — build r79-20261119.
  *
  * Deliberately minimal. Its only jobs: make the app installable and let
  * the shell open fast / offline. Freshness of DATA always wins:
@@ -13,7 +13,7 @@
  *  - Static art (banners, icons, fonts) is cache-first: it only changes
  *    when the build stamp (and therefore this cache name) changes.
  */
-var BUILD = 'r78-20261119';
+var BUILD = 'r79-20261119';
 var SHELL = 'betbot-shell-' + BUILD;
 var RUNTIME = 'betbot-runtime-' + BUILD;
 var CORE = [
