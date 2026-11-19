@@ -1800,7 +1800,7 @@ function normalizeLiveBet(raw){
   var pnl=typeof raw.pnl==='number'? raw.pnl : (res==='W'? +(stake*(odds-1)).toFixed(2) : (res==='L'? -stake : 0));
   var d=raw.d||raw.date||(raw.settled_at?String(raw.settled_at).slice(0,10):'')||(raw.t?String(raw.t).slice(0,10):'');
   return {d:d, home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
-    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null)};
+    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null};
 }
 function recomputeDerived(p){
   WINS=BETS.filter(function(b){return b.res==='W'}).length;
