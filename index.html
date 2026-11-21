@@ -98,6 +98,11 @@ body[data-furnace="3"] .fire-strip{display:block}
 @keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(57,255,106,.5)}12%{box-shadow:0 0 0 6px rgba(57,255,106,0)}50%{box-shadow:0 0 0 0 rgba(57,255,106,0)}}
 .mode-badge{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.16em;padding:4px 10px;border-radius:99px;border:1px solid rgba(255,201,77,.45);color:var(--gold);background:rgba(255,201,77,.08)}
 .mode-badge.live{border-color:rgba(57,255,106,.5);color:var(--green);background:var(--green-soft)}
+/* Q11PAUSED-CSS-BEGIN — paused header: gold, still dot, no live pulse */
+.live-dot.paused{color:var(--gold)}
+.live-dot.paused i{background:var(--gold);animation:none;box-shadow:none}
+.mode-badge.paused{border-color:rgba(255,201,77,.45);color:var(--gold);background:rgba(255,201,77,.08)}
+/* Q11PAUSED-CSS-END */
 .clocks{margin-left:auto;display:flex;gap:18px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .clocks b{color:var(--bone);font-weight:600}
 .follow-btn{margin-left:6px;background:transparent;color:var(--faint);border:1px dashed var(--line2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;letter-spacing:.06em;cursor:not-allowed}
@@ -1029,7 +1034,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
   <span class="logo-badge"><img class="avatar logo-dragon" id="babyAvatar" src="logo_triad.jpg" alt="Three-headed white dragon — the DI Quantum Core emblem" /></span>
   <div>
     <div class="brand">DI QUANTUM<span>CORE</span></div>
-    <div class="live-dot"><i></i>SYSTEM LIVE</div>
+    <div class="live-dot" id="liveDot"><i></i>SYSTEM LIVE</div>
   </div>
   <span class="mode-badge" id="modeBadge">DEMO DATA</span>
   <div class="clocks">
@@ -1066,7 +1071,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
       <p class="lede">Alpha GOAL finds the edge. The DI Quantum Core executes it — an autonomous pipeline that perceives, decides, and places with machine discipline. <b>No emotion. No chasing. Just the system.</b></p>
       <div class="stat-row">
         <div class="stat hero-stat"><div class="k">All-Time Profit · Never Resets</div><div class="v" id="statProfit">+$0.00</div><svg class="spark" id="sparkProfit" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><div class="sub" id="statBankrollNote"></div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Withdrawn · For Costs</div><div class="v" id="statWithdrawn" style="color:var(--gold);text-shadow:0 0 18px rgba(255,201,77,.25)">$0.00</div><svg class="spark" id="sparkWithdrawn" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">P&amp;L Today</div><div class="v pos" id="statToday">+$0.00</div><svg class="spark" id="sparkToday" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">—</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
@@ -1119,7 +1124,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
     <canvas id="brainNet" aria-hidden="true"></canvas>
     <div class="brain-cap">A living map of the machine mind — perception, decision and execution nodes trading pulses around the clock.</div>
   </section>
-<section class="panel act-panel wm wm-live"><div class="panel-head"><h2>SYSTEM <em>ACTIVITY</em></h2><span class="sub">LIVE FEED &middot; STRAIGHT FROM THE BOT</span></div><div class="act-list" id="actList"><div class="act-empty">&mdash;</div></div></section>
+<section class="panel act-panel wm wm-live"><div class="panel-head"><h2>SYSTEM <em>ACTIVITY</em></h2><span class="sub">LIVE FEED &middot; STRAIGHT FROM THE BOT</span></div><div class="act-list" id="actList"><div class="act-empty">&mdash;</div></div></section><section class="panel act-panel" id="agentActivityPanel"><div class="panel-head"><h2>AGENT <em>ACTIVITY</em></h2><span class="sub">DETAILED LOG &middot; PLAIN ENGLISH &middot; SAME FEED AS DISCORD</span><button type="button" class="aa-toggle" id="aaToggle" aria-expanded="false">SHOW</button></div><div class="act-list" id="agentActivityList" hidden><div class="act-empty">&mdash;</div></div></section>
 </section>
 <section class="deck-panel" id="deck-pipeline" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
@@ -1817,8 +1822,55 @@ function recomputeDerived(p){
 }
 
 /* ================= APPLY LIVE PAYLOAD ================= */
+/* Q19: the phone balance is a CACHE (health_state bet365 detail,
+   600s producer TTL). Its provenance label comes from the payload's
+   phone_balance block (freshness/age computed server-side); a stale
+   or unknown-age read is shown as cached-with-age, never as a live
+   balance, and when the headline fell back to the book balance that
+   is said too. Legacy payloads without freshness fields fall back
+   to read_at, or to an honest unknown-age note. */
+function bankrollNote(p){
+  var pb=p&&p.phone_balance;
+  if(!pb||typeof pb.balance!=='number') return 'App balance: no read on record';
+  var fellBack=p.bankroll_total_source&&p.bankroll_total_source!=='phone';
+  if(pb.freshness==='fresh') return pb.label||'App balance · fresh read';
+  if(pb.freshness==='stale') return (pb.label||'App balance cached')+(fellBack?' · headline shows book balance':'');
+  if(pb.freshness==='unknown') return pb.label||'App balance read time unknown (cached)';
+  if(pb.read_at) return 'App balance · read '+pb.read_at;
+  return 'App balance read time unknown (cached)';
+}
+/* Q11PAUSED-BEGIN — the header must tell the payload's truth about
+   the bot. Paused when system_status.bot_mode is 'paused' OR the
+   payload's own services map says betbot is down (services.betbot
+   === false — the live payload already carries that truth today).
+   Paused: badge reads PAUSED — FIXING THE QUEUE with no LIVE wording
+   and no version claim, the live class comes off, and the header dot
+   reads SYSTEM PAUSED with the paused (gold, unpulsed) treatment.
+   Running: the exact pre-existing LIVE rendering. Both branches set
+   every class and text they own, so polls toggle cleanly both ways. */
+function botPaused(p){
+  var ss=p&&p.system_status;
+  if(!ss) return false;
+  if(ss.bot_mode==='paused') return true;
+  return !!(ss.services&&ss.services.betbot===false);
+}
+function applyHeaderState(p){
+  var badge=document.getElementById('modeBadge');
+  var dot=document.getElementById('liveDot');
+  if(botPaused(p)){
+    if(badge){ badge.textContent='PAUSED — FIXING THE QUEUE'; badge.classList.remove('live'); badge.classList.add('paused'); }
+    if(dot){ dot.innerHTML='<i></i>SYSTEM PAUSED'; dot.classList.add('paused'); }
+    return true;
+  }
+  if(badge){ badge.textContent='LIVE · BOT v'+((p.telemetry&&p.telemetry.version)||p.version||'3.17'); badge.classList.add('live'); badge.classList.remove('paused'); }
+  if(dot){ dot.innerHTML='<i></i>SYSTEM LIVE'; dot.classList.remove('paused'); }
+  return false;
+}
+/* Q11PAUSED-END */
 function applyPayload(p){
   if(!p) return;
+  var _bn=document.getElementById('statBankrollNote');
+  if(_bn) _bn.textContent=bankrollNote(p);
   IS_LIVE=true; FEED_MODE='live'; LIVE_APPLIED=true;
   /* normalize the live exporter's field names onto the dashboard's shape */
   if(p.bankroll===undefined && typeof p.bankroll_total==='number') p.bankroll=p.bankroll_total;
@@ -1893,8 +1945,7 @@ function applyPayload(p){
     else if(p.exported_at && p.exported_at!==LAST_EXPORTED_AT && window.termLine) termLine('[sync] live snapshot refreshed · exported '+liveEventTime(p.exported_at));
   }
   if(p.exported_at) LAST_EXPORTED_AT=p.exported_at;
-  var badge=document.getElementById('modeBadge');
-  badge.textContent='LIVE · BOT v'+((p.telemetry&&p.telemetry.version)||p.version||'3.17'); badge.classList.add('live');
+  applyHeaderState(p);
 }
 function pollData(){
   if(!DATA_URL){ enableDemoMode(); return; }
@@ -3252,6 +3303,56 @@ function kickoffKey(pk){
   return null;
 }
 var QFLOW='<div class="qflow" aria-hidden="true"><i></i><i></i><i></i></div>';
+/* Q11-BEGIN — queue day from the exporter's kickoff fields.
+   _signal_stage now emits kickoff_date (YYYY-MM-DD, Regina basis) and
+   kickoff_day ("Friday, November 20") on every queue item. When those
+   fields are present they are authoritative: the day renders verbatim
+   and grouping/sorting keys on kickoff_date — the r7.5 stage_since
+   guess must never override them (it rolled parked/camping games a
+   day forward: Aarhus, true kickoff Friday Nov 20, was labelled
+   Saturday Nov 21). The guess survives ONLY as the fallback for
+   legacy items whose fields are absent/empty, in queueDayGuess. */
+var Q11_DOW3=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+var Q11_MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var Q11_DOWS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var Q11_MONS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function q11Pad2(n){ return (n<10?'0':'')+n; }
+function queueDayGuess(pk){
+  /* the original r7.5 guess, unchanged: kickoff clock time placed
+     on/after the stage_since date, rolling +1 day when past. */
+  var t0=Date.parse(pk.stage_since||''); if(isNaN(t0)) return null;
+  var k=kickoffKey(pk); if(k===null) return null;
+  var base=new Date(t0);
+  var cand=new Date(base.getFullYear(),base.getMonth(),base.getDate(),Math.floor(k/60),k%60,0,0);
+  if(cand.getTime()<=t0) cand.setDate(cand.getDate()+1);
+  var key=cand.getFullYear()+'-'+q11Pad2(cand.getMonth()+1)+'-'+q11Pad2(cand.getDate());
+  return {key:key, date:cand, fromField:false, long:null,
+    short:Q11_DOW3[cand.getDay()]+' '+Q11_MON3[cand.getMonth()]+' '+cand.getDate()};
+}
+function queueDayInfo(pk){
+  if(!pk) return null;
+  var kd=(typeof pk.kickoff_day==='string')?pk.kickoff_day.trim():'';
+  var kdate=(typeof pk.kickoff_date==='string')?pk.kickoff_date.trim():'';
+  var m=kdate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m){
+    var dt=new Date(+m[1], +m[2]-1, +m[3]);
+    if(dt.getFullYear()===+m[1]&&dt.getMonth()===+m[2]-1&&dt.getDate()===+m[3]){
+      return {key:kdate, date:dt, fromField:true,
+        long:kd||(Q11_DOWS[dt.getDay()]+', '+Q11_MONS[dt.getMonth()]+' '+dt.getDate()),
+        short:Q11_DOW3[dt.getDay()]+' '+Q11_MON3[dt.getMonth()]+' '+dt.getDate()};
+    }
+  }
+  if(kd){
+    /* kickoff_day present without a usable kickoff_date: the verbatim
+       label is honoured (never overridden); only the grouping date
+       falls back to the guess. */
+    var g=queueDayGuess(pk);
+    if(g){ g.long=kd; g.fromField=true; return g; }
+    return null;
+  }
+  return queueDayGuess(pk);
+}
+/* Q11-END */
 function renderQueueUpgrade(p){
   if(!p) return;
   var MONS=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
@@ -3284,18 +3385,19 @@ function renderQueueUpgrade(p){
        belongs to the next day). One shared day -> a plain
        TODAY/TOMORROW heading; a multi-day queue -> a range heading
        plus a day tag on every queue card (qMulti/qDates below). */
-    var qDates={}, qDays={};
+    /* Q11 — the day now comes from queueDayInfo: the exporter's
+       kickoff_date/kickoff_day when present (verbatim), the r7.5
+       guess only for legacy items without them. qDays is keyed by
+       kickoff_date (YYYY-MM-DD) when present, so the day list sorts
+       by that string — chronological by construction. */
+    var qDates={}, qDays={}, qDayLong={};
     q.forEach(function(pk){
-      var t0=Date.parse(pk.stage_since||''); if(isNaN(t0)) return;
-      var k=kickoffKey(pk); if(k===null) return;
-      var base=new Date(t0);
-      var cand=new Date(base.getFullYear(),base.getMonth(),base.getDate(),Math.floor(k/60),k%60,0,0);
-      if(cand.getTime()<=t0) cand.setDate(cand.getDate()+1);
-      var key=cand.getFullYear()+'-'+cand.getMonth()+'-'+cand.getDate();
-      qDays[key]=cand;
-      qDates[pk.id]=DOW3[cand.getDay()]+' '+MON3[cand.getMonth()]+' '+cand.getDate();
+      var info=queueDayInfo(pk); if(!info) return;
+      qDays[info.key]=info.date;
+      if(info.long) qDayLong[info.key]=info.long;
+      qDates[pk.id]=info.short;
     });
-    var qDayList=Object.keys(qDays).map(function(k2){ return qDays[k2]; }).sort(function(a,b){ return a-b; });
+    var qDayList=Object.keys(qDays).sort().map(function(k2){ return qDays[k2]; });
     var qMulti=qDayList.length>1;
     var qh=document.getElementById('queueDayHead');
     if(qh){
@@ -3305,7 +3407,8 @@ function renderQueueUpgrade(p){
         var startOf=function(x){ return new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(); };
         var diff=Math.round((startOf(gd)-startOf(new Date()))/86400000);
         var rel=diff===0?"TODAY'S GAMES":(diff===1?"TOMORROW'S GAMES":'GAMES');
-        qh.textContent='UP NEXT — '+rel+' · '+DOWS[gd.getDay()]+', '+MONS[gd.getMonth()]+' '+gd.getDate();
+        var soleKey=Object.keys(qDays).sort()[0];
+        qh.textContent='UP NEXT — '+rel+' · '+(qDayLong[soleKey]||(DOWS[gd.getDay()]+', '+MONS[gd.getMonth()]+' '+gd.getDate()));
         qh.style.display='';
       } else {
         var qf=qDayList[0], ql=qDayList[qDayList.length-1];
@@ -4070,6 +4173,61 @@ nav#deckNav.deck-nav{flex-wrap:wrap!important;overflow:visible!important;justify
 .pg-btn.active{background:var(--green);color:#04140a;font-weight:700}
 .pg-btn:disabled{opacity:.35;cursor:default}
 </style>
+<style id="q18-style">
+/* Q18 — AGENT ACTIVITY: collapsed by default so it never crowds the
+   main site; rows reuse the SYSTEM ACTIVITY row styles. */
+.aa-toggle{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:6px 12px;border-radius:8px;border:1px solid rgba(57,255,106,.28);background:rgba(57,255,106,.06);color:var(--bone);cursor:pointer;margin-left:auto}
+.aa-date{color:var(--faint);font-size:11px;white-space:nowrap}
+</style>
+<script>
+/* Q18 — AGENT ACTIVITY (detailed narration, user order 2026-11-20).
+   Renders payload agent_activity[] VERBATIM: the exporter writes the
+   plain-English text and the Regina time/date strings; this code
+   only places them in rows (no client-side time maths, no rewording).
+   The same entries are posted to Discord #logs by the server-side
+   poster — one source, both surfaces. The section starts hidden so
+   it never crowds the main site; the signals feed is untouched. */
+/* Q18-BEGIN */
+function aaEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function narrationRowHtml(e){
+  if(!e) return '';
+  var when=aaEsc(e.time||''); var day=aaEsc(e.date||'');
+  var kind=aaEsc(e.type||'activity'); var text=aaEsc(e.text||'');
+  return '<div class="act-row"><span class="act-t">'+when+'</span>'
+    +'<span class="aa-date">'+day+'</span>'
+    +'<span class="act-node">'+kind+'</span>'
+    +'<span class="act-label">'+text+'</span></div>';
+}
+function narrationListHtml(entries){
+  if(!Array.isArray(entries)||!entries.length)
+    return '<div class="act-empty">NO DETAILED ACTIVITY RECORDED YET</div>';
+  return entries.map(narrationRowHtml).join('');
+}
+/* Q18-END */
+(function(){
+  var list=document.getElementById('agentActivityList');
+  var btn=document.getElementById('aaToggle');
+  if(!list) return;
+  if(btn){
+    btn.addEventListener('click', function(){
+      var open=list.hidden;
+      list.hidden=!open;
+      btn.textContent=open?'HIDE':'SHOW';
+      btn.setAttribute('aria-expanded', open?'true':'false');
+    });
+  }
+  var URL='https://raw.githubusercontent.com/Dannyyachtclub/betbot-dashboard-data/main/dashboard.json';
+  function renderAA(d){
+    if(!d||d.demo) return;
+    list.innerHTML=narrationListHtml(d.agent_activity);
+  }
+  function pollAA(){
+    fetch(URL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){ return r.json(); })
+      .then(renderAA).catch(function(){});
+  }
+  pollAA(); setInterval(pollAA,60000);
+})();
+</script>
 <script>
 /* r7.1 — history pager clicks · r7.2 — one glide system for the stats strip + games ticker: slow continuous glide, pointer drag, auto-resume on release */
 (function(){
