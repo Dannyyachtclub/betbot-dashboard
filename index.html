@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r77-20261118" />
+<meta name="dd-build" content="r80-20261122" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r79-20261119";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r80-20261122";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -982,6 +982,19 @@ video.band-vid.on{opacity:1}
 .act-label{color:var(--bone);text-transform:capitalize}
 .act-empty{color:var(--faint);font-family:var(--mono);font-size:12px;padding:8px 2px}
 @media (prefers-reduced-motion: reduce){.hl-strip::after{animation:none!important;display:none}.fx-core{animation:none!important}#hlStreak{animation:none!important}.ekg-line{animation:none!important}}
+</style>
+
+<style id="r80-header-repair">
+/* r80-20261122: emblem contained in its badge (user ruling: original shape/size),
+   title never overlapped, SYSTEM LIVE pill smaller, sticky navs clear the wrapped header */
+.topbar .logo-badge{width:58px;height:58px;flex:0 0 auto;overflow:hidden;border-radius:50%}
+.topbar .logo-badge img.logo-dragon{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;border-radius:50%;border:none;box-shadow:none;filter:brightness(1.07) saturate(1.05)}
+.topbar .brand{white-space:nowrap;font-size:17px}
+.topbar .live-dot{font-size:10.5px;padding:3px 9px;letter-spacing:.12em;white-space:nowrap}
+@media (max-width:640px){
+  .deck-nav{top:118px}
+  .sub-nav{top:186px}
+}
 </style>
 </head>
 <body data-furnace="0">
