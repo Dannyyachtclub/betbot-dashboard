@@ -4669,5 +4669,53 @@ function applyNextWindow(p){
 window.applyNextWindow=applyNextWindow;
 </script>
 
+
+<script id="r81vid">
+/* ===== r8.1 — BAND VIDEO PLAY FIX (user report 2026-11-22: shark and
+   phoenix banners static). The original loader (round ~r6) issues ONE
+   play() in the same tick it assigns src, swallows the promise
+   rejection, and never retries: for bands inside initially-hidden deck
+   panels that first play() races the load and the IO's own pause, the
+   rejection is eaten, and the band sits on its poster forever. This
+   block adds the missing retry paths WITHOUT touching the original
+   loader: a sweep on deck-tab switches, on scroll/resize, when a
+   video's data actually arrives (canplay/loadeddata), and once shortly
+   after boot. Videos in hidden decks or off-screen are paused, exactly
+   as the original design intends; prefers-reduced-motion still wins. ===== */
+(function(){
+  var vids=[].slice.call(document.querySelectorAll('video.band-vid'));
+  if(!vids.length) return;
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduced.matches) return;
+  function ensure(v){ if(!v.getAttribute('src')&&v.dataset&&v.dataset.src){ v.src=v.dataset.src; v.load(); } }
+  function near(v){ var r=v.getBoundingClientRect(); return r.bottom>-240&&r.top<window.innerHeight+240; }
+  function inHidden(v){ var p=v.closest? v.closest('.deck-panel,.sub-panel'):null; return !!(p&&p.hidden); }
+  function tryPlay(v){ if(v.paused){ var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){}); } }
+  function sweep(){
+    vids.forEach(function(v){
+      if(inHidden(v)){ if(!v.paused) v.pause(); return; }
+      if(near(v)){ ensure(v); tryPlay(v); }
+      else if(!v.paused){ v.pause(); }
+    });
+  }
+  vids.forEach(function(v){
+    ['canplay','loadeddata'].forEach(function(ev){
+      v.addEventListener(ev,function(){ if(!inHidden(v)&&near(v)) tryPlay(v); });
+    });
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('.deck-btn,.sub-btn')) setTimeout(sweep,90);
+  },true);
+  var tick=false;
+  window.addEventListener('scroll',function(){
+    if(tick) return; tick=true;
+    requestAnimationFrame(function(){ tick=false; sweep(); });
+  },{passive:true});
+  window.addEventListener('resize',sweep);
+  setTimeout(sweep,600);
+  setTimeout(sweep,1800);
+})();
+</script>
+
 </body>
 </html>
