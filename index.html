@@ -1838,22 +1838,26 @@ function recomputeDerived(p){
 }
 
 /* ================= APPLY LIVE PAYLOAD ================= */
-/* Q19: the phone balance is a CACHE (health_state bet365 detail,
-   600s producer TTL). Its provenance label comes from the payload's
-   phone_balance block (freshness/age computed server-side); a stale
-   or unknown-age read is shown as cached-with-age, never as a live
-   balance, and when the headline fell back to the book balance that
-   is said too. Legacy payloads without freshness fields fall back
-   to read_at, or to an honest unknown-age note. */
+/* Bankroll note (user ruling 2026-11-22): clean, one short line —
+   the app balance and the time it was read, nothing else. No
+   cached/age jargon and no book-balance wording on the card; the
+   read time itself shows how current the figure is. Built here
+   from phone_balance.read_at on the Regina basis so every
+   freshness state renders the same tidy line. */
 function bankrollNote(p){
   var pb=p&&p.phone_balance;
   if(!pb||typeof pb.balance!=='number') return 'App balance: no read on record';
-  var fellBack=p.bankroll_total_source&&p.bankroll_total_source!=='phone';
-  if(pb.freshness==='fresh') return pb.label||'App balance · fresh read';
-  if(pb.freshness==='stale') return (pb.label||'App balance cached')+(fellBack?' · headline shows book balance':'');
-  if(pb.freshness==='unknown') return pb.label||'App balance read time unknown (cached)';
-  if(pb.read_at) return 'App balance · read '+pb.read_at;
-  return 'App balance read time unknown (cached)';
+  if(pb.read_at){
+    var d=new Date(pb.read_at);
+    if(!isNaN(d)){
+      try{
+        var parts={};
+        new Intl.DateTimeFormat('en-US',{timeZone:'America/Regina',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d).forEach(function(x){ parts[x.type]=x.value; });
+        return 'App balance · read '+(parts.month||'')+' '+(parts.day||'')+', '+(parts.hour||'')+':'+(parts.minute||'')+' '+(parts.dayPeriod||'')+' Regina';
+      }catch(e){}
+    }
+  }
+  return 'App balance';
 }
 /* Q11PAUSED-BEGIN — the header must tell the payload's truth about
    the bot. Paused when system_status.bot_mode is 'paused' OR the
