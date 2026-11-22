@@ -1036,7 +1036,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
     <div class="brand">DI QUANTUM<span>CORE</span></div>
     <div class="live-dot" id="liveDot"><i></i>SYSTEM LIVE</div>
   </div>
-  <span class="mode-badge" id="modeBadge">DEMO DATA</span>
+  <span class="mode-badge next-window" id="nextWindowChip" title="Next betting window">NEXT WINDOW &middot; &mdash;</span>
   <div class="clocks">
     <div>CALGARY <b id="clkCal">--:--:--</b></div>
     <div class="hide-m">REGINA <b id="clkReg">--:--:--</b></div>
@@ -1946,6 +1946,7 @@ function applyPayload(p){
   }
   if(p.exported_at) LAST_EXPORTED_AT=p.exported_at;
   applyHeaderState(p);
+  if(window.applyNextWindow) applyNextWindow(p);
 }
 function pollData(){
   if(!DATA_URL){ enableDemoMode(); return; }
@@ -4597,6 +4598,75 @@ document.addEventListener('click',function(ev){
     try{ decorateQueueJourneys78(p); }catch(e){}
   };
 })();
+</script>
+
+
+<style id="r81css">
+/* ===== r8.1 — HEADER FLARE (user, 2026-11-22): DI QUANTUM CORE brand and
+   the SYSTEM LIVE pill bigger/bolder, dragon breaks out of its badge
+   again, version badge replaced by the NEXT WINDOW chip (r81js).
+   Colour truth unchanged: the pill is green while the existing header
+   logic (applyHeaderState / botPaused) says live, and takes the red
+   treatment under the same .paused class that logic already toggles. ===== */
+.topbar .brand{font-size:23px;letter-spacing:.13em;color:#fff;text-shadow:0 0 14px rgba(34,216,255,.35),0 0 30px rgba(139,92,255,.22)}
+.topbar .brand span{color:var(--green);text-shadow:0 0 12px rgba(57,255,106,.55)}
+.topbar .live-dot{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13.5px;font-weight:800;letter-spacing:.15em;color:var(--green);border:1px solid rgba(57,255,106,.55);background:rgba(57,255,106,.10);border-radius:99px;padding:5px 13px;margin-top:5px;box-shadow:0 0 16px rgba(57,255,106,.28),inset 0 0 12px rgba(57,255,106,.10)}
+.topbar .live-dot i{width:10px;height:10px;background:var(--green);box-shadow:0 0 10px var(--green)}
+.topbar .live-dot.paused{color:var(--red);border-color:rgba(255,59,92,.6);background:rgba(255,59,92,.10);box-shadow:0 0 16px rgba(255,59,92,.30),inset 0 0 12px rgba(255,59,92,.10)}
+.topbar .live-dot.paused i{background:var(--red);box-shadow:0 0 10px var(--red);animation:none}
+.topbar .logo-badge{width:68px;height:68px}
+.topbar .avatar.logo-dragon{width:158%;height:158%;left:-30%;top:-37%;border-radius:0;object-fit:contain;background:transparent;filter:brightness(1.13) saturate(1.06) drop-shadow(0 8px 10px rgba(0,0,0,.68)) drop-shadow(0 0 16px rgba(57,255,106,.40))}
+.mode-badge.next-window{border-color:rgba(34,216,255,.5);color:var(--energy-cyan);background:rgba(34,216,255,.08);font-size:10.5px;max-width:52vw;overflow:hidden;text-overflow:ellipsis}
+.mode-badge.next-window.inplay{border-color:rgba(57,255,106,.55);color:var(--green);background:rgba(57,255,106,.10)}
+@media (max-width:760px){
+.topbar .brand{font-size:18px}
+.topbar .logo-badge{width:58px;height:58px}
+.topbar .avatar.logo-dragon{width:150%;height:150%;left:-26%;top:-35%}
+.topbar .live-dot{font-size:12px;padding:4px 11px}
+}
+@media (prefers-reduced-motion: reduce){.topbar .live-dot i{animation:none}}
+</style>
+<script id="r81js">
+/* ===== r8.1 — NEXT WINDOW chip (user, 2026-11-22): replaces the bot
+   version badge in the same header slot. Renders ONLY payload data:
+   an open (placed, in-play) bet wins the slot — game name + live
+   score/clock when the exporter carries them, else name + IN PLAY;
+   otherwise the next queued game's window (the exporter's window_open
+   when present, else its verbatim kickoff time); empty queue ->
+   NO GAMES QUEUED. Queued game names stay sealed by design
+   (anti-tailgate) — the chip shows times for queued games. ===== */
+function applyNextWindow(p){
+  try{
+    var chip=document.getElementById('nextWindowChip');
+    if(!chip||!p) return;
+    var ob=Array.isArray(p.open_bets)?p.open_bets:[];
+    if(ob.length){
+      var b=ob[0]||{};
+      var nm=String(b.game||'').trim()||'BET IN PLAY';
+      if(b.live_score){
+        chip.textContent=nm+' \u00b7 '+b.live_score+(b.live_clock?' \u00b7 '+b.live_clock:'');
+      } else {
+        chip.textContent=nm+' \u00b7 IN PLAY';
+      }
+      chip.classList.add('inplay');
+      return;
+    }
+    chip.classList.remove('inplay');
+    var DONE={settled:1,skipped:1,aborted:1,expired:1};
+    var q=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).filter(function(pk){ return pk&&!DONE[pk.stage]; });
+    if(!q.length){ chip.textContent='NO GAMES QUEUED'; return; }
+    if(typeof kickoffKey==='function'){
+      q=q.map(function(pk,i){ return {pk:pk,i:i,k:kickoffKey(pk)}; }).sort(function(a,b){ if(a.k===null&&b.k===null) return a.i-b.i; if(a.k===null) return 1; if(b.k===null) return -1; return (a.k-b.k)||(a.i-b.i); }).map(function(x){ return x.pk; });
+    }
+    var pk=null;
+    for(var i=0;i<q.length;i++){ if(q[i].stage!=='placed'){ pk=q[i]; break; } }
+    if(!pk) pk=q[0];
+    if(pk.window_open) chip.textContent='NEXT WINDOW \u00b7 '+pk.window_open;
+    else if(pk.kickoff) chip.textContent='NEXT GAME \u00b7 KICKOFF '+pk.kickoff;
+    else chip.textContent='NEXT WINDOW \u00b7 \u2014';
+  }catch(e){}
+}
+window.applyNextWindow=applyNextWindow;
 </script>
 
 </body>
