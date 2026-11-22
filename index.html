@@ -1777,6 +1777,7 @@ function formatLiveEvent(ev){
   if(!label) return null;
   label=label.charAt(0).toUpperCase()+label.slice(1);
   var html='<b>'+escFull(label)+'</b>';
+  if(typeof ev.count==='number'&&ev.count>1) html+=' <span class="feed-x">\u00d7'+ev.count+'</span>';
   var game=ev.game||ev.match||'';
   if(game) html+=' — '+escFull(game);
   if(ev.detail && String(ev.detail)!==String(ev.label)) html+=' · '+escFull(ev.detail);
@@ -1821,7 +1822,7 @@ function normalizeLiveBet(raw){
   var pnl=typeof raw.pnl==='number'? raw.pnl : (res==='W'? +(stake*(odds-1)).toFixed(2) : (res==='L'? -stake : 0));
   var d=raw.d||raw.date||(raw.settled_at?String(raw.settled_at).slice(0,10):'')||(raw.t?String(raw.t).slice(0,10):'');
   return {d:d, home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
-    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null};
+    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null, segments:(raw.segments||null), goals:(Array.isArray(raw.goals)?raw.goals:null)};
 }
 function recomputeDerived(p){
   WINS=BETS.filter(function(b){return b.res==='W'}).length;
@@ -1846,18 +1847,14 @@ function recomputeDerived(p){
    freshness state renders the same tidy line. */
 function bankrollNote(p){
   var pb=p&&p.phone_balance;
-  if(!pb||typeof pb.balance!=='number') return 'App balance: no read on record';
-  if(pb.read_at){
-    var d=new Date(pb.read_at);
-    if(!isNaN(d)){
-      try{
-        var parts={};
-        new Intl.DateTimeFormat('en-US',{timeZone:'America/Regina',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d).forEach(function(x){ parts[x.type]=x.value; });
-        return 'App balance · read '+(parts.month||'')+' '+(parts.day||'')+', '+(parts.hour||'')+':'+(parts.minute||'')+' '+(parts.dayPeriod||'')+' Regina';
-      }catch(e){}
-    }
-  }
-  return 'App balance';
+  if(!pb||typeof pb.balance!=='number'||!pb.read_at) return 'Last update —';
+  var d=new Date(pb.read_at); if(isNaN(d)) return 'Last update —';
+  try{
+    var parts={};
+    new Intl.DateTimeFormat('en-US',{timeZone:'America/Regina',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d).forEach(function(x){ parts[x.type]=x.value; });
+    return 'Last update '+(parts.hour||'')+':'+(parts.minute||'')+' '+(parts.dayPeriod||'');
+  }catch(e){}
+  return 'Last update —';
 }
 /* Q11PAUSED-BEGIN — the header must tell the payload's truth about
    the bot. Paused when system_status.bot_mode is 'paused' OR the
@@ -3384,7 +3381,7 @@ function renderQueueUpgrade(p){
   if(oc){ var hasOpen=(Array.isArray(p.open_bets)&&p.open_bets.length>0)||p.open_bet_hidden===true; oc.style.display=hasOpen?'':'none'; }
   var QUEUE_DONE={settled:1,skipped:1,aborted:1,expired:1};
   var q=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).filter(function(pk){ return !QUEUE_DONE[pk.stage]; });
-  q=q.map(function(pk,i){ return {pk:pk,i:i,k:kickoffKey(pk)}; }).sort(function(a,b){ if(a.k===null&&b.k===null) return a.i-b.i; if(a.k===null) return 1; if(b.k===null) return -1; return (a.k-b.k)||(a.i-b.i); }).map(function(x){ return x.pk; });
+  q=q.slice(); /* r84: payload order is authoritative (exporter Q90: current game first, then upcoming by window) — the old kickoff-clock re-sort could put a different game first than the banner shows. Banner and first queue card are the same game by construction. */
   if(q){
     var sum=p.queue_summary||{};
     var qs=document.getElementById('queueSummary');
@@ -3446,17 +3443,18 @@ function renderQueueUpgrade(p){
           var note = pk.reason ? '<span class="sealed-note skip">'+esc(pk.reason)+'</span>'
             : (pk.stage==='settled' ? '<span class="sealed-note done">UNSEALED \u2192 BET HISTORY \u2193</span>' : '');
           var age = (pk.stage_age_s===null||pk.stage_age_s===undefined) ? null : pk.stage_age_s;
-          var meta = '<span class="stage-meta" data-age="'+(age===null?'':age)+'">in this step for '+fmtDur(age)+'</span>';
+          var meta = '<span class="stage-meta" data-mono="'+esc(pk.id)+'|'+esc(pk.stage)+'|'+esc(pk.stage_since||'')+'" data-age="'+(age===null?'':age)+'">in this step for '+fmtDur(age)+'</span>';
           var polls = pk.camp_polls ? '<span class="stage-meta">POLLS '+pk.camp_polls+'</span>' : '';
           var park = pk.park ? '<span class="stage-meta">'+(pk.park==='parked'?'PARKED \u2713':'PARK FAILED')+'</span>' : '';
-          return (qi?QFLOW:'')+'<div class="sealed-row'+(qi===0?' first':'')+'" data-sid="'+esc(pk.id)+'">'
-            +'<span class="sid">'+esc(pk.id)+'</span>'+(qi===0?'<span class="upnext">UP NEXT</span>':'')
+          return (qi?QFLOW:'')+'<div class="sealed-row'+(qi===0?' first':'')+(segTotalHTML(pk)?' has-total':'')+'" data-sid="'+esc(pk.id)+'">'
+            + topLineHTML(pk)
+            +'<span class="sid">'+esc(pk.id)+'</span>'+(qi===0?'<span class="upnext">UP NEXT</span>':'') + segTotalHTML(pk)
             +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
             +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
             +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
             +(qMulti&&qDates[pk.id]?'<span class="day-tag">'+qDates[pk.id]+'</span>':'')
             +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
-            + meta + polls + park + pipeHTML(pk.stage) + note + '</div>';
+            + meta + polls + park + '<div class="qbottom">' + pipeHTML(pk.stage) + segBoxesHTML(pk.segments,{intervalsOnly:true,totalText:(pk.live_score||''),windowLive:(pk.stage==='window_open'||pk.stage==='decision'||pk.stage==='placing')}) + '</div>' + note + '</div>';
         }).join('');
       }
     }
@@ -4217,7 +4215,7 @@ function narrationRowHtml(e){
   return '<div class="act-row"><span class="act-t">'+when+'</span>'
     +'<span class="aa-date">'+day+'</span>'
     +'<span class="act-node">'+kind+'</span>'
-    +'<span class="act-label">'+text+'</span></div>';
+    +'<span class="act-label">'+text+((typeof e.count==='number'&&e.count>1)?' <span class="feed-x">\u00d7'+e.count+'</span>':'')+'</span></div>';
 }
 function narrationListHtml(entries){
   if(!Array.isArray(entries)||!entries.length)
@@ -4829,7 +4827,7 @@ window.applyNextWindow=applyNextWindow;
       card.hidden=false; card.classList.add('live');
       var nm=String(b.game||'').trim();
       var sc=String(b.live_score||'').trim(), clk=String(b.live_clock||'').trim();
-      var nameHtml=nm? '<span class="nc-name">'+e82(nm)+(sc?'<span class="live-score">'+e82(sc)+(clk?' \u00b7 '+e82(clk):'')+'</span>':'')+'</span>'
+      var nameHtml=nm? '<span class="nc-name">'+e82(nm)+'</span>'
                      : '<span class="nc-name">BET IN PLAY</span>';
       var f='';
       if(b.market) f+=field('MARKET',e82(b.market),'teal');
@@ -4845,20 +4843,16 @@ window.applyNextWindow=applyNextWindow;
         }
       }
       f+=field('STATUS',sc?'IN PLAY':'ON THE BET','green');
-      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>';
+      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(b.segments||null, sc, clk, true);
       return;
     }
     card.classList.remove('live');
     var q=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).filter(function(pk){ return pk&&!DONE[pk.stage]&&pk.stage!=='placed'; });
     if(!q.length){ card.hidden=true; card.innerHTML=''; return; }
     var now=Date.now();
-    var scored=q.map(function(pk,i){ var ko=koMs(p,pk); return {pk:pk,i:i,ko:ko,open:(ko===null?null:ko+73*60000),close:(ko===null?null:ko+93*60000)}; });
-    var pick=null;
-    for(var a=0;a<scored.length;a++){ var s1=scored[a]; if(LIVE[s1.pk.stage]||(s1.open!==null&&now>=s1.open&&now<s1.close)){ pick=s1; break; } }
-    if(!pick){
-      scored.sort(function(x,y){ if(x.open===null&&y.open===null) return x.i-y.i; if(x.open===null) return 1; if(y.open===null) return -1; return (x.open-y.open)||(x.i-y.i); });
-      pick=scored[0];
-    }
+    var pk=q[0];
+    var ko0=koMs(p,pk);
+    var pick={pk:pk,i:0,ko:ko0,open:(ko0===null?null:ko0+73*60000),close:(ko0===null?null:ko0+93*60000)};
     var pk=pick.pk;
     card.hidden=false;
     var working=!!LIVE[pk.stage]||(pick.open!==null&&now>=pick.open&&now<pick.close);
@@ -4875,7 +4869,7 @@ window.applyNextWindow=applyNextWindow;
     else if(pick.open!==null) f+=field('WINDOW STATE','DUE \u00b7 AWAITING THE WORK','gold');
     var lbl=(typeof STAGE_LABEL!=='undefined'&&STAGE_LABEL[pk.stage])||String(pk.stage||'').replace('_',' ').toUpperCase();
     f+=field('STATUS',e82(lbl));
-    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>';
+    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(pk.segments||null, pk.live_score||'', '', working);
   }
   function decorateQueue(p){
     var list=document.getElementById('sealedList'); if(!list||!p) return;
@@ -5046,5 +5040,158 @@ window.applyNextWindow=applyNextWindow;
 })();
 </script>
 
+<style id="r84css">
+/* ===== r84 — segmented scoreboard component + queue/banner layout
+   (user specs 2026-11-22): ONE component family everywhere; queue
+   total top-right; intervals bottom-right beside the Journey;
+   banner score on the right; top-of-card story line. Bright and
+   crisp in the site palette. ===== */
+.segstrip{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap}
+.segbox{min-width:62px;text-align:center;border:1px solid rgba(42,255,213,.38);border-radius:9px;padding:5px 8px 6px;background:rgba(42,255,213,.06)}
+.segbox .sl{display:block;font-family:var(--mono);font-size:8px;font-weight:800;letter-spacing:.13em;color:var(--teal);white-space:nowrap}
+.segbox .sv{display:block;font-family:var(--mono);font-size:15px;font-weight:800;color:var(--bone);line-height:1.2}
+.segbox.win{border-color:rgba(57,255,106,.75);background:rgba(57,255,106,.12);box-shadow:0 0 12px rgba(57,255,106,.30)}
+.segbox.win .sl{color:var(--green)}
+.segbox.tot{border-color:rgba(255,196,64,.60);background:rgba(255,196,64,.08)}
+.segbox.tot .sl{color:var(--gold)}
+.segbox.na .sv{color:var(--faint)}
+.qtop{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;border-bottom:1px dashed rgba(232,230,225,.14);padding-bottom:7px}
+.qphase{font-size:12.5px;font-weight:700;color:var(--bone)}
+.qsegsum{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--teal)}
+.sealed-row{position:relative}
+.sealed-row.has-total{padding-right:96px}
+.qtotal{position:absolute;top:11px;right:14px}
+.qbottom{display:flex;align-items:center;gap:14px;flex:1 1 100%;flex-wrap:wrap}
+.qbottom .pipe{flex:1 1 260px}
+.qbottom .segstrip{flex:none;margin-left:auto}
+.nc-score84{margin-left:auto;text-align:right;flex:none}
+.nc-score84 .nc-tot{display:block;font-family:var(--mono);font-size:23px;font-weight:800;color:var(--bone);line-height:1.1}
+.nc-score84 .nc-clk{display:block;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.14em;margin:1px 0 6px}
+.nc-score84 .segstrip{justify-content:flex-end}
+.histstrip{flex:1 1 100%;margin-top:10px}
+.feed-x{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:800;color:var(--gold);border:1px solid rgba(255,196,64,.55);border-radius:99px;padding:0 6px;vertical-align:1px}
+</style>
+<script id="r84js">
+/* ===== r84 — segmented scoreboard + card layout + monotonic timers
+   + history strips. Data rule: segments come from the exporter's
+   exported goal minutes + HT baseline; when a game has no segment
+   split, the boxes show dashes and the total only — never invented. */
+function segBoxesHTML(seg, o){
+  o=o||{};
+  function box(lbl, val, cls){
+    return '<div class="segbox '+(cls||'')+'"><span class="sl">'+lbl+'</span><span class="sv">'+val+'</span></div>';
+  }
+  function pair(a){ return a[0]+' \u2014 '+a[1]; }
+  var out='';
+  if(seg&&seg.s1&&seg.s2&&seg.s3&&seg.total){
+    out+=box('1ST HALF', pair(seg.s1));
+    out+=box('2ND HALF \u00b7 BEFORE WINDOW', pair(seg.s2));
+    out+=box('WINDOW 63\u2032+', pair(seg.s3), o.windowLive?'win':'');
+    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', pair(seg.total), 'tot');
+  } else {
+    out+=box('1ST HALF', '\u2014', 'na');
+    out+=box('2ND HALF \u00b7 BEFORE WINDOW', '\u2014', 'na');
+    out+=box('WINDOW 63\u2032+', '\u2014', 'na');
+    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.totalText?esc(String(o.totalText).replace('-',' \u2014 ')):'\u2014', 'tot'+(o.totalText?'':' na'));
+  }
+  return '<div class="segstrip">'+out+'</div>';
+}
+function segSummaryText(pk){
+  var seg=pk&&pk.segments;
+  if(seg&&seg.s1&&seg.s2&&seg.s3){
+    var parts=['1H '+seg.s1[0]+' \u2014 '+seg.s1[1]];
+    var s2n=seg.s2[0]+seg.s2[1];
+    parts.push(s2n===0?'2H no goals yet':'2H '+seg.s2[0]+' \u2014 '+seg.s2[1]);
+    var s3n=seg.s3[0]+seg.s3[1];
+    if(s3n>0) parts.push('Window '+seg.s3[0]+' \u2014 '+seg.s3[1]);
+    return parts.join(' \u00b7 ');
+  }
+  if(pk&&pk.live_score) return 'Score '+pk.live_score+' \u00b7 split unavailable';
+  return '';
+}
+function topLineHTML(pk){
+  var ph=pk&&pk.phase?'<span class="qphase">'+esc(pk.phase)+'</span>':'';
+  var sm=segSummaryText(pk||{});
+  var smh=sm?'<span class="qsegsum">'+esc(sm)+'</span>':'';
+  if(!ph&&!smh) return '';
+  return '<div class="qtop">'+ph+smh+'</div>';
+}
+function segTotalHTML(pk){
+  var t=null;
+  if(pk&&pk.segments&&pk.segments.total) t=pk.segments.total[0]+' \u2014 '+pk.segments.total[1];
+  else if(pk&&pk.live_score) t=String(pk.live_score).replace('-',' \u2014 ');
+  if(!t) return '';
+  return '<span class="segbox tot qtotal"><span class="sl">TOTAL</span><span class="sv">'+esc(t)+'</span></span>';
+}
+function bannerScoreHTML(seg, totalText, clockText, windowLive){
+  var tot=seg&&seg.total? seg.total[0]+' \u2014 '+seg.total[1] : (totalText? String(totalText).replace('-',' \u2014 '):'');
+  if(!tot&&!seg) return '';
+  return '<div class="nc-score84"><span class="nc-tot">'+esc(tot||'\u2014')+'</span>'
+    +(clockText?'<span class="nc-clk">'+esc(clockText)+'</span>':'')
+    +segBoxesHTML(seg,{intervalsOnly:true,windowLive:!!windowLive})
+    +'</div>';
+}
+(function(){
+  /* Monotonic in-step timers (named defect, user 2026-11-22: a card
+     read 4:35 then jumped BACK to 4:25 on refresh). The displayed
+     age for a (card, stage, stage_since) key may never decrease
+     across payload refreshes: remember the highest displayed age
+     per key and clamp any lower re-render up to the counted value.
+     The exporter also anchors stage_since stably now; this clamp is
+     the page-side guarantee. */
+  var M=window.__mono84={};
+  var orig=window.renderQueueUpgrade;
+  if(typeof orig==='function'){
+    window.renderQueueUpgrade=function(p){
+      orig(p);
+      try{
+        var now=Date.now(), seen={};
+        document.querySelectorAll('#sealedList [data-age][data-mono]').forEach(function(el){
+          var key=el.getAttribute('data-mono'); seen[key]=1;
+          var base=parseInt(el.getAttribute('data-age'),10);
+          if(isNaN(base)) return;
+          var prev=M[key];
+          if(prev){
+            var shouldBe=prev.age+Math.floor((now-prev.t)/1000);
+            if(base<shouldBe){ el.setAttribute('data-age',String(shouldBe)); base=shouldBe; }
+          }
+          M[key]={age:base,t:now};
+          el.setAttribute('data-t0',String(now));
+        });
+        Object.keys(M).forEach(function(k){ if(!seen[k]) delete M[k]; });
+      }catch(e){}
+    };
+  }
+  /* History strips: the same component on game + bet cards, matched
+     by game name exactly like the r82 goal boxes. Renders only when
+     the payload carries segments for that game. */
+  function segMap(p){
+    var map={};
+    (Array.isArray(p&&p.settled_bets)?p.settled_bets:[]).forEach(function(b){
+      if(!b||!b.segments) return;
+      var nm=b.game||((b.home||'')+' v '+(b.away||''));
+      if(nm) map[String(nm).toLowerCase().replace(/\s+/g,'')]=b.segments;
+    });
+    return map;
+  }
+  function decorateHistory(){
+    var p=window.PAYLOAD; if(!p) return;
+    var map=segMap(p);
+    if(!Object.keys(map).length) return;
+    document.querySelectorAll('#gameList .gh-card, #betList .bet-card').forEach(function(card){
+      if(card.querySelector('.histstrip')) return;
+      var t=card.querySelector('.gh-teams')||card.querySelector('.bet-teams')||card.querySelector('.bet-main');
+      var name=t?(t.textContent||''):'';
+      var seg=map[String(name).toLowerCase().replace(/\s+/g,'')];
+      if(seg) card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(seg,{final:true})+'</div>');
+    });
+  }
+  var _rgh=window.renderGameHistory;
+  if(typeof _rgh==='function') window.renderGameHistory=function(){ _rgh(); try{ decorateHistory(); }catch(e){} };
+  var _rbh=window.renderBetHistory;
+  if(typeof _rbh==='function') window.renderBetHistory=function(){ _rbh(); try{ decorateHistory(); }catch(e){} };
+  try{ decorateHistory(); }catch(e){}
+})();
+</script>
 </body>
 </html>
