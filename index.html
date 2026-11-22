@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<meta name="dd-build" content="r81-20261122" />
+<meta name="dd-build" content="r82-20261122" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<script>window.__BUILD="r81-20261122";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
+<script>window.__BUILD="r82-20261122";(function(){function chk(){try{fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(v){var k="dd_build_seen";if(v&&v.build&&v.build!==window.__BUILD&&sessionStorage.getItem(k)!==v.build){sessionStorage.setItem(k,v.build);location.reload();}}).catch(function(){});}catch(e){}}chk();setInterval(chk,300000);})();</script>
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#0a0a0c" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -1059,6 +1059,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
   </div>
   <button class="follow-btn" disabled title="Coming in Phase 2">FOLLOW BETS · PHASE 2</button>
 </header>
+<div class="next-card" id="nextGameCard" hidden><span class="nc-tag">NEXT GAME</span><span class="nc-name">&mdash;</span></div>
 <div class="hl-strip" id="hlStrip" aria-label="Headline numbers">
   <span class="hl-item"><span class="hk">BANKROLL</span><span class="hv" id="hlBankroll">—</span></span>
   <span class="hl-item"><span class="hk">ALL-TIME P&amp;L</span><span class="hv" id="hlProfit">—</span></span>
@@ -1902,7 +1903,7 @@ function applyPayload(p){
     p.settled_bets=BETS;
     recomputeDerived(p);
   }
-  if(!Array.isArray(p.settled_games)){
+  if(!Array.isArray(p.settled_games)||!p.settled_games.length){
     p.settled_games=BETS.map(function(b){ return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d, home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null), final_score:(typeof b.final_score==='string'?b.final_score:null), bet_placed:true, outcome:b.res, pnl:b.pnl, market:b.market, odds:b.odds, stake:b.stake}; });
   }
   SETTLED_GAMES=p.settled_games;
@@ -2485,7 +2486,7 @@ function normalizeGame(g){
     note:g.note||g.reason||g.skip_reason||''};
 }
 function gamesSource(){
-  if(Array.isArray(PAYLOAD.settled_games)) return PAYLOAD.settled_games.map(normalizeGame);
+  if(Array.isArray(PAYLOAD.settled_games)&&PAYLOAD.settled_games.length) return PAYLOAD.settled_games.map(normalizeGame);
   var src=Array.isArray(PAYLOAD.settled_bets)? PAYLOAD.settled_bets : BETS;
   return src.map(function(b){ return normalizeGame({home:b.home,away:b.away,league:b.league,date:b.d,home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null),final_score:(typeof b.final_score==='string'?b.final_score:null),bet_placed:true,outcome:b.res,pnl:b.pnl,market:b.market||'2H Over 0.5',odds:b.odds,stake:b.stake}); });
 }
@@ -3269,7 +3270,7 @@ var STAGE_LABEL={queued:'IN LINE',scheduled:'IN LINE',pre_arrival:'GETTING IN PO
 var MODE_LABEL={idle:'WAITING',in_window:'IN THE WINDOW',camping:'WATCHING THE PRICE',placing:'PLACING THE BET'};
 var SVC_LABEL={betbot:'BETTING BOT',droidline:'PHONE LINK',janitor_watcher:'WATCHER',janitor_ctl:'CLEANUP',responder:'AUTO-RECOVERY'};
 var PHASE_LABEL={place_tap:'stopped at the final tap',stake_entry:'stopped while entering the stake',locate:'stopped while finding the market'};
-function stageCls(st){ if(st==='camping'||st==='placing'||st==='decision') return 'hot'; if(st==='window_open'||st==='arrived'||st==='pre_arrival') return 'warm'; if(st==='skipped'||st==='aborted'||st==='expired') return 'bad'; if(st==='placed'||st==='settled') return 'done'; return ''; }
+function stageCls(st){ if(st==='camping'||st==='placing'||st==='decision'||st==='window_open') return 'hot'; if(st==='arrived'||st==='pre_arrival'||st==='queued'||st==='scheduled') return 'warm'; if(st==='skipped'||st==='aborted'||st==='expired') return 'bad'; if(st==='placed'||st==='settled') return 'done'; return ''; }
 function fmtStartDate(iso){ try{ return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase(); }catch(e){ return iso; } }
 function fmtDur(s){ if(s===null||s===undefined||isNaN(s)) return '\u2014'; s=Math.max(0,Math.floor(s)); if(s<60) return s+'s'; var m=Math.floor(s/60); if(m<60) return m+'m '+(s%60)+'s'; var h=Math.floor(m/60); return h+'h '+(m%60)+'m'; }
 function fmtClock(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Regina'}); }catch(e){ return ''; } } /* r77: one basis — America/Regina */
@@ -3297,7 +3298,7 @@ function pipeHTML(stage){
   var liveStage=!!PIPE_LIVE[stage];
   var pipe='';
   PIPE_STAGES.forEach(function(st,i){
-    var cls=settled?'done':(i<cur?'done':(i===cur?(liveStage?'now':'next'):''));
+    var cls=settled?'done':(i<cur?'done':(i===cur?(liveStage?'now':'cur'):''));
     pipe+='<div class="st '+cls+'"><i></i><span>'+st+'</span></div>';
     if(i<PIPE_STAGES.length-1){
       var lc=(settled||i<cur)?'done':((i===cur&&liveStage)?'flow':'');
@@ -4729,6 +4730,315 @@ window.applyNextWindow=applyNextWindow;
   window.addEventListener('resize',sweep);
   setTimeout(sweep,600);
   setTimeout(sweep,1800);
+})();
+</script>
+
+<style id="r82css">
+/* ===== r82 — NEXT GAME banner card + queue IN PLAY + stage current-step
+   highlight (user, 2026-11-22). The r8.1 NEXT WINDOW chip retires into
+   this card (same header slot family, roomier): the chip element stays
+   in the DOM (r81js still writes it) but no longer displays. The card
+   lives directly under the header so the r80/r81 sticky nav offsets
+   are untouched. ===== */
+#nextWindowChip{display:none!important}
+.next-card{margin:12px 20px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 16px;border-radius:14px;border:1.5px solid rgba(42,255,213,.45);color:var(--bone);background:rgba(42,255,213,.06);box-shadow:0 0 16px rgba(42,255,213,.16)}
+.next-card[hidden]{display:none!important}
+.next-card.live{border-color:rgba(57,255,106,.65);background:var(--green-soft);box-shadow:0 0 20px rgba(57,255,106,.30)}
+.nc-tag{font-family:var(--mono);font-size:9.5px;font-weight:800;letter-spacing:.2em;color:var(--teal);white-space:nowrap;flex:none}
+.next-card.live .nc-tag{color:var(--green)}
+.nc-name{font-family:var(--disp);font-weight:800;font-size:clamp(14px,2.6vw,18px);letter-spacing:.02em;color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.nc-name .live-score{font-family:var(--mono);font-weight:800;color:var(--green);margin-left:9px;text-shadow:0 0 10px rgba(57,255,106,.5)}
+.nc-sealed{display:flex;align-items:center;gap:7px;flex:none}
+.nc-sealed .redact{height:15px}
+.nc-sealed .vs{font-family:var(--mono);font-size:10px;color:var(--faint)}
+.nc-fields{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-left:auto}
+.nc-f{display:flex;flex-direction:column;gap:1px;flex:none}
+.nc-f label{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--faint)}
+.nc-f b{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--bone);white-space:nowrap}
+.nc-f b.teal{color:var(--teal)}
+.nc-f b.gold{color:var(--gold)}
+.nc-f b.green{color:var(--green)}
+.nc-cd.wait{color:var(--teal)}
+/* queue card IN PLAY treatment (kicked off, window not yet closed) */
+.inplay-tag{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--green);border:1px solid rgba(57,255,106,.5);background:rgba(57,255,106,.08);border-radius:99px;padding:3px 9px;display:inline-flex;align-items:center;gap:6px;flex:none;white-space:nowrap}
+.inplay-tag i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:ncPulse 1.6s ease-in-out infinite;flex:none}
+@keyframes ncPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sealed-row.inplay{border-color:rgba(57,255,106,.45);box-shadow:inset 3px 0 0 rgba(57,255,106,.6),0 8px 20px rgba(0,0,0,.28)}
+/* pipe: the CURRENT step of a not-yet-live stage gets the warm gold
+   treatment (it previously rendered as the dull grey 'next' step, so
+   no stage ever lit up before the window) */
+.pipe .st.cur i{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(255,201,77,.55)}
+.pipe .st.cur span{color:var(--gold)}
+@media(max-width:760px){.next-card{margin:10px 14px 0;padding:9px 12px;gap:10px}.nc-fields{margin-left:0;gap:12px}}
+</style>
+<script id="r82js">
+/* ===== r82 — NEXT GAME banner card + queue IN PLAY (user, 2026-11-22).
+   Renders ONLY payload data (sealed_queue / open_bets / game_journeys).
+   Sealed rule: a queued game shows NO name — redaction bars, market,
+   kickoff, window time and a live countdown. The name reveals only
+   when a bet is placed (open_bets), with live score/clock, stake and
+   odds when the payload carries them. IN PLAY on queue cards is
+   derived from the payload's own kickoff fields and the clock —
+   never an invented minute or score. Window = kickoff+73m open,
+   +93m close (the system's own window rule, cross-checked against
+   the exporter's window_open string). Hooks run after the page's own
+   per-poll renders by wrapping applyNextWindow / renderQueueUpgrade. */
+(function(){
+  var DONE={settled:1,skipped:1,aborted:1,expired:1};
+  var PRE={queued:1,scheduled:1,pre_arrival:1};
+  var LIVE={window_open:1,arrived:1,camping:1,decision:1,placing:1};
+  function e82(s){ return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function tzOffMs(t,tz){
+    try{
+      var parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(new Date(t));
+      var m={}; parts.forEach(function(x){ m[x.type]=x.value; });
+      return Date.UTC(+m.year,+m.month-1,+m.day,(+m.hour)%24,+m.minute,+m.second)-Math.floor(t/1000)*1000;
+    }catch(e){ return -6*3600000; }
+  }
+  function reginaMs(y,mo,d,mins){
+    var guess=Date.UTC(y,mo-1,d,Math.floor(mins/60),mins%60,0);
+    return guess-tzOffMs(guess,'America/Regina');
+  }
+  function koMs(p,pk){
+    var j=(p&&p.game_journeys||{})[pk.id];
+    if(j&&j.kickoff){ var t=Date.parse(j.kickoff); if(!isNaN(t)) return t; }
+    var kd=String(pk.kickoff_date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    var k=(typeof kickoffKey==='function')?kickoffKey(pk):null;
+    if(kd&&k!==null) return reginaMs(+kd[1],+kd[2],+kd[3],k);
+    return null;
+  }
+  function fmtClockMs(ms){ try{ return new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Regina'}); }catch(e){ return ''; } }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function fmtCount(ms){ ms=Math.max(0,ms); var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0? h+':'+p2(m)+':'+p2(s%60) : m+':'+p2(s%60); }
+  function fmtElapsed(ms){ var m=Math.max(0,Math.floor(ms/60000)); return m<60? m+'m' : Math.floor(m/60)+'h '+p2(m%60)+'m'; }
+  function field(l,v,c){ return '<span class="nc-f"><label>'+l+'</label><b'+(c?' class="'+c+'"':'')+'>'+v+'</b></span>'; }
+  function sealedHtml(pk){
+    var w1=74,w2=74;
+    if(pk&&pk.id&&typeof redactW==='function'){ w1=redactW(pk.id,1); w2=redactW(pk.id,2); }
+    return '<span class="nc-sealed"><span class="redact" style="width:'+w1+'px"></span><span class="vs">v</span><span class="redact" style="width:'+w2+'px"></span></span>';
+  }
+  function renderCard(p){
+    var card=document.getElementById('nextGameCard'); if(!card||!p) return;
+    var ob=Array.isArray(p.open_bets)?p.open_bets:[];
+    if(ob.length){
+      var b=ob[0]||{};
+      card.hidden=false; card.classList.add('live');
+      var nm=String(b.game||'').trim();
+      var sc=String(b.live_score||'').trim(), clk=String(b.live_clock||'').trim();
+      var nameHtml=nm? '<span class="nc-name">'+e82(nm)+(sc?'<span class="live-score">'+e82(sc)+(clk?' \u00b7 '+e82(clk):'')+'</span>':'')+'</span>'
+                     : '<span class="nc-name">BET IN PLAY</span>';
+      var f='';
+      if(b.market) f+=field('MARKET',e82(b.market),'teal');
+      if(b.selection) f+=field('PICK',e82(b.selection),'teal');
+      if(typeof b.stake==='number') f+=field('STAKE','$'+b.stake.toFixed(2));
+      if(typeof b.odds==='number') f+=field('ODDS',b.odds.toFixed(2),'gold');
+      var jid=b.journey_id||b.id, j=(p.game_journeys||{})[jid||''];
+      if(j&&j.kickoff){
+        var ko=Date.parse(j.kickoff);
+        if(!isNaN(ko)){ var now=Date.now();
+          if(now>=ko+73*60000&&now<ko+93*60000) f+=field('WINDOW','IN THE WINDOW','green');
+          else if(now>=ko+93*60000) f+=field('WINDOW','WINDOW PASSED');
+        }
+      }
+      f+=field('STATUS',sc?'IN PLAY':'ON THE BET','green');
+      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>';
+      return;
+    }
+    card.classList.remove('live');
+    var q=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).filter(function(pk){ return pk&&!DONE[pk.stage]&&pk.stage!=='placed'; });
+    if(!q.length){ card.hidden=true; card.innerHTML=''; return; }
+    var now=Date.now();
+    var scored=q.map(function(pk,i){ var ko=koMs(p,pk); return {pk:pk,i:i,ko:ko,open:(ko===null?null:ko+73*60000),close:(ko===null?null:ko+93*60000)}; });
+    var pick=null;
+    for(var a=0;a<scored.length;a++){ var s1=scored[a]; if(LIVE[s1.pk.stage]||(s1.open!==null&&now>=s1.open&&now<s1.close)){ pick=s1; break; } }
+    if(!pick){
+      scored.sort(function(x,y){ if(x.open===null&&y.open===null) return x.i-y.i; if(x.open===null) return 1; if(y.open===null) return -1; return (x.open-y.open)||(x.i-y.i); });
+      pick=scored[0];
+    }
+    var pk=pick.pk;
+    card.hidden=false;
+    var working=!!LIVE[pk.stage]||(pick.open!==null&&now>=pick.open&&now<pick.close);
+    var f='';
+    if(pk.market) f+=field('MARKET',e82(pk.market),'teal');
+    if(pk.kickoff) f+=field('KICKOFF',e82(String(pk.kickoff).trim()),'gold');
+    if(pk.window_open) f+=field('WINDOW',e82(String(pk.window_open).trim()));
+    else if(pick.open!==null) f+=field('WINDOW',fmtClockMs(pick.open));
+    if(pick.ko!==null&&now>=pick.ko&&pick.close!==null&&now<pick.close){
+      f+='<span class="nc-f"><label>MATCH</label><b class="green" data-nc-ko="'+pick.ko+'">IN PLAY \u00b7 '+fmtElapsed(now-pick.ko)+'</b></span>';
+    }
+    if(working) f+=field('WINDOW STATE','IN THE WINDOW','green');
+    else if(pick.open!==null&&now<pick.open) f+='<span class="nc-f"><label>WINDOW IN</label><b class="nc-cd wait" data-nc-target="'+pick.open+'">'+fmtCount(pick.open-now)+'</b></span>';
+    else if(pick.open!==null) f+=field('WINDOW STATE','DUE \u00b7 AWAITING THE WORK','gold');
+    var lbl=(typeof STAGE_LABEL!=='undefined'&&STAGE_LABEL[pk.stage])||String(pk.stage||'').replace('_',' ').toUpperCase();
+    f+=field('STATUS',e82(lbl));
+    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>';
+  }
+  function decorateQueue(p){
+    var list=document.getElementById('sealedList'); if(!list||!p) return;
+    var now=Date.now();
+    (Array.isArray(p.sealed_queue)?p.sealed_queue:[]).forEach(function(pk){
+      if(!pk||!PRE[pk.stage]) return;
+      var ko=koMs(p,pk); if(ko===null) return;
+      if(now<ko||now>=ko+93*60000) return;
+      var row=list.querySelector('.sealed-row[data-sid="'+pk.id+'"]');
+      if(!row||row.querySelector('.inplay-tag')) return;
+      row.classList.add('inplay');
+      var tag=document.createElement('span');
+      tag.className='inplay-tag'; tag.setAttribute('data-nc-ko',ko);
+      tag.innerHTML='<i></i>IN PLAY \u00b7 '+fmtElapsed(now-ko);
+      var anchor=row.querySelector('.kickoff-tag')||row.querySelector('.stage-pill');
+      if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(tag,anchor.nextSibling);
+      else row.appendChild(tag);
+    });
+  }
+  var _anw=window.applyNextWindow;
+  window.applyNextWindow=function(p){ if(typeof _anw==='function'){ try{ _anw(p); }catch(e){} } try{ renderCard(p); }catch(e){} };
+  var _rqu=window.renderQueueUpgrade;
+  if(typeof _rqu==='function'){
+    window.renderQueueUpgrade=function(p){ _rqu(p); try{ decorateQueue(p); }catch(e){} };
+  }
+  if(window.PAYLOAD){ try{ renderCard(window.PAYLOAD); decorateQueue(window.PAYLOAD); }catch(e){} }
+  setInterval(function(){
+    var now=Date.now();
+    document.querySelectorAll('[data-nc-target]').forEach(function(el){ var t=+el.getAttribute('data-nc-target'); el.textContent=(t>now)?fmtCount(t-now):'DUE'; });
+    document.querySelectorAll('[data-nc-ko]').forEach(function(el){
+      var ko=+el.getAttribute('data-nc-ko');
+      el.innerHTML=(el.classList.contains('inplay-tag')?'<i></i>':'')+'IN PLAY \u00b7 '+fmtElapsed(now-ko);
+    });
+  },1000);
+})();
+</script>
+
+<style id="r82bcss">
+/* ===== r82b — goal timeline box on historic bet cards (renders only
+   when the payload carries goal data for that bet) ===== */
+.goal-box{flex:1 1 100%;margin-top:10px;border:1px solid rgba(42,255,213,.35);border-radius:10px;padding:9px 12px;background:rgba(42,255,213,.05)}
+.goal-box .gb-head{font-family:var(--mono);font-size:9px;font-weight:800;letter-spacing:.18em;color:var(--teal);margin-bottom:6px}
+.goal-box .gb-row{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;color:var(--bone);padding:2px 0}
+.goal-box .gb-min{font-weight:800;color:var(--gold);min-width:38px}
+.goal-box .gb-score{color:var(--dim)}
+.goal-box .gb-win{font-size:9px;font-weight:800;letter-spacing:.14em;color:#0b0f0c;background:var(--green);border-radius:99px;padding:2px 8px}
+</style>
+<script id="r82vid">
+/* ===== r82 — BAND VIDEO DECK-SWITCH GUARANTEE (user, 2026-11-22:
+   the shark in the Performance deck sits static on the phone). The
+   two older players race each other: the round-5 loader calls play()
+   in the same tick as load() (an AbortError pattern whose rejection
+   is swallowed) and pauses anything its observer sees leave, while
+   the r8.1 sweep replays by different geometry — and neither owns
+   the deck-switch moment for bands deep inside a deck. This block
+   adds the missing deterministic triggers WITHOUT removing them:
+   when a deck panel is unhidden (MutationObserver on `hidden`, plus
+   the deck-button click), every band video in that panel is prepped
+   (muted/playsInline set as properties as well as attributes, src
+   promoted) and played, with one retry; a 'playing' event earns the
+   .on fade-in class. Design intent preserved: nothing loads under
+   prefers-reduced-motion; off-screen pausing still belongs to the
+   round-5 observer. */
+(function(){
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduced.matches) return;
+  function prep(v){
+    try{
+      v.muted=true; v.playsInline=true;
+      if(!v.getAttribute('src')&&v.dataset&&v.dataset.src){ v.src=v.dataset.src; v.load(); }
+    }catch(e){}
+  }
+  function kick(v){
+    prep(v);
+    var pr; try{ pr=v.play(); }catch(e){}
+    if(pr&&pr.catch) pr.catch(function(){
+      setTimeout(function(){
+        if(!v.paused) return;
+        var p2; try{ p2=v.play(); }catch(e){}
+        if(p2&&p2.catch) p2.catch(function(){});
+      },650);
+    });
+  }
+  function kickPanel(panel){
+    if(!panel) return;
+    panel.querySelectorAll('video.band-vid').forEach(function(v){ kick(v); });
+  }
+  document.querySelectorAll('video.band-vid').forEach(function(v){
+    v.addEventListener('playing',function(){ v.classList.add('on'); });
+    v.addEventListener('canplay',function(){ v.classList.add('on'); });
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('.deck-btn,.sub-btn')){
+      setTimeout(function(){ kickPanel(document.querySelector('.deck-panel:not([hidden])')); },180);
+    }
+  },true);
+  if('MutationObserver' in window){
+    document.querySelectorAll('.deck-panel').forEach(function(pan){
+      new MutationObserver(function(){
+        if(!pan.hidden) setTimeout(function(){ kickPanel(pan); },140);
+      }).observe(pan,{attributes:true,attributeFilter:['hidden']});
+    });
+  }
+})();
+</script>
+<script id="r82goals">
+/* ===== r82 — GOAL TIMELINE BOXES on historic bets. Renders ONLY from
+   goal data the payload itself carries: a `goals` (or `goal_events`)
+   array on a settled_bets entry or on its game_journeys record, each
+   goal an object with a match `minute` (and optionally `score_after`,
+   `team`/`scorer`, or a wall-clock `t`). Goals inside the betting
+   window are marked IN OUR WINDOW — by match minute against the
+   strategy's 63-75' window, or by wall time against the journey
+   kickoff +73m/+93m when the goal carries a timestamp. Today's
+   payload carries NO goal arrays (journeys hold prose steps only),
+   so no box renders until the exporter supplies the data — nothing
+   is parsed out of prose and nothing is invented. */
+(function(){
+  function e82(s){ return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function keyOf(name){ return String(name||'').toLowerCase().replace(/\s+/g,''); }
+  function goalMap(p){
+    var map={};
+    var bets=Array.isArray(p&&p.settled_bets)?p.settled_bets:[];
+    var journeys=(p&&p.game_journeys)||{};
+    bets.forEach(function(b){
+      var g=Array.isArray(b.goals)?b.goals:(Array.isArray(b.goal_events)?b.goal_events:null);
+      var jid=b.journey_id||b.id, j=jid?journeys[jid]:null;
+      if(!g&&j) g=Array.isArray(j.goals)?j.goals:(Array.isArray(j.goal_events)?j.goal_events:null);
+      if(g&&g.length&&b.game) map[keyOf(b.game)]={goals:g, ko:(j&&j.kickoff)?Date.parse(j.kickoff):null};
+    });
+    return map;
+  }
+  function inWindow(g,ko){
+    if(typeof g.minute==='number') return g.minute>=63&&g.minute<=75;
+    var t=g.t?Date.parse(g.t):(g.ts?Date.parse(g.ts):null);
+    if(t!==null&&ko!==null&&!isNaN(t)) return t>=ko+73*60000&&t<ko+93*60000;
+    return false;
+  }
+  function boxHtml(entry){
+    var rows=entry.goals.map(function(g){
+      var min=(typeof g.minute==='number')? g.minute+'\u2032' : (g.minute? e82(g.minute) : '');
+      var sc=g.score_after||g.score||'';
+      var who=g.team||g.scorer||'';
+      return '<div class="gb-row"><span class="gb-min">'+e82(min)+'</span>'
+        +(sc?'<span class="gb-score">'+e82(sc)+'</span>':'')
+        +(who?'<span>'+e82(who)+'</span>':'')
+        +(inWindow(g,entry.ko)?'<span class="gb-win">IN OUR WINDOW</span>':'')
+        +'</div>';
+    }).join('');
+    return '<div class="goal-box"><div class="gb-head">GOALS \u00b7 '+entry.goals.length+'</div>'+rows+'</div>';
+  }
+  function decorate(){
+    var p=window.PAYLOAD; if(!p) return;
+    var map=goalMap(p);
+    if(!Object.keys(map).length) return;
+    document.querySelectorAll('#gameList .gh-card, #betList .bet-card').forEach(function(card){
+      if(card.querySelector('.goal-box')) return;
+      var t=card.querySelector('.gh-teams')||card.querySelector('.bet-teams')||card.querySelector('.bet-main');
+      var name=t? (t.textContent||'') : '';
+      var entry=map[keyOf(name)];
+      if(entry) card.insertAdjacentHTML('beforeend',boxHtml(entry));
+    });
+  }
+  var _rgh=window.renderGameHistory;
+  if(typeof _rgh==='function') window.renderGameHistory=function(){ _rgh(); try{ decorate(); }catch(e){} };
+  var _rbh=window.renderBetHistory;
+  if(typeof _rbh==='function') window.renderBetHistory=function(){ _rbh(); try{ decorate(); }catch(e){} };
 })();
 </script>
 
