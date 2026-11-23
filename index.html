@@ -1091,7 +1091,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
       <p class="lede">Alpha GOAL finds the edge. The DI Quantum Core executes it — an autonomous pipeline that perceives, decides, and places with machine discipline. <b>No emotion. No chasing. Just the system.</b></p>
       <div class="stat-row">
         <div class="stat hero-stat"><div class="k">All-Time Profit · Never Resets</div><div class="v" id="statProfit">+$0.00</div><svg class="spark" id="sparkProfit" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><div class="sub" id="statBankrollNote"></div><div class="sub" id="statPotLine">3 POTS · $185.62 EACH · POT 1 IN PLAY · 2 IN RESERVE</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><div class="sub" id="statPotLine">3 POTS · $185.62 EACH · POT 1 IN PLAY · 2 IN RESERVE</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Withdrawn · For Costs</div><div class="v" id="statWithdrawn" style="color:var(--gold);text-shadow:0 0 18px rgba(255,201,77,.25)">$0.00</div><svg class="spark" id="sparkWithdrawn" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">P&amp;L Today</div><div class="v pos" id="statToday">+$0.00</div><svg class="spark" id="sparkToday" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">—</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
@@ -1843,23 +1843,9 @@ function recomputeDerived(p){
 }
 
 /* ================= APPLY LIVE PAYLOAD ================= */
-/* Bankroll note (user ruling 2026-11-22): clean, one short line —
-   the app balance and the time it was read, nothing else. No
-   cached/age jargon and no book-balance wording on the card; the
-   read time itself shows how current the figure is. Built here
-   from phone_balance.read_at on the Regina basis so every
-   freshness state renders the same tidy line. */
-function bankrollNote(p){
-  var pb=p&&p.phone_balance;
-  if(!pb||typeof pb.balance!=='number'||!pb.read_at) return 'Last update —';
-  var d=new Date(pb.read_at); if(isNaN(d)) return 'Last update —';
-  try{
-    var parts={};
-    new Intl.DateTimeFormat('en-US',{timeZone:'America/Regina',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d).forEach(function(x){ parts[x.type]=x.value; });
-    return 'Last update '+(parts.hour||'')+':'+(parts.minute||'')+' '+(parts.dayPeriod||'');
-  }catch(e){}
-  return 'Last update —';
-}
+/* Bankroll note REMOVED (user ruling 2026-11-23, superseding the
+   2026-11-22 "Last update ..." line): the Overview bankroll figure
+   stands alone — no update note of any kind under it. */
 /* Q11PAUSED-BEGIN — the header must tell the payload's truth about
    the bot. Paused when system_status.bot_mode is 'paused' OR the
    payload's own services map says betbot is down (services.betbot
@@ -1890,8 +1876,6 @@ function applyHeaderState(p){
 /* Q11PAUSED-END */
 function applyPayload(p){
   if(!p) return;
-  var _bn=document.getElementById('statBankrollNote');
-  if(_bn) _bn.textContent=bankrollNote(p);
   var _pl=document.getElementById('statPotLine');
   if(_pl&&typeof p.bankroll_total==='number') _pl.textContent='3 POTS · '+fmtM(Math.round(p.bankroll_total/3*100)/100)+' EACH · POT 1 IN PLAY · 2 IN RESERVE';
   IS_LIVE=true; FEED_MODE='live'; LIVE_APPLIED=true;
@@ -2358,6 +2342,7 @@ function betCardHTML(b){
     +'<div><div class="dk">Line taken</div><div class="dv">'+esc(line)+'</div></div>'
     +'<div><div class="dk">Odds</div><div class="dv">'+(+b.odds||0).toFixed(2)+'</div></div>'
     +'<div><div class="dk">Stake</div><div class="dv">'+fmtM(+b.stake||0)+'</div></div>'
+    +'<div><div class="dk">Returned</div><div class="dv">'+fmtM((+b.stake||0)+(+b.pnl||0))+'</div></div>'
     +'<div><div class="dk">Ladder rung</div><div class="dv">Rung '+(b.rung||1)+' of 6</div></div>'
     +'<div><div class="dk">Result</div><div class="dv">'+lbl+'</div></div>'
     +'<div><div class="dk">Final score</div><div class="dv">'+(scoreTxt||'—')+'</div></div>'
@@ -2369,7 +2354,14 @@ function betCardHTML(b){
     +'<li><span class="pass">PASS</span><span>One-goal outcome — line ranked by what one goal does: full cash preferred over half-cash · push lines never taken</span></li>'
     +'<li><span class="pass">PASS</span><span>Ladder stake verified — <b>rung '+(b.rung||1)+' · '+fmtM(+b.stake||0)+'</b></span></li></ul>'
     +'<p style="font-size:11px;color:var(--faint);margin:10px 0 0;font-family:var(--mono)">'+(scoreTxt?'Result and final scoreline recorded from the settled slip.':'Result recorded from the settled slip. Final scoreline is not captured by the pipeline.')+'</p></div>';
-  return '<article class="bet-card '+cls+'"><button class="bet-main" aria-expanded="false">'
+  /* r86: stamp the bet's own normalized fixture key on the card.
+     The r84 history-strip injector matches cards to payload segments
+     by this key — text-matching the .bet-main header can never match
+     (the header carries the result label, meta and P&L too). The key
+     derivation is exactly segMap's: (home + ' v ' + away), lowercased,
+     whitespace stripped. */
+  var segKey=String((b.home||'')+' v '+(b.away||'')).toLowerCase().replace(/\s+/g,'');
+  return '<article class="bet-card '+cls+'" data-segkey="'+esc(segKey)+'"><button class="bet-main" aria-expanded="false">'
     +'<span class="res '+cls+'">'+lbl+'</span>'
     +'<span><span class="teams">'+esc(b.home||'—')+' v '+esc(b.away||'—')+'</span><span class="meta" style="display:block">'+esc(b.league||'')+' · '+dateLbl+' · '+esc(b.line||mkt)+' @ '+(+b.odds||0).toFixed(2)+' · stake '+fmtM(+b.stake||0)+' · rung '+(b.rung||1)+(scoreTxt?' · FT '+scoreTxt:'')+'</span></span>'
     +'<span class="pnl '+(b.pnl>=0?'pos':'neg')+'">'+fmtS(b.pnl||0)+'</span><span class="chev">▾</span></button>'
@@ -4848,7 +4840,16 @@ window.applyNextWindow=applyNextWindow;
         }
       }
       f+=field('STATUS',sc?'IN PLAY':'ON THE BET','green');
-      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(b.segments||null, sc, clk, true);
+      /* r86: banner progress line — the SAME pipeHTML stage track
+         the queue cards render, driven by this bet's own pick stage
+         (looked up by journey id across queue + completed; an open
+         bet with no pick on the board is at the placed stage by
+         definition). */
+      var bStage='placed';
+      var allQ=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).concat(Array.isArray(p.sealed_completed)?p.sealed_completed:[]);
+      for(var qi=0;qi<allQ.length;qi++){ if(allQ[qi]&&b.journey_id&&allQ[qi].id===b.journey_id){ bStage=allQ[qi].stage; break; } }
+      var bPipe=(typeof pipeHTML==='function')?'<div class="nc-pipe">'+pipeHTML(bStage)+'</div>':'';
+      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(b.segments||null, sc, clk, true, true)+bPipe;
       return;
     }
     card.classList.remove('live');
@@ -4874,7 +4875,11 @@ window.applyNextWindow=applyNextWindow;
     else if(pick.open!==null) f+=field('WINDOW STATE','DUE \u00b7 AWAITING THE WORK','gold');
     var lbl=(typeof STAGE_LABEL!=='undefined'&&STAGE_LABEL[pk.stage])||String(pk.stage||'').replace('_',' ').toUpperCase();
     f+=field('STATUS',e82(lbl));
-    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(pk.segments||null, pk.live_score||'', '', working);
+    /* r86: banner progress line — pipeHTML(pk.stage) on the SAME
+       pick object the first queue card renders, so banner and
+       queue progress lines are identical for the featured game. */
+    var nPipe=(typeof pipeHTML==='function')?'<div class="nc-pipe">'+pipeHTML(pk.stage)+'</div>':'';
+    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(pk.segments||null, pk.live_score||'', '', working, true)+nPipe;
   }
   function decorateQueue(p){
     var list=document.getElementById('sealedList'); if(!list||!p) return;
@@ -5074,6 +5079,8 @@ window.applyNextWindow=applyNextWindow;
 .nc-score84 .nc-clk{display:block;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.14em;margin:1px 0 6px}
 .nc-score84 .segstrip{justify-content:flex-end}
 .histstrip{flex:1 1 100%;margin-top:10px}
+.segbox .sm{display:block;font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--teal);margin-top:1px;white-space:nowrap}
+.nc-pipe{flex:1 1 100%;margin-top:4px}
 .feed-x{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:800;color:var(--gold);border:1px solid rgba(255,196,64,.55);border-radius:99px;padding:0 6px;vertical-align:1px}
 </style>
 <script id="r84js">
@@ -5081,17 +5088,43 @@ window.applyNextWindow=applyNextWindow;
    + history strips. Data rule: segments come from the exporter's
    exported goal minutes + HT baseline; when a game has no segment
    split, the boxes show dashes and the total only — never invented. */
+/* r86 — per-segment goal minutes from the exporter's seg.goals list
+   ([{minute, team}] in scoring order, published only when every
+   standing goal was observed in the record). Minutes are bucketed
+   by the segments' own goal counts, in order — never by guessing a
+   boundary. Any inconsistency (count mismatch with the segment
+   totals, a missing/non-numeric minute) suppresses ALL minute
+   lines: the split renders without minutes rather than with a
+   partial or invented set. */
+function segGoalMins(seg){
+  var g=seg&&seg.goals;
+  if(!Array.isArray(g)||!g.length) return null;
+  if(!seg.s1||!seg.s2||!seg.s3||!seg.total) return null;
+  if(g.length!==seg.total[0]+seg.total[1]) return null;
+  for(var i=0;i<g.length;i++){ if(!g[i]||typeof g[i].minute!=='number') return null; }
+  var n1=seg.s1[0]+seg.s1[1], n2=n1+seg.s2[0]+seg.s2[1];
+  var buckets=[[],[],[]];
+  g.forEach(function(x,i){ buckets[i<n1?0:(i<n2?1:2)].push(x); });
+  function line(arr){
+    var h=[],a=[];
+    arr.forEach(function(x){ (x.team==='away'?a:h).push(x.minute+'\u2032'); });
+    if(!h.length&&!a.length) return '';
+    return (h.length?'H '+h.join(' '):'')+((h.length&&a.length)?' \u00b7 ':'')+(a.length?'A '+a.join(' '):'');
+  }
+  return {s1:line(buckets[0]), s2:line(buckets[1]), s3:line(buckets[2])};
+}
 function segBoxesHTML(seg, o){
   o=o||{};
-  function box(lbl, val, cls){
-    return '<div class="segbox '+(cls||'')+'"><span class="sl">'+lbl+'</span><span class="sv">'+val+'</span></div>';
+  function box(lbl, val, cls, mins){
+    return '<div class="segbox '+(cls||'')+'"><span class="sl">'+lbl+'</span><span class="sv">'+val+'</span>'+(mins?'<span class="sm">'+esc(mins)+'</span>':'')+'</div>';
   }
   function pair(a){ return a[0]+' \u2014 '+a[1]; }
   var out='';
   if(seg&&seg.s1&&seg.s2&&seg.s3&&seg.total){
-    out+=box('1ST HALF', pair(seg.s1));
-    out+=box('2ND HALF \u00b7 BEFORE WINDOW', pair(seg.s2));
-    out+=box('WINDOW 63\u2032+', pair(seg.s3), o.windowLive?'win':'');
+    var gm=segGoalMins(seg);
+    out+=box('1ST HALF', pair(seg.s1), '', gm?gm.s1:'');
+    out+=box('2ND HALF \u00b7 BEFORE WINDOW', pair(seg.s2), '', gm?gm.s2:'');
+    out+=box('WINDOW 63\u2032+', pair(seg.s3), o.windowLive?'win':'', gm?gm.s3:'');
     if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', pair(seg.total), 'tot');
   } else {
     out+=box('1ST HALF', '\u2014', 'na');
@@ -5128,9 +5161,13 @@ function segTotalHTML(pk){
   if(!t) return '';
   return '<span class="segbox tot qtotal"><span class="sl">TOTAL</span><span class="sv">'+esc(t)+'</span></span>';
 }
-function bannerScoreHTML(seg, totalText, clockText, windowLive){
+function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
   var tot=seg&&seg.total? seg.total[0]+' \u2014 '+seg.total[1] : (totalText? String(totalText).replace('-',' \u2014 '):'');
-  if(!tot&&!seg) return '';
+  /* r86: with force set (the banner is showing a game), the strip
+     renders even with no split and no score yet — dash boxes, the
+     same as the queue card for the same game. One segmented
+     scoreboard everywhere: banner, queue, history. */
+  if(!tot&&!seg&&!force) return '';
   return '<div class="nc-score84"><span class="nc-tot">'+esc(tot||'\u2014')+'</span>'
     +(clockText?'<span class="nc-clk">'+esc(clockText)+'</span>':'')
     +segBoxesHTML(seg,{intervalsOnly:true,windowLive:!!windowLive})
@@ -5185,9 +5222,17 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive){
     if(!Object.keys(map).length) return;
     document.querySelectorAll('#gameList .gh-card, #betList .bet-card').forEach(function(card){
       if(card.querySelector('.histstrip')) return;
-      var t=card.querySelector('.gh-teams')||card.querySelector('.bet-teams')||card.querySelector('.bet-main');
-      var name=t?(t.textContent||''):'';
-      var seg=map[String(name).toLowerCase().replace(/\s+/g,'')];
+      /* r86: bet cards carry their own key (data-segkey, stamped by
+         betCardHTML from the bet's normalized record) — read it
+         first; the text match below remains only for game-history
+         cards, whose .gh-teams text is exactly the fixture name. */
+      var key=card.getAttribute('data-segkey')||'';
+      if(!key){
+        var t=card.querySelector('.gh-teams')||card.querySelector('.bet-teams')||card.querySelector('.bet-main');
+        var name=t?(t.textContent||''):'';
+        key=String(name).toLowerCase().replace(/\s+/g,'');
+      }
+      var seg=map[key];
       if(seg) card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(seg,{final:true})+'</div>');
     });
   }
