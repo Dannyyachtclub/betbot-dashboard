@@ -1475,7 +1475,7 @@ var SETTLED_GAMES = BETS.map(function(b,idx){
   var withScore = {0:[2,1], 6:[3,1], 14:[2,1]}[idx]; /* demo only: a few exporter-supplied scores; the rest are null = not captured yet */
   return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d,
     home_score: withScore?withScore[0]:null, away_score: withScore?withScore[1]:null,
-    bet_placed:true, outcome:b.res, pnl:b.pnl, market:'2H Over 0.5', odds:b.odds, stake:b.stake};
+    bet_placed:true, outcome:b.res, push:b.push, pnl:b.pnl, market:'2H Over 0.5', odds:b.odds, stake:b.stake};
 }).concat([
   {game:'FC Voluntari v Farul Constanta', home:'FC Voluntari', away:'Farul Constanta', league:'Liga I', date:'2026-10-19', home_score:null, away_score:null, bet_placed:false, outcome:'NB', pnl:0, market:'2H Over 0.5', note:'No qualifying line in band'},
   {game:'Sevilla v Real Betis', home:'Sevilla', away:'Real Betis', league:'La Liga', date:'2026-10-24', home_score:null, away_score:null, bet_placed:false, outcome:'NB', pnl:0, market:'2H Over 0.5', note:'Odds outside 1.75–2.50 band'},
@@ -1902,7 +1902,7 @@ function applyPayload(p){
     recomputeDerived(p);
   }
   if(!Array.isArray(p.settled_games)||!p.settled_games.length){
-    p.settled_games=BETS.map(function(b){ return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d, home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null), final_score:(typeof b.final_score==='string'?b.final_score:null), bet_placed:true, outcome:b.res, pnl:b.pnl, market:b.market, odds:b.odds, stake:b.stake}; });
+    p.settled_games=BETS.map(function(b){ return {game:b.home+' v '+b.away, home:b.home, away:b.away, league:b.league, date:b.d, home_score:(typeof b.home_score==='number'?b.home_score:null), away_score:(typeof b.away_score==='number'?b.away_score:null), final_score:(typeof b.final_score==='string'?b.final_score:null), bet_placed:true, outcome:b.res, push:b.push, pnl:b.pnl, market:b.market, odds:b.odds, stake:b.stake}; });
   }
   SETTLED_GAMES=p.settled_games;
   if(s0){
@@ -2511,7 +2511,7 @@ function gameCardHTML(g){
   var scoreHTML = hasScore ? '<div class="gh-score">'+g.home_score+' — '+g.away_score+'</div>' : (fsTxt ? '<div class="gh-score">'+esc(fsTxt)+'</div>' : '<div class="gh-score missing">— : —</div><div style="font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:3px;line-height:1.4">SCORE NOT<br/>CAPTURED YET</div>');
   var oc = g.bet_placed ? g.outcome : 'NB';
   var ocCls = oc==='W'?'w':(oc==='L'?'l':(oc==='V'?'v':'nb'));
-  var ocLbl = oc==='W'?'WON':(oc==='L'?'LOST':(oc==='V'?'VOID':'NO BET'));
+  var ocLbl = oc==='W'?'WON':(oc==='L'?'LOST':(oc==='V'?(g.push?'PUSH':'VOID'):'NO BET'));
   var cardCls = g.bet_placed ? (oc==='W'?'w':(oc==='L'?'l':'')) : 'nb';
   var dateLbl=''; try{ dateLbl=new Date(g.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }catch(e){ dateLbl=g.date; }
   var pills='<span class="gh-pill '+(g.bet_placed?'yes':'no')+'">BET PLACED · <b>'+(g.bet_placed?'YES':'NO')+'</b></span>';
@@ -3490,7 +3490,7 @@ function renderQueueUpgrade(p){
         var ob=outcomeByPick[pk.id]||null;
         var word, pillCls, note;
         if(ob){
-          word = ob.res==='W' ? 'WON' : (ob.res==='L' ? 'LOST' : 'VOID');
+          word = ob.res==='W' ? 'WON' : (ob.res==='L' ? 'LOST' : (ob.push ? 'PUSH' : 'VOID'));
           pillCls = ob.res==='W' ? 'done' : (ob.res==='L' ? 'bad' : '');
           note = ob.final_score ? '<span class="sealed-note done">FINAL SCORE '+esc(ob.final_score)+'</span>'
             : '<span class="sealed-note done">SEE IT IN BET HISTORY</span>';
