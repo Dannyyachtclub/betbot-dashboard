@@ -5258,6 +5258,7 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
 <style id="r90css">
 .mclk-chip{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:800;color:var(--teal);border:1px solid rgba(45,226,197,.45);border-radius:99px;padding:1px 8px;margin-left:8px;vertical-align:2px;letter-spacing:.4px}
 .nc-score84 .nc-clk{font-variant-numeric:tabular-nums}
+.nc-f b.mclk-big{font-variant-numeric:tabular-nums;color:var(--teal);font-size:15px}
 </style>
 <script id="r90js">
 /* ===== r90 — LIVE MATCH TIMER on the banner card + queue cards
@@ -5315,9 +5316,26 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
     if(card && !card.hidden){
       var ob=Array.isArray(p.open_bets)?p.open_bets:[];
       var clkEl=card.querySelector('.nc-clk');
+      /* r91: a big, labelled MATCH CLOCK field in the banner's own
+         fields row — the strip clock alone was too easy to miss
+         (user, 2026-11-23: "I still dont see the time on the banner
+         game card"). Same anchor, same tick as the strip clock. */
+      function bannerClockField(a){
+        var fields=card.querySelector('.nc-fields'); if(!fields) return;
+        var f=card.querySelector('.mclk-field');
+        if(!a){ if(f) f.remove(); return; }
+        if(!f){
+          f=document.createElement('span');
+          f.className='nc-f mclk-field';
+          f.innerHTML='<label>MATCH CLOCK</label><b class="mclk-big"></b>';
+          fields.appendChild(f);
+        }
+        stamp(f.querySelector('.mclk-big'), a);
+      }
       if(ob.length){
         var a0=anchorFor(ob[0], p);
         if(a0 && clkEl) stamp(clkEl, a0);
+        bannerClockField(a0);
       } else {
         /* next-game banner: match the featured pick by the kickoff
            instant the card itself carries (data-nc-ko), then give
@@ -5334,6 +5352,7 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
             var kt=j&&j.kickoff?Date.parse(j.kickoff):NaN;
             if(isNaN(kt) || Math.abs(kt-ko)>=1000) continue;
             var a1=anchorFor(pk, p);
+            bannerClockField(a1);
             if(a1){
               if(!clkEl){
                 clkEl=document.createElement('span');
