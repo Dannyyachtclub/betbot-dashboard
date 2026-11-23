@@ -5210,9 +5210,9 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
   function segMap(p){
     var map={};
     (Array.isArray(p&&p.settled_bets)?p.settled_bets:[]).forEach(function(b){
-      if(!b||!b.segments) return;
+      if(!b) return;
       var nm=b.game||((b.home||'')+' v '+(b.away||''));
-      if(nm) map[String(nm).toLowerCase().replace(/\s+/g,'')]=b.segments;
+      if(nm) map[String(nm).toLowerCase().replace(/\s+/g,'')]=b;
     });
     return map;
   }
@@ -5232,8 +5232,20 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
         var name=t?(t.textContent||''):'';
         key=String(name).toLowerCase().replace(/\s+/g,'');
       }
-      var seg=map[key];
-      if(seg) card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(seg,{final:true})+'</div>');
+      var b=map[key];
+      if(!b) return;
+      /* r89: EVERY settled bet's card carries the scoreboard strip.
+         Full segments when the record carries them (goal minutes
+         included when the exporter published them); otherwise the
+         FINAL box from the bet's own recorded final score - the
+         exporter's design is 'missing split -> total only', and
+         r84-r88 silently showed nothing at all for those cards. */
+      if(b.segments){
+        card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(b.segments,{final:true})+'</div>');
+      } else {
+        var fs=b.final_score||((typeof b.home_score==='number'&&typeof b.away_score==='number')?(b.home_score+'-'+b.away_score):'');
+        if(fs) card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(null,{final:true,totalText:fs})+'</div>');
+      }
     });
   }
   var _rgh=window.renderGameHistory;
