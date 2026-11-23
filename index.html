@@ -1091,7 +1091,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
       <p class="lede">Alpha GOAL finds the edge. The DI Quantum Core executes it — an autonomous pipeline that perceives, decides, and places with machine discipline. <b>No emotion. No chasing. Just the system.</b></p>
       <div class="stat-row">
         <div class="stat hero-stat"><div class="k">All-Time Profit · Never Resets</div><div class="v" id="statProfit">+$0.00</div><svg class="spark" id="sparkProfit" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><div class="sub" id="statPotLine">3 POTS · $185.62 EACH · POT 1 IN PLAY · 2 IN RESERVE</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+        <div class="stat"><div class="k">Bankroll</div><div class="v" id="statBankroll">$0.00</div><div class="sub" id="statPotLine">Last update —</div><svg class="spark" id="sparkBankroll" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Withdrawn · For Costs</div><div class="v" id="statWithdrawn" style="color:var(--gold);text-shadow:0 0 18px rgba(255,201,77,.25)">$0.00</div><svg class="spark" id="sparkWithdrawn" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">P&amp;L Today</div><div class="v pos" id="statToday">+$0.00</div><svg class="spark" id="sparkToday" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <div class="stat"><div class="k">Execution Win Rate</div><div class="v" id="statWR">—</div><svg class="spark" id="sparkWR" preserveAspectRatio="none" aria-hidden="true"></svg></div>
@@ -1877,7 +1877,7 @@ function applyHeaderState(p){
 function applyPayload(p){
   if(!p) return;
   var _pl=document.getElementById('statPotLine');
-  if(_pl&&typeof p.bankroll_total==='number') _pl.textContent='3 POTS · '+fmtM(Math.round(p.bankroll_total/3*100)/100)+' EACH · POT 1 IN PLAY · 2 IN RESERVE';
+  if(_pl){ var _lu=liveEventTime(p.exported_at||p.generated_at||''); _pl.textContent=_lu?('Last update '+_lu):'Last update —'; }
   IS_LIVE=true; FEED_MODE='live'; LIVE_APPLIED=true;
   /* normalize the live exporter's field names onto the dashboard's shape */
   if(p.bankroll===undefined && typeof p.bankroll_total==='number') p.bankroll=p.bankroll_total;
