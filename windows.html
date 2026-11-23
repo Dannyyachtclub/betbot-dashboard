@@ -20,35 +20,28 @@
   .strip b{color:var(--txt)}
   .strip .k{color:var(--teal); font-weight:700}
   h2{font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin:26px 0 10px}
-  /* ranked option cards */
   .opt{background:var(--panel); border:1px solid var(--line); border-left:6px solid var(--grey); border-radius:12px; padding:14px; margin-top:12px}
   .opt.r1{border-left-color:var(--green)}
   .opt.r2{border-left-color:var(--teal)}
   .opt.r3{border-left-color:var(--gold)}
-  .opt.r4{border-left-color:var(--gold)}
+  .opt.r4{border-left-color:var(--red)}
   .opt.r5{border-left-color:var(--red)}
   .opt.r6{border-left-color:var(--grey)}
   .opt .rank{font-size:11px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase}
   .opt .name{font-size:19px; font-weight:800; margin-top:2px}
   .opt .name .win{color:var(--teal)}
-  .opt .verdict{display:inline-block; margin-top:8px; font-size:11px; font-weight:800; letter-spacing:.1em; padding:4px 9px; border-radius:999px; text-transform:uppercase}
-  .v-best{background:rgba(47,224,124,.14); color:var(--green); border:1px solid rgba(47,224,124,.45)}
-  .v-unproven{background:rgba(45,212,191,.10); color:var(--teal); border:1px solid rgba(45,212,191,.4)}
-  .v-worst{background:rgba(232,193,90,.10); color:var(--gold); border:1px solid rgba(232,193,90,.4)}
-  .v-never{background:rgba(242,109,109,.10); color:var(--red); border:1px solid rgba(242,109,109,.4)}
-  .v-nodata{background:rgba(157,180,166,.10); color:var(--mut); border:1px solid rgba(157,180,166,.35)}
+  .profit{font-size:26px; font-weight:900; margin-top:8px}
+  .profit.pos{color:var(--green)} .profit.neg{color:var(--red)} .profit.pend{color:var(--mut); font-size:19px}
+  .profit small{font-size:12px; color:var(--dim); font-weight:600}
   .nums{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
   .num{background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:8px 10px; min-width:96px; flex:1}
   .num label{display:block; font-size:10px; letter-spacing:.12em; color:var(--dim); text-transform:uppercase}
   .num b{display:block; font-size:16px; margin-top:2px}
   .why{color:var(--mut); font-size:13px; line-height:1.55; margin-top:10px}
-  /* outcome blocks */
   .blocks{display:flex; gap:5px; margin-top:10px; align-items:center; flex-wrap:wrap}
   .blk{width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#08110b}
   .blk.w{background:var(--green)} .blk.p{background:var(--brown); color:#14100a} .blk.l{background:var(--red); color:#170b0b}
-  .blk.none{background:var(--grey); color:var(--mut)}
   .blocks .cap{font-size:12px; color:var(--dim); margin-left:4px}
-  /* timeline */
   .tl{display:flex; gap:5px; margin-top:6px}
   .seg{flex:1; border-radius:9px; padding:10px 8px; text-align:center; border:1px solid var(--line)}
   .seg b{display:block; font-size:14px}
@@ -57,7 +50,6 @@
   .seg.warm{background:rgba(232,193,90,.10); border-color:rgba(232,193,90,.35)}
   .seg.dead{background:rgba(58,71,65,.25)}
   .seg.dead b{color:var(--dim)}
-  /* price reality */
   .scale{margin-top:10px}
   .srow{display:flex; align-items:center; gap:8px; margin-top:7px; font-size:12.5px}
   .srow .lab{width:118px; color:var(--mut); flex:none}
@@ -73,14 +65,18 @@
 <body>
 
 <h1>Which Window <span class="accent">Pays?</span></h1>
-<p class="sub">Ranked betting options from our own camp records — every price the bot saw, poll by poll, across <b>28 games, Nov 21–23</b>. Ranked by what the numbers actually did, not by theory.</p>
+<p class="sub">Every option below was <b>played through all 28 games</b> the bot camped, Nov 21–23 — the way you asked: the first time a game's price hit our level inside that option's window, the bet is booked at the real price showing at that moment. A win pays at that price, a push returns the stake, a loss costs the stake. <b>Ranked by raw total profit. Nothing else counts.</b></p>
 
 <div class="strip">
   <b>The lines, in plain words.</b> The game already has <span class="k">T</span> goals when we camp it.
   <b>T+0.5</b> = one more goal wins, nothing back otherwise.
   <b>T+0.75</b> = a split line — one more goal wins half, two win it all.
   <b>T+1.0</b> = one more goal gives the stake <b>back</b>, two more win.
-  Our rule: nothing is bet under <b>1.65</b>.
+  Our trigger: the price must reach <b>1.65</b>. Dollars are shown at today's stake, <b>$6.19 a bet</b>.
+</div>
+
+<div class="strip">
+  <b>What actually happened with real money:</b> all 7 real bets were the T+1.0 line — <b>2 wins, 1 loss, 4 pushes</b> — and they netted <b>+$45.78</b> (wins +$63.87, the one loss −$18.09, pushes returned). The simulation below is the same math, run over every game we camped, not just the ones we bet.
 </div>
 
 <h2>The game clock — where we even have data</h2>
@@ -90,97 +86,102 @@
   <div class="seg dead"><b>67–71'</b><span>no data</span></div>
   <div class="seg dead"><b>71–75'</b><span>no data</span></div>
 </div>
-<div class="strip">Our camps end by about 65' — we fire or skip early — so <b>nothing past 67' has ever been measured</b>. The two grey blocks aren't bad, they're blank. Filling them means keeping watch on games we haven't bet, which is the open question at the bottom.</div>
+<div class="strip">Our camps end by about 65' — we fire or skip early — so <b>nothing past 67' has ever been measured</b>. The grey blocks aren't bad, they're blank.</div>
 
-<h2>Ranked options</h2>
+<h2>Ranked by raw profit</h2>
 
 <div class="opt r1">
-  <div class="rank">Option 1</div>
+  <div class="rank">Option 1 · most profit</div>
   <div class="name">Over T+1.0 <span class="win">· window 60–63'</span></div>
-  <span class="verdict v-best">Best evidence — the only winner</span>
+  <div class="profit pos">+$9.44 <small>total profit · +1.53 units</small></div>
   <div class="nums">
-    <div class="num"><label>Times it qualified</label><b>16</b></div>
-    <div class="num"><label>Average price</label><b>1.83</b></div>
-    <div class="num"><label>Return (known finals)</label><b>+1.5 units</b></div>
+    <div class="num"><label>Games triggered</label><b>16</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>2-0-4</b></div>
+    <div class="num"><label>Average price taken</label><b>1.83</b></div>
   </div>
   <div class="blocks">
     <div class="blk w">W</div><div class="blk w">W</div><div class="blk p">P</div><div class="blk p">P</div><div class="blk p">P</div><div class="blk p">P</div>
-    <span class="cap">6 games with known finals: 2 wins, 4 pushes, 0 losses</span>
+    <span class="cap">every graded game returned at least the stake</span>
   </div>
-  <p class="why">It never lost. Because the line is a whole number, when the game lands exactly on the total the stake comes back instead of dying — 4 of 6 times that's what saved it. This is also where all 7 of our real bets landed: <b>2 wins, 1 loss, 4 pushes</b> — the wins paid +$63.87 against one −$18.09 loss.</p>
+  <p class="why">The only option in profit, and it never lost a graded game. The whole-number line is why: when the game lands exactly on the total — the single most likely ending — the stake comes back instead of dying. 4 of its 6 graded games ended exactly there.</p>
 </div>
 
 <div class="opt r2">
-  <div class="rank">Option 2</div>
+  <div class="rank">Option 2 · profit not yet countable</div>
   <div class="name">Over T+0.75 <span class="win">· window 60–63'</span></div>
-  <span class="verdict v-unproven">Unproven — qualifies, never graded</span>
+  <div class="profit pend">Profit pending — finals missing</div>
   <div class="nums">
-    <div class="num"><label>Times it qualified</label><b>6</b></div>
-    <div class="num"><label>Average price</label><b>1.66</b></div>
-    <div class="num"><label>Return (known finals)</label><b>no data</b></div>
+    <div class="num"><label>Games triggered</label><b>6</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>none yet</b></div>
+    <div class="num"><label>Average price taken</label><b>1.66</b></div>
   </div>
-  <p class="why">It reaches our floor often in the early look, but only just — 1.66 average is a whisker over 1.65, so the pay for the risk is thin. None of its 6 qualifications fell in a game where we know the final score, so there's no result either way yet.</p>
+  <p class="why">It triggered 6 times, but none of those 6 games has a final score in our records yet, so its profit can't be counted — it sits second only because it hasn't lost anything we can see. Note the price: 1.66 average is a whisker over the trigger, so even when it wins, it wins thin.</p>
 </div>
 
 <div class="opt r3">
-  <div class="rank">Option 3</div>
-  <div class="name">Over T+1.0 <span class="win">· window 63–67'</span></div>
-  <span class="verdict v-worst">Best prices, worst results so far</span>
+  <div class="rank">Option 3 · profit not yet countable</div>
+  <div class="name">Over T+0.5 <span class="win">· any window</span></div>
+  <div class="profit pend">Profit pending — and barely ever triggered</div>
+  <div class="scale">
+    <div class="srow"><span class="lab">Price we need</span><div class="bar need"></div><span class="val">1.65</span></div>
+    <div class="srow"><span class="lab">Best the market gave</span><div class="bar got"></div><span class="val">~1.40–1.50</span></div>
+  </div>
   <div class="nums">
-    <div class="num"><label>Times it qualified</label><b>5</b></div>
-    <div class="num"><label>Average price</label><b>2.18</b></div>
-    <div class="num"><label>Return (known finals)</label><b>−2.0 units</b></div>
+    <div class="num"><label>Games it was offered</label><b>19</b></div>
+    <div class="num"><label>Times it reached 1.65</label><b>1</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>none yet</b></div>
   </div>
-  <div class="blocks">
-    <div class="blk l">L</div><div class="blk l">L</div>
-    <span class="cap">2 games with known finals: 0 wins, 0 pushes, 2 losses</span>
-  </div>
-  <p class="why">Waiting longer pays better — 2.18 average against 1.83 early — but the two times we can grade it, it lost both. That's only 2 games, far too few to convict it. It says "handle with care", not "never".</p>
+  <p class="why">This is the "why do we never bet the 0.5" answer. One more goal is the likeliest thing to happen, so the market prices it short — in 19 games it reached our 1.65 trigger exactly once. The bot checks it first on every poll; the price is what says no. Betting it would mean lowering the 1.65 floor — a strategy call, not a fix.</p>
 </div>
 
 <div class="opt r4">
   <div class="rank">Option 4</div>
   <div class="name">Over T+0.75 <span class="win">· window 63–67'</span></div>
-  <span class="verdict v-worst">Thin evidence, the one grade is a loss</span>
+  <div class="profit neg">−$6.19 <small>total profit · −1.0 unit</small></div>
   <div class="nums">
-    <div class="num"><label>Times it qualified</label><b>3</b></div>
-    <div class="num"><label>Average price</label><b>1.86</b></div>
-    <div class="num"><label>Return (known finals)</label><b>−1.0 unit</b></div>
+    <div class="num"><label>Games triggered</label><b>3</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>0-1-0</b></div>
+    <div class="num"><label>Average price taken</label><b>1.86</b></div>
   </div>
   <div class="blocks">
     <div class="blk l">L</div>
-    <span class="cap">1 game with a known final: it lost</span>
+    <span class="cap">1 graded game: Sporting Cristal — triggered at 65', nothing more scored</span>
   </div>
-  <p class="why">One graded game, one loss (Sporting Cristal — the price crossed at 65' and the game produced nothing more). A sample of one proves nothing, but there's nothing positive to rank it on either.</p>
+  <p class="why">One graded game, one full loss. A sample of one proves nothing — but on raw profit, which is the yardstick you set, a counted loss ranks below an uncounted option.</p>
 </div>
 
 <div class="opt r5">
-  <div class="rank">Option 5</div>
-  <div class="name">Over T+0.5 <span class="win">· any window</span></div>
-  <span class="verdict v-never">Not actually available at our floor</span>
-  <div class="scale">
-    <div class="srow"><span class="lab">Price we need</span><div class="bar need"></div><span class="val">1.65</span></div>
-    <div class="srow"><span class="lab">Best the market gave</span><div class="bar got"></div><span class="val">~1.40–1.50</span></div>
+  <div class="rank">Option 5 · least profit</div>
+  <div class="name">Over T+1.0 <span class="win">· window 63–67'</span></div>
+  <div class="profit neg">−$12.38 <small>total profit · −2.0 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Games triggered</label><b>5</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>0-2-0</b></div>
+    <div class="num"><label>Average price taken</label><b>2.18</b></div>
   </div>
-  <p class="why">This is why we've never bet it. The +0.5 line was offered in <b>19 games</b> and reached 1.65 in exactly <b>one</b> of them. One more goal is the most likely thing to happen, so the market prices it short — a 1.65 floor on it is a price that almost never exists in the window. The bot checks it first on every poll; the price is what says no. Taking it would mean lowering the floor, which is a strategy call, not a fix.</p>
+  <div class="blocks">
+    <div class="blk l">L</div><div class="blk l">L</div>
+    <span class="cap">2 graded games, both lost — Viborg finished 0-0, Cristal produced nothing after 65'</span>
+  </div>
+  <p class="why">The trap in one card: waiting longer pays the best prices (2.18 against 1.83 early) and still lost the most money, because by 63–67' the games that were going to open up mostly already had. Only 2 graded games — too few to convict it — but raw profit ranks it last of the counted options.</p>
 </div>
 
 <div class="opt r6">
-  <div class="rank">Option 6</div>
+  <div class="rank">Option 6 · no bets, no profit, no data</div>
   <div class="name">Any line <span class="win">· window 67–75'</span></div>
-  <span class="verdict v-nodata">No data — never measured</span>
+  <div class="profit pend">$0 — because it never triggered on our watch</div>
   <div class="nums">
-    <div class="num"><label>Times it qualified</label><b>0 recorded</b></div>
+    <div class="num"><label>Games triggered</label><b>0 recorded</b></div>
+    <div class="num"><label>Graded W-L-P</label><b>—</b></div>
     <div class="num"><label>Average price</label><b>—</b></div>
-    <div class="num"><label>Return</label><b>unknown</b></div>
   </div>
-  <p class="why">Not ranked last because it's bad — ranked last because it's blank. Our camps end by ~65', so no price past 67' exists in our records. The only way to fill this in is to keep watching games we haven't fired on, purely to collect the prices.</p>
+  <p class="why">Not last because it's bad — last because it's blank. Our camps end by ~65', so no price past 67' exists in our records. Filling this in means keeping watch on games we haven't bet, purely to collect their prices.</p>
 </div>
 
 <h2>The honest limits</h2>
 <div class="strip">
-  <b>Small numbers.</b> The winning cell rests on 6 graded games; the worst on 2. These describe what happened — they don't prove a pattern yet.<br><br>
-  <b>Missing finals.</b> Final scores are unknown for 19 of the 28 games (the settler leaves the field blank), so most qualifications can't be graded. Pulling those finals is already in motion and will sharpen every number on this page.<br><br>
+  <b>Profit totals cover the graded games only.</b> Final scores are in our records for 9 of the 28 games; the other 19 are being pulled now. Trigger counts are over all 28. When the finals land, every option gets re-run over the full history and this page's totals get replaced — Options 2 and 3 in particular could move a lot.<br><br>
+  <b>Small numbers.</b> The top option's profit rests on 6 graded games; the bottom one's on 2. Raw profit is the right yardstick — it's just a young yardstick.<br><br>
   <b>Soft clock.</b> The recorded match minute can lag the real clock by about a minute, so the window edges are ±1' soft.
 </div>
 
@@ -188,7 +189,7 @@
   <b>The one decision this raises:</b> do we keep camps watching into 67–75' on games we haven't bet — just to build the missing data — or keep ending camps early the way we do now? Everything above is measurement; that choice is yours.
 </div>
 
-<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), graded against final scores where the record holds them. Full per-game tables sit behind this page in the analysis report. No strategy was changed by this page — it only ranks what the data shows. Prepared 2026-11-23.</p>
+<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), each option simulated at the first in-window price that reached 1.65 and graded against final scores where the record holds them. Full per-game tables sit behind this page in the analysis report. No strategy was changed by this page — it only ranks what the data shows. Prepared 2026-11-23.</p>
 
 </body>
 </html>
