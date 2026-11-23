@@ -557,7 +557,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding-top:20px;display
 .bet-card.w{border-color:rgba(57,255,106,.22);background:linear-gradient(180deg,rgba(57,255,106,.05),var(--panel) 65%)}
 .bet-card.l{border-color:rgba(255,59,92,.20);background:linear-gradient(180deg,rgba(255,59,92,.045),var(--panel) 65%)}
 .res.v{background:rgba(255,201,77,.12);color:var(--gold);border:1px solid rgba(255,201,77,.4)}
-.bet-date{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--gold);margin:20px 0 12px -28px;padding-left:2px}
+.bet-date{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--gold);margin:20px 0 12px 0;padding-left:6px}
 .bet-date:first-child{margin-top:2px}
 .bet-date::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,201,77,.35),transparent)}
 .bet-empty{border:1px dashed var(--line2);border-radius:12px;padding:26px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.06em;margin-left:-28px}
@@ -1826,7 +1826,7 @@ function normalizeLiveBet(raw){
   var pnl=typeof raw.pnl==='number'? raw.pnl : (res==='W'? +(stake*(odds-1)).toFixed(2) : (res==='L'? -stake : 0));
   var d=raw.d||raw.date||(raw.settled_at?String(raw.settled_at).slice(0,10):'')||(raw.t?String(raw.t).slice(0,10):'');
   return {d:d, home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
-    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||'', strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null, segments:(raw.segments||null), goals:(Array.isArray(raw.goals)?raw.goals:null)};
+    rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||((/^(over|under)\s/i.test(String(raw.selection||'')))?raw.selection:''), strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null, segments:(raw.segments||null), goals:(Array.isArray(raw.goals)?raw.goals:null)};
 }
 function recomputeDerived(p){
   WINS=BETS.filter(function(b){return b.res==='W'}).length;
@@ -1890,7 +1890,14 @@ function applyPayload(p){
   if(typeof p.furnace_level!=='number') p.furnace_level=0;
   var s0=(Array.isArray(p.strategies)&&p.strategies[0])||null;
   if(Array.isArray(p.settled_bets)){
-    BETS=p.settled_bets.map(normalizeLiveBet).filter(Boolean);
+    BETS=p.settled_bets.map(function(raw){
+      var b=normalizeLiveBet(raw);
+      if(b&&raw&&raw.status==='void'&&raw.journey_id&&p.game_journeys&&p.game_journeys[raw.journey_id]){
+        var _st=p.game_journeys[raw.journey_id].steps||[];
+        for(var _i=0;_i<_st.length;_i++){ if(/push/i.test(String(_st[_i].title||'')+' '+String(_st[_i].detail||''))){ b.push=true; break; } }
+      }
+      return b;
+    }).filter(Boolean);
     p.settled_bets=BETS;
     recomputeDerived(p);
   }
@@ -2331,7 +2338,7 @@ var HIST_PAGE=12;
 function betCardHTML(b){
   var res=(b.res||'W').toUpperCase();
   var cls=res==='W'?'w':(res==='L'?'l':'v');
-  var lbl=res==='W'?'WON':(res==='L'?'LOST':'VOID');
+  var lbl=res==='W'?'WON':(res==='L'?'LOST':(b.push?'PUSH':'VOID'));
   var scoreTxt=(typeof b.final_score==='string'&&b.final_score)?b.final_score:((typeof b.home_score==='number'&&typeof b.away_score==='number')?(b.home_score+'-'+b.away_score):'');
   var dateLbl=new Date((b.d||'2026-11-01')+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
   var mkt=b.market||'2H Over 0.5 Goals', line=b.line||'Over 0.5';
@@ -3447,11 +3454,9 @@ function renderQueueUpgrade(p){
             + topLineHTML(pk)
             +'<span class="sid">'+esc(pk.id)+'</span>'+(qi===0?'<span class="upnext">UP NEXT</span>':'') + segTotalHTML(pk)
             +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
-            +'<span class="mkt-tag">'+esc(pk.market||'2H OVER 0.5')+'</span>'
-            +((pk.kickoff||'').trim()?'<span class="kickoff-tag">KICKOFF '+esc((pk.kickoff||'').trim())+'</span>':'')
-            +(qMulti&&qDates[pk.id]?'<span class="day-tag">'+qDates[pk.id]+'</span>':'')
-            +'<span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
-            + meta + polls + park + '<div class="qbottom">' + pipeHTML(pk.stage) + segBoxesHTML(pk.segments,{intervalsOnly:true,totalText:(pk.live_score||''),windowLive:(pk.stage==='window_open'||pk.stage==='decision'||pk.stage==='placing')}) + '</div>' + note + '</div>';
+            + qFieldsHTML(pk, p)
+            +'<div class="qstatus"><span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
+            + meta + polls + park + '</div><div class="qbottom">' + pipeHTML(pk.stage) + segBoxesHTML(pk.segments,{intervalsOnly:true,totalText:(pk.live_score||''),windowLive:(pk.stage==='window_open'||pk.stage==='decision'||pk.stage==='placing')}) + '</div>' + note + '</div>';
         }).join('');
       }
     }
@@ -4571,7 +4576,7 @@ function renderNearMisses78(p){
   var journeys=p.game_journeys||{};
   document.getElementById('nearMissList').innerHTML=list.map(function(nm,i){
     var meta=[];
-    if(nm.kickoff) meta.push('KICKOFF '+esc78(nm.kickoff));
+    if(nm.kickoff){ var _kd=new Date(nm.kickoff); meta.push('KICKOFF '+esc78(isNaN(_kd)?nm.kickoff:(_kd.toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase()+' \u00b7 '+_kd.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).toUpperCase()))); }
     if(nm.market) meta.push(esc78(nm.market).toUpperCase());
     if(nm.best_price!==null&&nm.best_price!==undefined) meta.push('BEST PRICE SEEN '+Number(nm.best_price).toFixed(2)+' \u00b7 NEEDED 1.65');
     if(nm.polls) meta.push(nm.polls+' PRICE CHECKS');
@@ -5125,7 +5130,7 @@ function segBoxesHTML(seg, o){
     out+=box('1ST HALF', pair(seg.s1), '', gm?gm.s1:'');
     out+=box('2ND HALF \u00b7 BEFORE WINDOW', pair(seg.s2), '', gm?gm.s2:'');
     out+=box('WINDOW 63\u2032+', pair(seg.s3), o.windowLive?'win':'', gm?gm.s3:'');
-    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', pair(seg.total), 'tot');
+    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.finalUnknown?'\u2014':pair(seg.total), 'tot'+(o.finalUnknown?' na':''));
   } else {
     out+=box('1ST HALF', '\u2014', 'na');
     out+=box('2ND HALF \u00b7 BEFORE WINDOW', '\u2014', 'na');
@@ -5133,6 +5138,22 @@ function segBoxesHTML(seg, o){
     if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.totalText?esc(String(o.totalText).replace('-',' \u2014 ')):'\u2014', 'tot'+(o.totalText?'':' na'));
   }
   return '<div class="segstrip">'+out+'</div>';
+}
+function qFieldsHTML(pk, p){
+  /* r92 (user, 2026-11-23): the queue card's under-name block was a
+     mashed wrap of small grey tags. It is now an organised fields
+     row — goal line, kickoff, window, stake — and the date is gone
+     (the day heading already carries it). Stake is the ladder's
+     current stake from system_status, the stake this pick will use
+     if it fires at its window. */
+  var ss=(p&&p.system_status)||{};
+  var stake=(typeof ss.base_stake==='number')?('$'+ss.base_stake.toFixed(2)):null;
+  function fld(l,v,cls){ return v?'<span class="qf '+(cls||'')+'"><label>'+l+'</label><b>'+esc(v)+'</b></span>':''; }
+  var f=fld('GOAL LINE', pk.market||'2H OVER 0.5', 'qf-line')
+      + fld('KICKOFF', (pk.kickoff||'').trim())
+      + fld('WINDOW', (pk.window_open||'').trim())
+      + fld('STAKE', stake);
+  return f?'<div class="qfields">'+f+'</div>':'';
 }
 function segSummaryText(pk){
   var seg=pk&&pk.segments;
@@ -5241,7 +5262,7 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
          exporter's design is 'missing split -> total only', and
          r84-r88 silently showed nothing at all for those cards. */
       if(b.segments){
-        card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(b.segments,{final:true})+'</div>');
+        card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(b.segments,{final:true,finalUnknown:!(b.final_score||(typeof b.home_score==='number'&&typeof b.away_score==='number'))})+'</div>');
       } else {
         var fs=b.final_score||((typeof b.home_score==='number'&&typeof b.away_score==='number')?(b.home_score+'-'+b.away_score):'');
         if(fs) card.insertAdjacentHTML('beforeend','<div class="histstrip">'+segBoxesHTML(null,{final:true,totalText:fs})+'</div>');
@@ -5407,5 +5428,15 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
   setInterval(tick, 1000);
 })();
 </script>
+<style id="r92css">
+.qfields{display:flex;flex-wrap:wrap;gap:10px 26px;width:100%;margin-top:2px}
+.qf{display:flex;flex-direction:column;gap:2px}
+.qf label{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.15em;color:var(--faint)}
+.qf b{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--text);letter-spacing:.03em}
+.qf.qf-line b{color:var(--teal)}
+.qstatus{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%}
+.sealed-row .stage-meta{font-size:11.5px;color:var(--dim)}
+.nm-meta{line-height:1.55}
+</style>
 </body>
 </html>
