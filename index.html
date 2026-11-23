@@ -5255,5 +5255,138 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
   try{ decorateHistory(); }catch(e){}
 })();
 </script>
+<style id="r90css">
+.mclk-chip{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:800;color:var(--teal);border:1px solid rgba(45,226,197,.45);border-radius:99px;padding:1px 8px;margin-left:8px;vertical-align:2px;letter-spacing:.4px}
+.nc-score84 .nc-clk{font-variant-numeric:tabular-nums}
+</style>
+<script id="r90js">
+/* ===== r90 — LIVE MATCH TIMER on the banner card + queue cards
+   (user, 2026-11-23: "fit a live game timer on banner card... also
+   in queue cards. No need for timer in history cards").
+   The exporter already publishes the bot's own clock reads on the
+   payload: live_clock ("59:56") + live_score_at (when that clock
+   was read) on open bets and on queue picks it is watching. The
+   page anchors a ticking timer to that read: it advances second
+   by second from the anchored clock, re-anchors on every payload
+   refresh, and NEVER invents time — the advance past the last
+   read is capped (150s when the anchor was fresh at render, 0s
+   when it was already stale), and the displayed value never
+   jumps back. History cards are untouched. */
+(function(){
+  function parseClock(s){
+    var m=String(s||'').trim().match(/^(\d+):([0-5]\d)$/);
+    return m? (+m[1])*60+(+m[2]) : null;
+  }
+  function fmtClock(sec){
+    sec=Math.max(0,Math.floor(sec));
+    var m=Math.floor(sec/60), s=sec%60;
+    return m+':'+(s<10?'0':'')+s;
+  }
+  function anchorFor(obj, p){
+    if(!obj) return null;
+    var secs=parseClock(obj.live_clock);
+    if(secs===null) return null;
+    var at=Date.parse(obj.live_score_at||'');
+    if(isNaN(at)) at=Date.parse((p&&p.exported_at)||'');
+    if(isNaN(at)) return null;
+    return {secs:secs, at:at};
+  }
+  function shown(a, now, hold){
+    var age=(now-a.at)/1000;
+    return a.secs + Math.min(hold, Math.max(0, age));
+  }
+  function stamp(el, a){
+    if(!el||!a) return;
+    var now=Date.now();
+    /* the advance cap is decided ONCE, at stamp time, so the
+       displayed value can never jump back as the anchor ages:
+       fresh anchor -> up to +150s of tick; stale anchor -> frozen
+       at the read value until a fresher read re-anchors it. */
+    var hold=(((now-a.at)/1000)>180)?0:150;
+    el.setAttribute('data-mclk', String(a.secs));
+    el.setAttribute('data-mclk-at', String(a.at));
+    el.setAttribute('data-mclk-hold', String(hold));
+    el.textContent=fmtClock(shown(a, now, hold));
+  }
+  function decorate(p){
+    if(!p) return;
+    /* --- banner card --- */
+    var card=document.getElementById('nextGameCard');
+    if(card && !card.hidden){
+      var ob=Array.isArray(p.open_bets)?p.open_bets:[];
+      var clkEl=card.querySelector('.nc-clk');
+      if(ob.length){
+        var a0=anchorFor(ob[0], p);
+        if(a0 && clkEl) stamp(clkEl, a0);
+      } else {
+        /* next-game banner: match the featured pick by the kickoff
+           instant the card itself carries (data-nc-ko), then give
+           its score strip the same ticking clock the bet-in-play
+           banner has. */
+        var koEl=card.querySelector('[data-nc-ko]');
+        var strip=card.querySelector('.nc-score84');
+        if(koEl && strip){
+          var ko=+koEl.getAttribute('data-nc-ko');
+          var q=Array.isArray(p.sealed_queue)?p.sealed_queue:[];
+          for(var i=0;i<q.length;i++){
+            var pk=q[i]; if(!pk||!pk.live_clock) continue;
+            var j=(p.game_journeys||{})[pk.id];
+            var kt=j&&j.kickoff?Date.parse(j.kickoff):NaN;
+            if(isNaN(kt) || Math.abs(kt-ko)>=1000) continue;
+            var a1=anchorFor(pk, p);
+            if(a1){
+              if(!clkEl){
+                clkEl=document.createElement('span');
+                clkEl.className='nc-clk'; clkEl.style.marginLeft='10px';
+                strip.insertBefore(clkEl, strip.firstChild?strip.firstChild.nextSibling:null);
+              }
+              stamp(clkEl, a1);
+            }
+            break;
+          }
+        }
+      }
+    }
+    /* --- queue cards --- */
+    var list=document.getElementById('sealedList');
+    if(list){
+      var q3=Array.isArray(p.sealed_queue)?p.sealed_queue:[];
+      q3.forEach(function(pk){
+        if(!pk||!pk.live_clock) return;
+        var a=anchorFor(pk, p); if(!a) return;
+        var row=list.querySelector('.sealed-row[data-sid="'+pk.id+'"]');
+        if(!row) return;
+        var chip=row.querySelector('.mclk-chip');
+        if(!chip){
+          chip=document.createElement('span');
+          chip.className='mclk-chip';
+          var tag=row.querySelector('.inplay-tag');
+          if(tag && tag.parentNode) tag.parentNode.insertBefore(chip, tag.nextSibling);
+          else {
+            var qb=row.querySelector('.qbottom')||row;
+            qb.insertBefore(chip, qb.firstChild||null);
+          }
+        }
+        stamp(chip, a);
+      });
+    }
+  }
+  function tick(){
+    var now=Date.now();
+    document.querySelectorAll('[data-mclk]').forEach(function(el){
+      var secs=+el.getAttribute('data-mclk'), at=+el.getAttribute('data-mclk-at');
+      var hold=+el.getAttribute('data-mclk-hold');
+      if(isNaN(secs)||isNaN(at)||isNaN(hold)) return;
+      el.textContent=fmtClock(shown({secs:secs, at:at}, now, hold));
+    });
+  }
+  var _anw=window.applyNextWindow;
+  if(typeof _anw==='function') window.applyNextWindow=function(p){ _anw(p); try{ decorate(p||window.PAYLOAD); }catch(e){} };
+  var _rqu=window.renderQueueUpgrade;
+  if(typeof _rqu==='function') window.renderQueueUpgrade=function(p){ _rqu(p); try{ decorate(p||window.PAYLOAD); }catch(e){} };
+  try{ decorate(window.PAYLOAD); }catch(e){}
+  setInterval(tick, 1000);
+})();
+</script>
 </body>
 </html>
