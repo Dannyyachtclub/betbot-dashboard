@@ -19,29 +19,29 @@
   .strip{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-top:14px; font-size:13.5px; line-height:1.55}
   .strip b{color:var(--txt)}
   .strip .k{color:var(--teal); font-weight:700}
+  .strip.warn{border-color:rgba(232,193,90,.5); background:rgba(232,193,90,.06)}
   h2{font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin:26px 0 10px}
   .opt{background:var(--panel); border:1px solid var(--line); border-left:6px solid var(--grey); border-radius:12px; padding:14px; margin-top:12px}
-  .opt.r1{border-left-color:var(--green)}
-  .opt.r2{border-left-color:var(--teal)}
-  .opt.r3{border-left-color:var(--gold)}
-  .opt.r4{border-left-color:var(--red)}
-  .opt.r5{border-left-color:var(--red)}
-  .opt.r6{border-left-color:var(--grey)}
+  .opt.top{border-left-color:var(--green)}
+  .opt.pos{border-left-color:var(--teal)}
+  .opt.flat{border-left-color:var(--gold)}
+  .opt.neg{border-left-color:var(--red)}
   .opt .rank{font-size:11px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase}
-  .opt .name{font-size:19px; font-weight:800; margin-top:2px}
+  .opt .name{font-size:18px; font-weight:800; margin-top:2px}
   .opt .name .win{color:var(--teal)}
-  .profit{font-size:26px; font-weight:900; margin-top:8px}
-  .profit.pos{color:var(--green)} .profit.neg{color:var(--red)} .profit.pend{color:var(--mut); font-size:19px}
+  .profit{font-size:25px; font-weight:900; margin-top:6px}
+  .profit.pos{color:var(--green)} .profit.neg{color:var(--red)} .profit.flat{color:var(--gold)}
   .profit small{font-size:12px; color:var(--dim); font-weight:600}
-  .nums{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-  .num{background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:8px 10px; min-width:96px; flex:1}
+  .nums{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+  .num{background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:8px 10px; min-width:92px; flex:1}
   .num label{display:block; font-size:10px; letter-spacing:.12em; color:var(--dim); text-transform:uppercase}
   .num b{display:block; font-size:16px; margin-top:2px}
   .why{color:var(--mut); font-size:13px; line-height:1.55; margin-top:10px}
-  .blocks{display:flex; gap:5px; margin-top:10px; align-items:center; flex-wrap:wrap}
-  .blk{width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#08110b}
-  .blk.w{background:var(--green)} .blk.p{background:var(--brown); color:#14100a} .blk.l{background:var(--red); color:#170b0b}
-  .blocks .cap{font-size:12px; color:var(--dim); margin-left:4px}
+  .blocks{display:flex; gap:5px; margin-top:10px; align-items:stretch; flex-wrap:wrap}
+  .blk{min-width:52px; padding:7px 6px; border-radius:7px; text-align:center; font-size:12px; font-weight:800; color:#08110b}
+  .blk small{display:block; font-size:10px; font-weight:700; opacity:.75}
+  .blk.g{background:var(--green)} .blk.r{background:var(--red); color:#170b0b} .blk.y{background:var(--gold); color:#171106} .blk.n{background:var(--grey); color:var(--mut)}
+  .blocks .cap{font-size:12px; color:var(--dim); align-self:center; margin-left:4px}
   .tl{display:flex; gap:5px; margin-top:6px}
   .seg{flex:1; border-radius:9px; padding:10px 8px; text-align:center; border:1px solid var(--line)}
   .seg b{display:block; font-size:14px}
@@ -50,13 +50,6 @@
   .seg.warm{background:rgba(232,193,90,.10); border-color:rgba(232,193,90,.35)}
   .seg.dead{background:rgba(58,71,65,.25)}
   .seg.dead b{color:var(--dim)}
-  .scale{margin-top:10px}
-  .srow{display:flex; align-items:center; gap:8px; margin-top:7px; font-size:12.5px}
-  .srow .lab{width:118px; color:var(--mut); flex:none}
-  .bar{height:16px; border-radius:5px; flex:none}
-  .bar.need{background:var(--red); width:65%}
-  .bar.got{background:var(--gold); width:47%}
-  .srow .val{color:var(--txt); font-weight:700}
   .foot{color:var(--dim); font-size:12px; line-height:1.6; margin-top:22px}
   .foot b{color:var(--mut)}
   a{color:var(--teal)}
@@ -65,131 +58,168 @@
 <body>
 
 <h1>Which Window <span class="accent">Pays?</span></h1>
-<p class="sub">Every option below was <b>played through all 28 games</b> the bot camped, Nov 21–23 — the way you asked: the first time a game's price hit our level inside that option's window, the bet is booked at the real price showing at that moment. A win pays at that price, a push returns the stake, a loss costs the stake. <b>Ranked by raw total profit. Nothing else counts.</b></p>
+<p class="sub">Every strategy below was <b>simulated through all 28 games</b> the bot camped, Nov 21–23 — every final score now verified. The first time a game's price hit the strategy's trigger inside its window, the bet is booked at that real price. Win pays, push returns the stake, loss costs it. <b>Ranked by raw total profit</b>, dollars at today's $6.19 stake.</p>
+
+<div class="strip warn">
+  <b>Correction to the first version of this page:</b> it ranked the early +1.0 first on the 6 finals we happened to hold ("never lost, +$9.44"). With all 28 finals in, that headline is <b>dead</b> — the 9 newly graded early-+1.0 games went 3 wins, 4 losses, 2 pushes, and the cell is flat. What follows is the full-history version.
+</div>
 
 <div class="strip">
   <b>The lines, in plain words.</b> The game already has <span class="k">T</span> goals when we camp it.
-  <b>T+0.5</b> = one more goal wins, nothing back otherwise.
-  <b>T+0.75</b> = a split line — one more goal wins half, two win it all.
-  <b>T+1.0</b> = one more goal gives the stake <b>back</b>, two more win.
-  Our trigger: the price must reach <b>1.65</b>. Dollars are shown at today's stake, <b>$6.19 a bet</b>.
+  <b>T+0.5</b> = one more goal wins. <b>T+0.75</b> = split line, one more goal wins half.
+  <b>T+1.0</b> = one more goal returns the stake, two more win. Standard trigger: price reaches <b>1.65</b>.
 </div>
 
+<h2>Ranked by raw profit — full history</h2>
+
+<div class="opt top">
+  <div class="rank">Option 1 · the winner</div>
+  <div class="name">Our current live rule <span class="win">· early look + cascade + skip rule</span></div>
+  <div class="profit pos">+$6.96 <small>total profit · +1.13 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>11</b></div>
+    <div class="num"><label>W-L-P</label><b>4-2-5</b></div>
+    <div class="num"><label>Games sat out</label><b>17 of 28</b></div>
+  </div>
+  <p class="why">Nothing tested beats the rule we're already running. The replay books 11 bets — the 7 real placements plus 4 games where the rule fired but execution failed on the day. Its edge isn't a magic line: it's what it <b>refuses</b>. It sat out 13 games the price-only rules below bet into — and several of those (Cracovia, Grazer, Zizkov) are exactly where the other strategies bled. The skip rule and the window structure are worth about <b>$19</b> against just shooting the +1.0 every time (Option 9).</p>
+</div>
+
+<div class="opt pos">
+  <div class="rank">Option 2 · one game only</div>
+  <div class="name">Over T+0.5 <span class="win">· whenever it reaches 1.65</span></div>
+  <div class="profit pos">+$4.02 <small>total profit · +0.65 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>1</b></div>
+    <div class="num"><label>W-L-P</label><b>1-0-0</b></div>
+    <div class="num"><label>Games offered</label><b>19</b></div>
+  </div>
+  <p class="why">Second place on a sample of <b>one</b>. In 28 games the +0.5 reached 1.65 exactly once (Gladbach, and it won). A strategy that bets once in 28 games isn't a strategy — it's a rounding error with a good day. Treat this rank as "unrankable", not as a contender.</p>
+</div>
+
+<div class="opt flat">
+  <div class="rank">Option 3 · break-even</div>
+  <div class="name">Over T+1.0 <span class="win">· window 60–63'</span></div>
+  <div class="profit flat">+$0.15 <small>total profit · +0.03 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>15</b></div>
+    <div class="num"><label>W-L-P</label><b>5-4-6</b></div>
+    <div class="num"><label>Ended in profit</label><b>5 of 15</b></div>
+  </div>
+  <p class="why">The early +1.0 on its own is a coin that lands on its edge: 5 wins, 4 losses, 6 stake-backs. The pushes still do their job — 11 of 15 bets returned at least the stake — but the wins and losses cancel. It's the live rule's discipline around this line, not the line itself, that made the money in Option 1.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 4</div>
+  <div class="name">Over T+1.0 <span class="win">· window 63–67'</span></div>
+  <div class="profit neg">−$1.39 <small>total profit · −0.23 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>17</b></div>
+    <div class="num"><label>W-L-P</label><b>5-5-7</b></div>
+    <div class="num"><label>Ended in profit</label><b>5 of 17</b></div>
+  </div>
+  <p class="why">Full finals softened the first version's verdict (it was −$12.38 on 2 graded games) — over 17 bets it's only mildly negative. Still: the busiest cell on the board doesn't make money. More bets, more pushes, no edge.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 5</div>
+  <div class="name">Over T+0.75 <span class="win">· window 63–67'</span></div>
+  <div class="profit neg">−$4.26 <small>total profit · −0.69 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>7</b></div>
+    <div class="num"><label>W-L-P</label><b>4-3-0</b></div>
+    <div class="num"><label>Ended in profit</label><b>4 of 7</b></div>
+  </div>
+  <p class="why">The split line's quiet tax: it "wins" more often than it loses (4-3) and still loses money, because half its wins only pay half. Winning the count and losing the money is the .75 line's signature in this data.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 6 · overseer suggestion — failed</div>
+  <div class="name">Quality filter <span class="win">· early +1.0 only at 1.90+</span></div>
+  <div class="profit neg">−$7.89 <small>total profit · −1.28 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>10</b></div>
+    <div class="num"><label>W-L-P</label><b>3-4-3</b></div>
+    <div class="num"><label>Ended in profit</label><b>3 of 10</b></div>
+  </div>
+  <p class="why">My suggestion, tested and beaten: demanding a better price early didn't select better bets — it selected <b>worse</b> ones. The games whose +1.0 price ran up to 1.90 quickly were disproportionately the ones that then produced nothing. Holding out for price is a filter that works backwards here.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 7</div>
+  <div class="name">Over T+0.75 <span class="win">· window 60–63'</span></div>
+  <div class="profit neg">−$8.44 <small>total profit · −1.36 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>6</b></div>
+    <div class="num"><label>W-L-P</label><b>3-3-0</b></div>
+    <div class="num"><label>Ended in profit</label><b>3 of 6</b></div>
+  </div>
+  <p class="why">Even split on results, clearly negative on money — the early .75 prices (mostly right at the 1.65 floor) don't pay enough for the half-win structure.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 8</div>
+  <div class="name">Over T+0.75 <span class="win">· window 60–75'</span></div>
+  <div class="profit neg">−$8.82 <small>total profit · −1.43 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>9</b></div>
+    <div class="num"><label>W-L-P</label><b>5-4-0</b></div>
+    <div class="num"><label>Ended in profit</label><b>5 of 9</b></div>
+  </div>
+  <p class="why">Same story stretched over the whole window: wins the count 5-4, loses the money. Across both .75 cells the pattern is consistent — this line, at these prices, is priced a touch too well by the market.</p>
+</div>
+
+<div class="opt neg">
+  <div class="rank">Option 9 · the worst</div>
+  <div class="name">Shoot only for the one <span class="win">· +1.0 whenever it qualifies, 60–75'</span></div>
+  <div class="profit neg">−$12.23 <small>total profit · −1.98 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets taken</label><b>19</b></div>
+    <div class="num"><label>W-L-P</label><b>5-6-8</b></div>
+    <div class="num"><label>Ended in profit</label><b>5 of 19</b></div>
+  </div>
+  <p class="why">Betting the +1.0 on price alone, no skip rule, no window discipline: the most bets and the biggest loss. This is the control that proves the point of Option 1 — the same line, minus the judgement about <i>which</i> games, is worth −$12.23 instead of +$6.96.</p>
+</div>
+
+<h2>Best entry minute — the one bright lead</h2>
+<div class="blocks">
+  <div class="blk r">60'<small>−$7.27 · 8 bets</small></div>
+  <div class="blk g">61'<small>+$13.62 · 5 bets</small></div>
+  <div class="blk r">62'<small>−$6.19 · 2 bets</small></div>
+  <div class="blk r">63–64'<small>−$6.19 · 2 bets</small></div>
+  <div class="blk r">65'<small>−$6.19 · 2 bets</small></div>
+  <span class="cap">Over T+1.0, profit by the minute the price first qualified</span>
+</div>
+<div class="strip">Minute <b>61'</b> is the only positive entry point (+$13.62, 3 wins, 0 losses, 2 pushes in 5 bets). Minute 60' — firing the instant the window opens — lost. Call it a <b>lead, not a law</b>: 5 bets is tiny, and the recorded clock can lag the real one by a minute, so "61'" may really mean "a breath after the window opens, not on the gun". The +0.75 has no positive minute at all.</div>
+
+<h2>The +0.5 question — settled</h2>
+<div class="blocks">
+  <div class="blk y">1.65<small>triggered once</small></div>
+  <div class="blk n">1.80<small>0 times</small></div>
+  <div class="blk n">2.00<small>0 times</small></div>
+  <div class="blk n">2.20<small>0 times</small></div>
+  <div class="blk n">2.50<small>0 times</small></div>
+  <span class="cap">waiting for a higher +0.5 price, 28 games</span>
+</div>
+<div class="strip">You asked whether <b>waiting</b> for the +0.5 to pay more would fix it. There's nothing to wait for: at every higher trigger the count is <b>zero</b>. In these games the +0.5 price simply never gets there. A +0.5 strategy would have to argue for a <b>lower</b> floor, not a higher trigger — that's a different bet entirely, and it's a strategy call for you, not something the data smuggles in.</div>
+
+<h2>What the outside research says (cross-check)</h2>
 <div class="strip">
-  <b>What actually happened with real money:</b> all 7 real bets were the T+1.0 line — <b>2 wins, 1 loss, 4 pushes</b> — and they netted <b>+$45.78</b> (wins +$63.87, the one loss −$18.09, pushes returned). The simulation below is the same math, run over every game we camped, not just the ones we bet.
+  <b>Our games are not typical games.</b> Published pricing models put a typical match's one-more-goal price crossing 1.65 around the 62nd minute. Ours almost never does — because Imran's picks are open, already-scoring games where the market expects more goals and holds the price down. Everything on this page describes <i>his</i> picks, not soccer in general.<br><br>
+  <b>The push maths checks out.</b> At 55–65', "exactly one more goal" is the single likeliest outcome (~36–37%) — which is why the +1.0 lives on stake-backs, here and in the models alike.<br><br>
+  <b>Waiting is punished in print too.</b> The one controlled test the research found on holding out for a better in-play price lost money — games that score during the wait are the ones likeliest to score again. Our Option 6 failure rhymes with it.<br><br>
+  <b>The humility line.</b> Published work on 14 seasons of odds warns that a profitable cell in a small sample appears even in efficient markets. Our biggest cell is 19 bets. All of this is description, not proof.
 </div>
 
-<h2>The game clock — where we even have data</h2>
+<h2>Still blank</h2>
 <div class="tl">
-  <div class="seg hot"><b>60–63'</b><span>early look — most of our action</span></div>
-  <div class="seg warm"><b>63–67'</b><span>main window — some data</span></div>
+  <div class="seg hot"><b>60–63'</b><span>measured</span></div>
+  <div class="seg warm"><b>63–67'</b><span>measured</span></div>
   <div class="seg dead"><b>67–71'</b><span>no data</span></div>
   <div class="seg dead"><b>71–75'</b><span>no data</span></div>
 </div>
-<div class="strip">Our camps end by about 65' — we fire or skip early — so <b>nothing past 67' has ever been measured</b>. The grey blocks aren't bad, they're blank.</div>
+<div class="strip">Every 67–75' cell in the sweep triggered <b>zero</b> times — not because the prices weren't there, but because our camps end by ~65' and never recorded them. No simulation can grade a window we don't watch. Filling it means camps stay watching after a no-fire 65' — the decision that's still yours.</div>
 
-<h2>Ranked by raw profit</h2>
-
-<div class="opt r1">
-  <div class="rank">Option 1 · most profit</div>
-  <div class="name">Over T+1.0 <span class="win">· window 60–63'</span></div>
-  <div class="profit pos">+$9.44 <small>total profit · +1.53 units</small></div>
-  <div class="nums">
-    <div class="num"><label>Games triggered</label><b>16</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>2-0-4</b></div>
-    <div class="num"><label>Average price taken</label><b>1.83</b></div>
-  </div>
-  <div class="blocks">
-    <div class="blk w">W</div><div class="blk w">W</div><div class="blk p">P</div><div class="blk p">P</div><div class="blk p">P</div><div class="blk p">P</div>
-    <span class="cap">every graded game returned at least the stake</span>
-  </div>
-  <p class="why">The only option in profit, and it never lost a graded game. The whole-number line is why: when the game lands exactly on the total — the single most likely ending — the stake comes back instead of dying. 4 of its 6 graded games ended exactly there.</p>
-</div>
-
-<div class="opt r2">
-  <div class="rank">Option 2 · profit not yet countable</div>
-  <div class="name">Over T+0.75 <span class="win">· window 60–63'</span></div>
-  <div class="profit pend">Profit pending — finals missing</div>
-  <div class="nums">
-    <div class="num"><label>Games triggered</label><b>6</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>none yet</b></div>
-    <div class="num"><label>Average price taken</label><b>1.66</b></div>
-  </div>
-  <p class="why">It triggered 6 times, but none of those 6 games has a final score in our records yet, so its profit can't be counted — it sits second only because it hasn't lost anything we can see. Note the price: 1.66 average is a whisker over the trigger, so even when it wins, it wins thin.</p>
-</div>
-
-<div class="opt r3">
-  <div class="rank">Option 3 · profit not yet countable</div>
-  <div class="name">Over T+0.5 <span class="win">· any window</span></div>
-  <div class="profit pend">Profit pending — and barely ever triggered</div>
-  <div class="scale">
-    <div class="srow"><span class="lab">Price we need</span><div class="bar need"></div><span class="val">1.65</span></div>
-    <div class="srow"><span class="lab">Best the market gave</span><div class="bar got"></div><span class="val">~1.40–1.50</span></div>
-  </div>
-  <div class="nums">
-    <div class="num"><label>Games it was offered</label><b>19</b></div>
-    <div class="num"><label>Times it reached 1.65</label><b>1</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>none yet</b></div>
-  </div>
-  <p class="why">This is the "why do we never bet the 0.5" answer. One more goal is the likeliest thing to happen, so the market prices it short — in 19 games it reached our 1.65 trigger exactly once. The bot checks it first on every poll; the price is what says no. Betting it would mean lowering the 1.65 floor — a strategy call, not a fix.</p>
-</div>
-
-<div class="opt r4">
-  <div class="rank">Option 4</div>
-  <div class="name">Over T+0.75 <span class="win">· window 63–67'</span></div>
-  <div class="profit neg">−$6.19 <small>total profit · −1.0 unit</small></div>
-  <div class="nums">
-    <div class="num"><label>Games triggered</label><b>3</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>0-1-0</b></div>
-    <div class="num"><label>Average price taken</label><b>1.86</b></div>
-  </div>
-  <div class="blocks">
-    <div class="blk l">L</div>
-    <span class="cap">1 graded game: Sporting Cristal — triggered at 65', nothing more scored</span>
-  </div>
-  <p class="why">One graded game, one full loss. A sample of one proves nothing — but on raw profit, which is the yardstick you set, a counted loss ranks below an uncounted option.</p>
-</div>
-
-<div class="opt r5">
-  <div class="rank">Option 5 · least profit</div>
-  <div class="name">Over T+1.0 <span class="win">· window 63–67'</span></div>
-  <div class="profit neg">−$12.38 <small>total profit · −2.0 units</small></div>
-  <div class="nums">
-    <div class="num"><label>Games triggered</label><b>5</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>0-2-0</b></div>
-    <div class="num"><label>Average price taken</label><b>2.18</b></div>
-  </div>
-  <div class="blocks">
-    <div class="blk l">L</div><div class="blk l">L</div>
-    <span class="cap">2 graded games, both lost — Viborg finished 0-0, Cristal produced nothing after 65'</span>
-  </div>
-  <p class="why">The trap in one card: waiting longer pays the best prices (2.18 against 1.83 early) and still lost the most money, because by 63–67' the games that were going to open up mostly already had. Only 2 graded games — too few to convict it — but raw profit ranks it last of the counted options.</p>
-</div>
-
-<div class="opt r6">
-  <div class="rank">Option 6 · no bets, no profit, no data</div>
-  <div class="name">Any line <span class="win">· window 67–75'</span></div>
-  <div class="profit pend">$0 — because it never triggered on our watch</div>
-  <div class="nums">
-    <div class="num"><label>Games triggered</label><b>0 recorded</b></div>
-    <div class="num"><label>Graded W-L-P</label><b>—</b></div>
-    <div class="num"><label>Average price</label><b>—</b></div>
-  </div>
-  <p class="why">Not last because it's bad — last because it's blank. Our camps end by ~65', so no price past 67' exists in our records. Filling this in means keeping watch on games we haven't bet, purely to collect their prices.</p>
-</div>
-
-<h2>The honest limits</h2>
-<div class="strip">
-  <b>Profit totals cover the graded games only.</b> Final scores are in our records for 9 of the 28 games; the other 19 are being pulled now. Trigger counts are over all 28. When the finals land, every option gets re-run over the full history and this page's totals get replaced — Options 2 and 3 in particular could move a lot.<br><br>
-  <b>Small numbers.</b> The top option's profit rests on 6 graded games; the bottom one's on 2. Raw profit is the right yardstick — it's just a young yardstick.<br><br>
-  <b>Soft clock.</b> The recorded match minute can lag the real clock by about a minute, so the window edges are ±1' soft.
-</div>
-
-<div class="strip">
-  <b>The one decision this raises:</b> do we keep camps watching into 67–75' on games we haven't bet — just to build the missing data — or keep ending camps early the way we do now? Everything above is measurement; that choice is yours.
-</div>
-
-<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), each option simulated at the first in-window price that reached 1.65 and graded against final scores where the record holds them. Full per-game tables sit behind this page in the analysis report. No strategy was changed by this page — it only ranks what the data shows. Prepared 2026-11-23.</p>
+<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), 29 strategy variants replayed and graded against all 28 verified final scores (9 from our records, 19 pulled from public live-score archives, each sourced in the sweep report). This page refreshes as new camped games accumulate — the sweep is a re-runnable script, not a one-off. No strategy was changed by this page. Updated 2026-11-23.</p>
 
 </body>
 </html>
