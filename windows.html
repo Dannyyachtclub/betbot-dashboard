@@ -70,6 +70,48 @@
   <b>T+1.0</b> = one more goal returns the stake, two more win. Standard trigger: price reaches <b>1.65</b>.
 </div>
 
+<h2>Adaptive shadow — guarded ranking</h2>
+<div class="strip">
+  <b>Current recommendation (shadow only — it places no bets):</b> <span class="k">Over T+1.0 · window 60–63' · first offered price ≥ 1.65</span><br>
+  Profit <b>+0.03 units (+$0.15)</b> over <b>15</b> graded bets · edge flag: <b>FLAT</b> — break-even, within one game's noise of zero. No variant has earned a positive recommendation yet.<br>
+  <b>Held since:</b> 2026-11-23 (the first guarded ranking). <b>Last change:</b> none — nightly recalculations on 2026-11-24 (05:31 UTC and 13:01 UTC) both returned <i>"incumbent still top eligible — no change."</i><br>
+  <b>How the guard works:</b> a variant needs ≥ 10 graded bets to be eligible, and a challenger must beat the holder by a full 1.00 unit to take over (hysteresis), so one lucky game can't steer anything. Walk order: T+1.0 60–63' &gt; T+1.0 63–67' (−0.23u, 17 graded) &gt; quality filter @1.90+ (−1.28u, 10 graded) &gt; T+1.0 60–75' (−1.98u, 19 graded). Every +0.5 variant stays <b>ineligible</b> — graded 1 of the 10 required. The 1.65 floor is hard and never adapts; only real offered prices count.
+</div>
+
+<h2>Three tracks — side by side</h2>
+<p class="sub">Same 28 camped games, same verified finals, scored three ways. Only track 1 places real bets; tracks 2–3 are challenger/shadow. Promotion is the user's call only. Nightly recalculation, 2026-11-24.</p>
+<div class="opt top">
+  <div class="rank">Track 1 · the incumbent — real bets</div>
+  <div class="name">EARLY LOOK + CASCADE <span class="win">· the live rule</span></div>
+  <div class="profit pos">+$6.96 <small>total profit · +1.13 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets</label><b>11</b></div>
+    <div class="num"><label>W-L-P</label><b>4-2-5</b></div>
+  </div>
+</div>
+<div class="opt pos">
+  <div class="rank">Track 2 · challenger — shadow</div>
+  <div class="name">CASCADE-ONLY <span class="win">· 63–75' cascade + skip judge, no early look</span></div>
+  <div class="profit pos">+$6.96 <small>total profit · +1.13 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets</label><b>9</b></div>
+    <div class="num"><label>W-L-P</label><b>4-2-3</b></div>
+  </div>
+</div>
+<div class="opt neg">
+  <div class="rank">Track 3 · shadow — places no bets</div>
+  <div class="name">ADAPTIVE SHADOW <span class="win">· guarded-ranking walk, no skip judge</span></div>
+  <div class="profit neg">−$12.23 <small>total profit · −1.98 units</small></div>
+  <div class="nums">
+    <div class="num"><label>Bets</label><b>19</b></div>
+    <div class="num"><label>W-L-P</label><b>5-6-8</b></div>
+  </div>
+</div>
+<div class="strip">
+  <b>Live vs cascade-only:</b> bet sets differ on <b>4 games</b> (the early-look games: Batman, Ceuta, Kosice, San Marcos); profit delta on just those games: <b>0.00 units</b> — a dead tie. The early look has so far added bets, not profit. Cascade-only does <b>not</b> pass the live rule (needs +1.00u to clear the promotion margin).<br><br>
+  <b>Shadow vs live:</b> agreed on 11 of 28 games, disagreed on <b>17</b>. Profit delta (shadow − live): <b>−3.10 units (−$19.19)</b> overall, and the same −3.10u on the disagreement games alone (shadow +0.03u vs live +3.13u there). All 9 shadow-only picks were games the live skip judge refused — they netted −2.18u. That gap is the current measured price of betting without the judge.
+</div>
+
 <h2>Ranked by raw profit — full history</h2>
 
 <div class="opt top">
@@ -219,7 +261,7 @@
 </div>
 <div class="strip">Every 67–75' cell in the sweep triggered <b>zero</b> times — not because the prices weren't there, but because our camps end by ~65' and never recorded them. No simulation can grade a window we don't watch. Filling it means camps stay watching after a no-fire 65' — the decision that's still yours.</div>
 
-<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), 29 strategy variants replayed and graded against all 28 verified final scores (9 from our records, 19 pulled from public live-score archives, each sourced in the sweep report). This page refreshes as new camped games accumulate — the sweep is a re-runnable script, not a one-off. No strategy was changed by this page. Updated 2026-11-23.</p>
+<p class="foot">Source: the bot's own camp records (ledger events, Nov 21–23), 30 strategy variants replayed and graded against all 28 verified final scores (9 from our records, 19 pulled from public live-score archives, each sourced in the sweep report). Nightly adaptive-shadow recalculation (shadow/advisory only — no strategy was changed by this page): finals checked 2026-11-24 — all 28 in-scope games verified, nothing new to add. The Nov 23 night games Santos v Gremio (0–2) and Alajuelense v Cartagines (1–2) have verified finals on file, but their camps ran past midnight UTC, outside the sweep's Nov 21–23 scope, so they are not yet graded into the ranking above. Updated 2026-11-24.</p>
 
 </body>
 </html>
