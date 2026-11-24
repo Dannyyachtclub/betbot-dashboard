@@ -1543,8 +1543,9 @@ function renderSparks(){
   var cumP=equity.map(function(v){return v-START});
   var runWR=[],w=0,dc=0; BETS.forEach(function(b){ if(b.res==='W'){w++;dc++;} else if(b.res==='L'){dc++;} runWR.push(dc? w/dc*100:0); });
   var runStreak=[],s=0; BETS.forEach(function(b){ s=b.res==='W'?s+1:(b.res==='L'?0:s); runStreak.push(s); });
-  var todayKey=(typeof IS_LIVE!=='undefined'&&IS_LIVE&&PAYLOAD.exported_at)? String(PAYLOAD.exported_at).slice(0,10) : (PAYLOAD.generated_at? String(PAYLOAD.generated_at).slice(0,10) : '2026-11-01');
-  var todayCum=[],t=0; BETS.filter(function(b){return b.d===todayKey}).forEach(function(b){ t+=b.pnl; todayCum.push(t); });
+  var todayKey=reginaDay((typeof PAYLOAD!=='undefined'&&(PAYLOAD.exported_at||PAYLOAD.generated_at))||'');
+  var todayCum=[0],t=0; BETS.filter(function(b){return todayKey && reginaDay(b.sat||'')===todayKey}).slice().sort(function(a,b){return String(a.sat).localeCompare(String(b.sat))}).forEach(function(b){ t+=(b.pnl||0); todayCum.push(t); });
+  if(todayCum.length<2 && !(typeof IS_LIVE!=='undefined'&&IS_LIVE)){ var dk=(PAYLOAD.generated_at? String(PAYLOAD.generated_at).slice(0,10):'2026-11-01'); todayCum=[]; t=0; BETS.filter(function(b){return b.d===dk}).forEach(function(b){ t+=b.pnl; todayCum.push(t); }); }
   var wdSeries = equity.length>=2 ? equity.map(function(){return 0}).concat([typeof PAYLOAD.withdrawn_total==='number'?PAYLOAD.withdrawn_total:0]) : [];
   drawSpark('sparkProfit',cumP,'#39ff6a');
   drawSpark('sparkBankroll',equity,'#39ff6a');
@@ -1670,6 +1671,7 @@ function renderHero(animate){
   statNum('statBankroll',PAYLOAD.bankroll,fmtM,1500,true);
   statNum('statWithdrawn',PAYLOAD.withdrawn_total,fmtM,1300,false);
   statNum('statToday',TODAY_PNL,fmtS,1300,false);
+  var _stEl=document.getElementById('statToday'); if(_stEl){ _stEl.classList.toggle('pos',TODAY_PNL>=0); _stEl.classList.toggle('neg',TODAY_PNL<0); }
   var wrEl=document.getElementById('statWR');
   if(live&&BETS.length===0){
     if(wrEl){ wrEl.__cu=(wrEl.__cu||0)+1; wrEl.textContent='—'; } /* cancel any stale demo count-up, then hold the dash */
@@ -1814,6 +1816,11 @@ function renderLiveFeed(p){
 }
 
 /* ================= LIVE BET NORMALIZATION ================= */
+/* Site day basis is America/Regina (fixed UTC-6, no DST) — the same basis
+   as the header clock. A bet belongs to the Regina calendar day of its
+   settlement instant, never the UTC date: a 9:55 PM Regina win is
+   yesterday's money, not today's. */
+function reginaDay(iso){ if(!iso) return ''; var t=Date.parse(iso); if(isNaN(t)) return String(iso).slice(0,10); return new Date(t-6*3600*1000).toISOString().slice(0,10); }
 function normalizeLiveBet(raw){
   if(!raw) return null;
   var home=raw.home||'', away=raw.away||'';
@@ -1825,7 +1832,7 @@ function normalizeLiveBet(raw){
   var stake=typeof raw.stake==='number'?raw.stake:0, odds=typeof raw.odds==='number'?raw.odds:0;
   var pnl=typeof raw.pnl==='number'? raw.pnl : (res==='W'? +(stake*(odds-1)).toFixed(2) : (res==='L'? -stake : 0));
   var d=raw.d||raw.date||(raw.settled_at?String(raw.settled_at).slice(0,10):'')||(raw.t?String(raw.t).slice(0,10):'');
-  return {d:d, home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
+  return {d:d, sat:(raw.settled_at||raw.t||''), home:home||'—', away:away||'—', league:raw.league||'', ko:raw.ko||'', odds:odds, stake:stake,
     rung:raw.rung||raw.ladder_rung||1, min:raw.min||raw.minute||null, res:res, pnl:pnl, market:raw.market||'2H Over 0.5', line:raw.placed_line||((/^(over|under)\s/i.test(String(raw.selection||'')))?raw.selection:''), strat:raw.strat||raw.strategy||'2h', home_score:(typeof raw.home_score==='number'?raw.home_score:null), away_score:(typeof raw.away_score==='number'?raw.away_score:null), final_score:(typeof raw.final_score==='string'?raw.final_score:null), journey_id:raw.journey_id||null, segments:(raw.segments||null), goals:(Array.isArray(raw.goals)?raw.goals:null)};
 }
 function recomputeDerived(p){
@@ -1833,8 +1840,8 @@ function recomputeDerived(p){
   WR=(function(){var l=BETS.filter(function(b){return b.res==='L'}).length; return (WINS+l)? WINS/(WINS+l)*100 : 0;})();
   STREAK=0; for(var i=BETS.length-1;i>=0;i--){ if(BETS[i].res==='W') STREAK++; else if(BETS[i].res==='L') break; }
   LOSS_STREAK=0; for(var j=BETS.length-1;j>=0;j--){ if(BETS[j].res==='L') LOSS_STREAK++; else break; }
-  var dayRef=String(p.exported_at||p.generated_at||'').slice(0,10);
-  TODAY_PNL=+BETS.filter(function(b){return dayRef && b.d===dayRef}).reduce(function(s,b){return s+(b.pnl||0)},0).toFixed(2);
+  var dayRef=reginaDay(p.exported_at||p.generated_at||'');
+  TODAY_PNL=+BETS.filter(function(b){return dayRef && reginaDay(b.sat||'')===dayRef}).reduce(function(s,b){return s+(b.pnl||0)},0).toFixed(2);
   var startBank=(typeof p.bankroll==='number'? p.bankroll : START) - (typeof p.profit_total==='number'? p.profit_total : 0);
   equity=[+startBank.toFixed(2)]; BETS.forEach(function(b){ equity.push(+(equity[equity.length-1]+(b.pnl||0)).toFixed(2)); });
   GROSS_BANKROLL=equity[equity.length-1];
