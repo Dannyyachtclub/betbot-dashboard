@@ -5105,18 +5105,44 @@ function segGoalMins(seg){
   var g=seg&&seg.goals;
   if(!Array.isArray(g)||!g.length) return null;
   if(!seg.s1||!seg.s2||!seg.s3||!seg.total) return null;
-  if(g.length!==seg.total[0]+seg.total[1]) return null;
   for(var i=0;i<g.length;i++){ if(!g[i]||typeof g[i].minute!=='number') return null; }
-  var n1=seg.s1[0]+seg.s1[1], n2=n1+seg.s2[0]+seg.s2[1];
-  var buckets=[[],[],[]];
-  g.forEach(function(x,i){ buckets[i<n1?0:(i<n2?1:2)].push(x); });
   function line(arr){
     var h=[],a=[];
     arr.forEach(function(x){ (x.team==='away'?a:h).push(x.minute+'\u2032'); });
     if(!h.length&&!a.length) return '';
     return (h.length?'H '+h.join(' '):'')+((h.length&&a.length)?' \u00b7 ':'')+(a.length?'A '+a.join(' '):'');
   }
-  return {s1:line(buckets[0]), s2:line(buckets[1]), s3:line(buckets[2])};
+  if(g.length===seg.total[0]+seg.total[1]){
+    var n1=seg.s1[0]+seg.s1[1], n2=n1+seg.s2[0]+seg.s2[1];
+    var buckets=[[],[],[]];
+    g.forEach(function(x,i){ buckets[i<n1?0:(i<n2?1:2)].push(x); });
+    return {s1:line(buckets[0]), s2:line(buckets[1]), s3:line(buckets[2])};
+  }
+  /* r94 (OPENBET-WATCH, 2026-11-24) — observed-in-camp partial
+     lists: for an open bet the exporter publishes minutes ONLY
+     for goals the camp itself observed changing, each marked
+     observed:'in_camp'; goals before the camp's first read carry
+     counts, never minutes, so the list is shorter than the total
+     and the r86 count-bucket above cannot place it. Bucket the
+     observed goals by their own recorded minutes instead — the
+     45' / 63' segment boundaries are data, not a guess — and
+     show them only when they fit inside each segment's own
+     per-team counts; any contradiction (an unmarked entry, a
+     bad team, an observed goal that cannot fit its segment)
+     suppresses ALL minute lines, the r86 rule. */
+  var ob=[[],[],[]];
+  for(var j=0;j<g.length;j++){
+    if(!g[j]||g[j].observed!=='in_camp') return null;
+    if(g[j].team!=='home'&&g[j].team!=='away') return null;
+    ob[g[j].minute<=45?0:(g[j].minute<=63?1:2)].push(g[j]);
+  }
+  var segs=[seg.s1,seg.s2,seg.s3];
+  for(var k=0;k<3;k++){
+    var hh=0,aa=0;
+    ob[k].forEach(function(x){ if(x.team==='away')aa++; else hh++; });
+    if(hh>segs[k][0]||aa>segs[k][1]) return null;
+  }
+  return {s1:line(ob[0]), s2:line(ob[1]), s3:line(ob[2])};
 }
 function segBoxesHTML(seg, o){
   o=o||{};
