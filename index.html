@@ -5206,6 +5206,8 @@ function segSummaryText(pk){
 function topLineHTML(pk){
   var ph=pk&&pk.phase?'<span class="qphase">'+esc(pk.phase)+'</span>':'';
   var sm=segSummaryText(pk||{});
+  var ge=(pk&&pk.goal_events)||[];
+  if(ge.length){var gm=ge.map(function(g){return (g.side==='away'?'A ':'H ')+g.minute+'\u2032';}).join(' \u00b7 ');sm=(sm?sm+' \u00b7 ':'')+'Goals '+gm;}
   var smh=sm?'<span class="qsegsum">'+esc(sm)+'</span>':'';
   if(!ph&&!smh) return '';
   return '<div class="qtop">'+ph+smh+'</div>';
