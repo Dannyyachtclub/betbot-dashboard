@@ -5159,17 +5159,32 @@ function segBoxesHTML(seg, o){
     return '<div class="segbox '+(cls||'')+'"><span class="sl">'+lbl+'</span><span class="sv">'+val+'</span>'+(mins?'<span class="sm">'+esc(mins)+'</span>':'')+'</div>';
   }
   function pair(a){ return a[0]+' \u2014 '+a[1]; }
+  function isPair(a){ return !!(a&&typeof a[0]==='number'&&typeof a[1]==='number'); }
+  function segBox(lbl, comp, zeroOk, cls, mins){
+    if(isPair(comp)) return box(lbl, pair(comp), cls||'', mins);
+    /* NO-GOALS-YET (user, 2026-11-25): on a started game a segment
+       with no proven goals reads 0 - 0, never a blank or a dash.
+       zeroOk is set only when the record proves the segment
+       goalless: the published total leaves no goal unattributed,
+       or the proven total itself is 0-0. */
+    return box(lbl, zeroOk?'0 \u2014 0':'\u2014', zeroOk?(cls||''):'na', zeroOk?mins:'');
+  }
   var out='';
-  if(seg&&seg.s1&&seg.s2&&seg.s3&&seg.total){
+  if(seg&&(isPair(seg.s1)||isPair(seg.s2)||isPair(seg.s3)||isPair(seg.total))){
     var gm=segGoalMins(seg);
-    out+=box('1ST HALF', pair(seg.s1), '', gm?gm.s1:'');
-    out+=box('2ND HALF \u00b7 BEFORE WINDOW', pair(seg.s2), '', gm?gm.s2:'');
-    out+=box('WINDOW 63\u2032+', pair(seg.s3), o.windowLive?'win':'', gm?gm.s3:'');
-    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.finalUnknown?'\u2014':pair(seg.total), 'tot'+(o.finalUnknown?' na':''));
+    var tot=isPair(seg.total)?seg.total:null;
+    var known=0;
+    ['s1','s2','s3'].forEach(function(k){ if(isPair(seg[k])) known+=seg[k][0]+seg[k][1]; });
+    var zeroOk=!!(tot&&(tot[0]+tot[1]===known));
+    out+=segBox('1ST HALF', seg.s1, zeroOk, '', gm?gm.s1:'');
+    out+=segBox('2ND HALF \u00b7 BEFORE WINDOW', seg.s2, zeroOk, '', gm?gm.s2:'');
+    out+=segBox('WINDOW 63\u2032+', seg.s3, zeroOk, o.windowLive?'win':'', gm?gm.s3:'');
+    if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.finalUnknown?'\u2014':(tot?pair(tot):(o.totalText?esc(String(o.totalText).replace('-',' \u2014 ')):'\u2014')), 'tot'+(o.finalUnknown?' na':''));
   } else {
-    out+=box('1ST HALF', '\u2014', 'na');
-    out+=box('2ND HALF \u00b7 BEFORE WINDOW', '\u2014', 'na');
-    out+=box('WINDOW 63\u2032+', '\u2014', 'na');
+    var zeroAll=/^0\s*-\s*0$/.test(String(o.totalText||''));
+    out+=segBox('1ST HALF', null, zeroAll);
+    out+=segBox('2ND HALF \u00b7 BEFORE WINDOW', null, zeroAll);
+    out+=segBox('WINDOW 63\u2032+', null, zeroAll, o.windowLive?'win':'');
     if(!o.intervalsOnly) out+=box(o.final?'FINAL':'TOTAL', o.totalText?esc(String(o.totalText).replace('-',' \u2014 ')):'\u2014', 'tot'+(o.totalText?'':' na'));
   }
   return '<div class="segstrip">'+out+'</div>';
