@@ -21,10 +21,10 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #07090c;
-        --panel: #0a0e15;
-        --panel2: #0e141f;
-        --panel3: #141c2a;
+        --bg: #020304;
+        --panel: #04060a;
+        --panel2: #070a10;
+        --panel3: #0c1017;
         --line: rgba(190,205,235,0.13);
         --line-soft: rgba(190,205,235,0.07);
         --bone: #f2f7ff;
@@ -63,8 +63,9 @@
         mask-image: radial-gradient(90% 60% at 50% 0%, black, transparent);
         -webkit-mask-image: radial-gradient(90% 60% at 50% 0%, black, transparent);
       }
+      /* One phone column at every width: the site looks the same in a
+         desktop browser as it does on the phone. */
       .wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; padding: 14px 12px 110px; }
-      @media (min-width: 900px) { .wrap { max-width: 1180px; padding: 20px 20px 40px; } }
       .fd { font-family: "Outfit", system-ui, sans-serif; }
       .panel {
         background: linear-gradient(165deg, rgba(20,30,52,0.72), var(--panel2) 45%, var(--panel));
@@ -98,7 +99,7 @@
       .pos-chip .sub { font-size: 12px; font-family: "JetBrains Mono", monospace; }
       .sec-title {
         font-family: "Outfit", sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.14em; color: var(--bone);
-        margin: 28px 0 10px; display: flex; align-items: center; gap: 10px;
+        margin: 20px 0 8px; display: flex; align-items: center; gap: 10px;
       }
       .sec-title::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: linear-gradient(135deg, var(--sage), var(--ember)); box-shadow: 0 0 12px rgba(0,229,255,0.65); flex-shrink: 0; }
       .sec-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
@@ -121,22 +122,16 @@
       .tabbar button { flex: 1; min-height: 2.9rem; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-family: "Outfit", sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; color: var(--dim); transition: background .18s ease, color .18s ease; }
       .tabbar button[aria-selected="true"] { color: #02120c; background: linear-gradient(90deg, var(--sage), var(--ember)); }
       .tabbar .glyph { font-size: 15px; line-height: 1; font-family: "JetBrains Mono", monospace; }
-      @media (min-width: 900px) { .tabbar { display: none; } .tabblock { display: block !important; } }
-      @media (max-width: 899px) { .tabblock[hidden] { display: none !important; } }
+      /* The tab bar shows at every width and only the selected tab's
+         block renders — one screen at a time, exactly like the phone,
+         so the page never becomes one endless scroll. */
+      .tabblock[hidden] { display: none !important; }
       .absent-panel { border: 1px dashed rgba(255,176,32,0.4); border-radius: var(--radius); background: rgba(10,16,29,0.7); padding: 14px 16px; }
       /* ---- QUANTUMORB fusion stack: orb, verdict register, six checks,
          life of a trade, bottom gauges — stacked on phone in that order,
          flanked around the orb on desktop. ---- */
       .fusion-stack { display: grid; gap: 12px; margin-top: 12px; }
-      @media (min-width: 900px) {
-        .fusion-stack { grid-template-columns: 1fr 1.55fr 1fr; align-items: start; }
-        .fusion-orb { grid-column: 2; grid-row: 1 / span 2; }
-        .fusion-register { grid-column: 3; grid-row: 1; }
-        .fusion-checks { grid-column: 1; grid-row: 1; }
-        .fusion-life { grid-column: 1; grid-row: 2; }
-        .fusion-gauges { grid-column: 3; grid-row: 2; }
-        .fusion-stack .sec-banner { margin-top: 0; }
-      }
+      .fusion-stack .sec-banner { margin-top: 0; }
       .fusion-panel { padding: 12px 14px; }
       .fusion-title { font-size: 15px; font-weight: 800; letter-spacing: 0.1em; }
       .fusion-sub { font-size: 12px; line-height: 1.5; margin-top: 2px; }
@@ -201,7 +196,7 @@
          flow on top of it, so the banner grows to fit its text — the title
          and sub can never be clipped by, or spill over, the art. */
       .hero-art img, .hero-art video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 62%; }
-      @media (min-width: 900px) { .hero-art-copy { min-height: 360px; } }
+      /* (no wide-screen hero: the banner is phone-height at every width) */
       /* Cinematic drift for banner artwork: static art pans/zooms slowly so
          every section banner visibly moves; real video banners play as video. */
       @keyframes bannerDrift { from { transform: scale(1.03) translate(0, 0); } to { transform: scale(1.16) translate(-2.6%, -1.6%); } }
@@ -215,14 +210,26 @@
       .live-pill[data-state="down"] { border-color: rgba(255,59,92,0.55); background: rgba(255,59,92,0.08); color: var(--blood); }
       .live-pill[data-state="down"] .live-dot { background: var(--blood); box-shadow: none; animation: none; }
       .hero-art-shade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(2,4,9,0.88) 0%, rgba(2,4,9,0.45) 46%, rgba(2,4,9,0.05) 75%), linear-gradient(0deg, rgba(2,4,9,0.75), transparent 55%); }
-      .hero-art-copy { position: relative; z-index: 2; min-height: 272px; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; }
+      .hero-art-copy { position: relative; z-index: 2; min-height: 238px; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; }
       .hero-art-kicker { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.3em; color: var(--ember); }
       .hero-art-title { font-size: clamp(26px, 6vw, 44px); font-weight: 900; line-height: 1.02; letter-spacing: -0.01em; margin-top: 4px; text-shadow: 0 4px 24px rgba(0,0,0,0.8); }
       .hero-art-title em { font-style: normal; color: var(--sage); }
       .hero-art-sub { margin-top: 6px; font-size: 12.5px; color: var(--bone-dim); max-width: 520px; }
+      /* ---- SPLIT INTRO: the Tormentor's portrait on one side of a hard
+         lightning seam, the desk's word on the other — a split, not a
+         banner. The seam carries a bolt medallion; the copy side is bare
+         obsidian with a storm-glow in its top corner. ---- */
+      .split-intro { display: grid; grid-template-columns: 44% 56%; min-height: 308px; background: #04060b; }
+      .si-art { position: relative; overflow: hidden; }
+      .si-art img { object-position: center 28%; }
+      .si-copy { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 20px 18px 20px 22px; border-left: 2px solid rgba(0,229,255,0.4); background: radial-gradient(120% 90% at 85% 0%, rgba(0,229,255,0.08), transparent 55%), linear-gradient(180deg, #05070d, #020409); }
+      .si-bolt { position: absolute; left: -15px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: #020409; border: 1.5px solid rgba(0,229,255,0.65); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(0,229,255,0.45); }
+      .si-bolt svg { width: 13px; height: 13px; fill: #00e5ff; display: block; }
+      .si-title { font-size: 29px; font-weight: 900; line-height: 1.04; letter-spacing: -0.01em; margin-top: 5px; text-shadow: 0 4px 24px rgba(0,0,0,0.8); }
+      .si-title em { font-style: normal; color: var(--ember); }
+      .si-rule { width: 44px; height: 2px; background: linear-gradient(90deg, var(--ember), transparent); margin-top: 12px; }
       /* ---- live stream wall ---- */
       .stream-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
-      @media (min-width: 900px) { .stream-grid { grid-template-columns: 1.25fr 1fr 1fr; } }
       .stream-tile { padding: 12px 14px 10px; overflow: hidden; position: relative; }
       .stream-tile canvas { display: block; width: 100%; border-radius: 10px; background: rgba(2,4,9,0.55); }
       .stream-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -233,7 +240,6 @@
       .splitbar .buy { background: linear-gradient(90deg, #00b377, var(--sage)); transition: width .5s ease; }
       .splitbar .sell { background: linear-gradient(90deg, var(--blood), #c2183f); flex: 1; }
       .duo-grid { display: grid; gap: 0; grid-template-columns: 1fr; }
-      @media (min-width: 900px) { .duo-grid { grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; } .duo-grid > section { margin-top: 12px !important; } }
       /* ---- event FX (real events only) ---- */
       @keyframes particleFly { 0% { opacity: 1; transform: translate(0,0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx),var(--dy)) scale(0.3); } }
       .burst-particle { animation: particleFly 1.15s cubic-bezier(0.08,0.7,0.25,1) forwards; border-radius: 9999px; position: absolute; left: 0; top: 0; pointer-events: none; }
@@ -282,13 +288,13 @@
       /* ---- section banners: artwork frames and introduces a section; it never
          covers data and never replaces a panel. One system across every tab:
          same height rhythm, same left-weighted shade, same kicker/title/sub. ---- */
-      .sec-banner { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); margin: 26px 0 10px; box-shadow: 0 22px 50px rgba(0,0,0,0.55); }
+      .sec-banner { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); margin: 18px 0 10px; box-shadow: 0 22px 50px rgba(0,0,0,0.55); }
       /* Same rule as the hero: art is a background fill, copy is in flow and
          the banner sizes to it — kicker, title and sub never clip or collide. */
       .sec-banner img, .sec-banner video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
-      @media (min-width: 900px) { .sec-banner-copy { min-height: 216px; } }
+      /* (no wide-screen banner: phone-height at every width) */
       .sec-banner-shade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(2,4,9,0.90) 0%, rgba(2,4,9,0.55) 48%, rgba(2,4,9,0.08) 78%), linear-gradient(0deg, rgba(2,4,9,0.72), transparent 60%); }
-      .sec-banner-copy { position: relative; z-index: 2; min-height: 178px; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px 16px; }
+      .sec-banner-copy { position: relative; z-index: 2; min-height: 148px; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px 16px; }
       .sec-banner-kicker { font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 800; letter-spacing: 0.3em; color: var(--ember); }
       .sec-banner-title { font-size: clamp(20px, 4.6vw, 32px); font-weight: 900; line-height: 1.05; margin-top: 3px; text-shadow: 0 4px 20px rgba(0,0,0,0.85); }
       .sec-banner-title em { font-style: normal; color: var(--sage); }
@@ -312,6 +318,9 @@
       .ex-banner.manual { border-color: var(--line); background: rgba(16,24,40,0.7); color: var(--bone-dim); font-weight: 600; }
       .ex-search { width: 100%; min-height: 3.3rem; padding: 0.6rem 1.1rem; margin-top: 10px; border-radius: 14px; border: 1px solid var(--line); background: rgba(2,4,9,0.8); color: var(--bone); font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; outline: none; }
       .ex-search:focus { border-color: rgba(0,229,255,0.6); }
+      .ex-searchrow { display: flex; gap: 7px; align-items: stretch; margin-top: 10px; }
+      .ex-searchrow .ex-search { flex: 1; width: auto; margin-top: 0; }
+      .ex-go { flex-shrink: 0; font-weight: 800; letter-spacing: 0.04em; padding: 0 16px; }
       .ex-search::placeholder { color: var(--dim); font-weight: 500; }
       .ex-rowlabel { font-size: 10px; letter-spacing: 0.22em; color: var(--dim); font-weight: 700; margin-top: 12px; font-family: "JetBrains Mono", monospace; }
       .ex-chiprow { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
@@ -440,8 +449,7 @@
       #ttText { overflow: hidden; text-overflow: ellipsis; }
       @keyframes ttFlash { 0% { background: rgba(0,229,160,0.5); border-color: var(--sage); } 100% { background: rgba(6,12,16,0.93); border-color: rgba(0,229,160,0.45); } }
       #tradeTicker.tt-flash { animation: ttFlash 1.1s ease-out; }
-      @media (min-width: 900px) { #tradeTicker { bottom: 16px; } }
-      @media (max-width: 899px) { .wrap { padding-bottom: 172px; } }
+      .wrap { padding-bottom: 172px; }
       /* ---- bing bing bing: the same trade flashing on every surface ---- */
       @keyframes rowFlash { 0% { box-shadow: 0 0 0 2px var(--sage), 0 0 28px rgba(0,229,160,0.55); } 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); } }
       .row-flash { animation: rowFlash 1.25s ease-out; }
@@ -500,23 +508,28 @@
         .brand-mark { font-size: 11px; letter-spacing: 0.16em; }
       }
       @media (prefers-reduced-motion: reduce) { .fh-row, .fh-row.fh-live { animation: none !important; } }
-      /* ---- MOBILE FIRST-SCREEN REPAIR (≤899px): the tape becomes a compact
-         strip, the chart head is compressed, and the candles own the first
-         viewport. The role spine and the pinned mini strip are sized so
-         every label fits its own cell — no nowrap overflow, no clipping,
-         no cell running into the next. Desktop layout is untouched. ---- */
-      @media (max-width: 899px) {
-        .wrap { padding-top: 10px; }
+      /* ---- FIRST-SCREEN COMPACTION (every width — the phone layout is
+         the only layout): the tape becomes a compact strip, the chart
+         head is compressed, and the candles own the first viewport. The
+         role spine and the pinned mini strip are sized so every label
+         fits its own cell — no nowrap overflow, no clipping, no cell
+         running into the next. ---- */
+      .wrap { padding-top: 10px; }
         .command-bar { gap: 5px 8px; font-size: 10px; margin-bottom: 8px; }
         .brand-mark { font-size: 11px; letter-spacing: 0.14em; }
         .live-pill { padding: 4px 10px; font-size: 10px; }
         /* tape: a strip, not a block — title on its own line, then the state
-           text and the pause button sharing one line, the flow graph, and
-           at most three print rows of height */
+           text on a full-width line of its own (a flex-basis-0 share beside
+           the long stream-status line starved it to a one-word-per-line
+           column at desktop widths), then the stream status and the pause
+           button sharing one line, the flow graph, and at most three print
+           rows of height */
         .tape-strip { padding: 6px 10px 7px !important; margin-bottom: 10px !important; }
         .tape-strip > div:first-child { align-items: center !important; row-gap: 3px !important; }
         .tape-title { flex: 1 1 100%; font-size: 9.5px !important; letter-spacing: 0.13em !important; white-space: nowrap; overflow: hidden; }
-        #printTapeState { font-size: 10.5px !important; flex: 1 1 0; min-width: 0; line-height: 1.35; }
+        #printTapeState { font-size: 10.5px !important; flex: 1 1 100%; min-width: 0; line-height: 1.35; }
+        #tapeStreamStat { flex: 1 1 auto; min-width: 0; }
+        #tapePause { flex-shrink: 0; }
         #tapePause { min-height: 1.7rem; padding: 0.15rem 0.55rem; font-size: 9.5px; }
         #tapeDensity { margin-top: 4px !important; height: 18px !important; }
         #tapeDensityLabel { margin-top: 1px !important; font-size: 8.5px !important; }
@@ -572,7 +585,6 @@
         .cm-last { font-size: 12.5px; flex-shrink: 0; }
         .cm-pnl { font-size: 11px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
         .cm-auto { font-size: 7.5px; letter-spacing: 0.06em; padding: 2px 6px; flex-shrink: 0; }
-      }
     </style>
   </head>
   <body>
@@ -615,7 +627,7 @@
               <span style="margin-left:auto; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                 <button id="autoBtn" class="ctl-btn" aria-pressed="true" title="Auto-follow: the hero chart moves on its own to whichever open trade is closest to its entry or its take-profit">AUTO · CLOSEST TRADE</button>
                 <span id="tfChips" role="group" aria-label="Chart range — 15 minutes, 1 hour, 4 hours, 24 hours" style="display:flex; gap:6px;"></span>
-                <span id="tfSize" role="group" aria-label="Candle timeframe — 1 minute, 5 minutes, 15 minutes, 1 hour candles" style="display:flex; gap:6px; align-items:center;"></span>
+                <span id="tfSize" role="group" aria-label="Candle timeframe — 1 second, 30 second, 1 minute, 5 minutes, 15 minutes, 1 hour candles" style="display:flex; gap:6px; align-items:center;"></span>
                 <button id="viewReset" class="ctl-btn" style="display:none;" title="Reset the chart view — full range, no pinch zoom">RESET VIEW</button>
                 <button id="gridToggle" class="ctl-btn" aria-pressed="true" title="Toggle chart grid">GRID</button>
                 <button id="fxBtn" class="ctl-btn" aria-pressed="true" title="Event effects — fireworks, sparks and confetti, all fired by real feed events only. Turn off to silence them.">FX</button>
@@ -738,13 +750,19 @@
           <div id="moversGrid"></div>
           <p style="margin:8px 0 0; font-size:10px; line-height:1.5;" class="dim">Sparkline: the last hour of 1-minute candles from Bybit (Binance fallback), extended live as prices stream in. Price: streamed from the Bybit tickers socket and the position feed — a card flashes the moment its price lands. 24h move: the tickers list. A token with no feed gets no card rather than an invented one.</p>
         </section>
-        <div class="hero-art">
-          <img src="assets/a_ec7ac9af8cbb.webp" alt="Abstract artwork of glowing green and cyan market data streams and candlestick waves on a near-black field" style="width:100%;height:100%;object-fit:cover;display:block" />
-          <div class="hero-art-shade"></div>
-          <div class="hero-art-copy">
-            <div class="hero-art-kicker">▶ MOVING BANNER · LIVE MARKET STREAM</div>
-            <div class="hero-art-title">The market,<br /><em>in motion.</em></div>
-            <div class="hero-art-sub">Real prices, moving live. Every flash, spark and firework on this page is a real market event — nothing is decoration.</div>
+        <!-- SPLIT INTRO: the old full-width banner is gone. The Tormentor's
+             portrait stands on one side of a lightning seam; the desk's
+             word stands on the other, on bare obsidian. -->
+        <div class="hero-art split-intro">
+          <div class="si-art">
+            <img src="assets/a_3c2324113330.webp" alt="Artwork: Odision the Tormentor — a colossal demon lord of cracked black obsidian with glowing cyan eyes, standing between two skull-carved black obelisks under a lightning storm, rivers of glowing green and cyan candlesticks flowing at his feet" />
+          </div>
+          <div class="si-copy">
+            <span class="si-bolt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" /></svg></span>
+            <div class="hero-art-kicker">ODISION THE TORMENTOR · OBELISK OF OBSIDIAN</div>
+            <div class="si-title">Thunder<br /><em>over the tape.</em></div>
+            <div class="hero-art-sub">An evil trade desk under black death lore, ruled by a demon lord of obsidian and storm. Real prices, moving live — every flash, spark and firework on this page is a real market event, nothing is decoration. Artwork: the Tormentor at his obelisks.</div>
+            <div class="si-rule" aria-hidden="true"></div>
           </div>
         </div>
 
@@ -829,45 +847,6 @@
             <span id="logTailState" style="font-size:11px;" class="dim">snapshot tape</span>
           </div>
           <div id="logTail" style="margin-top:4px;"></div>
-        </section>
-
-        <!-- CHART 2: EXPLORE. Normally yours via the clean search below — one box,
-             two filter rows, big tap targets. But when an open position gets close
-             to firing, this chart takes itself over and shows that position's
-             action live, and says so in the banner. A manual pick takes control
-             back until FOLLOW THE ACTION is tapped or a position turns urgent. -->
-        <section class="panel" id="explorePanel" style="margin-top:10px; overflow:hidden;" aria-label="Explore chart — search any token">
-          <div style="padding:12px 12px 8px; border-bottom:1px solid var(--line);">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="fd" style="font-size:11px; font-weight:800; letter-spacing:0.18em; color:var(--ember);">CHART 2 · EXPLORE ANY TOKEN</span>
-              <button id="exResume" class="ctl-btn" aria-pressed="true" style="margin-left:auto;">⚡ FOLLOWING THE ACTION</button>
-            </div>
-            <div id="exBanner" class="ex-banner" role="status">Watching your positions…</div>
-            <div class="ex-rowlabel">QUICK SELECT · WHAT WE HOLD</div>
-            <div id="exHoldRow" style="display:flex; gap:7px; flex-wrap:wrap; margin-top:6px;" role="group" aria-label="Quick select — only what the desks hold: open positions and resting entry orders"></div>
-            <p style="margin:6px 0 0; font-size:10.5px; line-height:1.5;" class="dim">Only what the desks hold right now gets a button — an open trade, or an entry order still resting on the book. Everything else is found with the search below.</p>
-            <input id="exSearch" class="ex-search" type="text" autocomplete="off" spellcheck="false" placeholder="Search a token — e.g. DOGE" aria-label="Search a token to chart on the explore chart" />
-            <div class="ex-rowlabel">ACTION</div>
-            <div id="exActions" class="ex-chiprow" role="group" aria-label="Action filter — in a position, about to fire, biggest movers"></div>
-            <div class="ex-rowlabel">CATEGORY</div>
-            <div id="exCats" class="ex-chiprow" role="group" aria-label="Token category filter"></div>
-            <div class="ex-rowlabel">PLATFORM · MARKET</div>
-            <div id="exPlats" class="ex-chiprow" role="group" aria-label="Platform and market filter"></div>
-            <div class="ex-rowlabel">RANGE · CANDLE TIMEFRAME · ZOOM</div>
-            <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:6px; align-items:center;"><span id="exRanges" class="ex-chiprow" role="group" aria-label="Explore chart range" style="margin-top:0;"></span><span id="exTfSize" class="ex-chiprow" role="group" aria-label="Explore candle timeframe — 1 minute, 5 minutes, 15 minutes, 1 hour candles" style="margin-top:0;"></span><button id="exViewReset" class="ctl-btn" style="display:none;">RESET VIEW</button><span id="exZoomState" class="dim" style="font-size:10px; font-family:'JetBrains Mono',monospace;"></span></div>
-            <div id="exResults" class="ex-grid" role="group" aria-label="Tokens — tap to chart"></div>
-            <div style="display:flex; align-items:flex-start; gap:14px; margin-top:12px; flex-wrap:wrap;">
-              <div style="min-width:0;">
-                <div style="display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;">
-                  <span id="exIdentSym" style="font-family:'Outfit',sans-serif; font-size:25px; font-weight:900; line-height:1;">ETH/USDT</span>
-                  <span id="exLast" class="fig-num" style="font-size:30px;">—</span>
-                </div>
-                <div id="exMeta" style="font-size:11px;" class="dim"></div>
-              </div>
-              <div id="exPosLine" style="margin-left:auto; text-align:right; font-size:11px; line-height:1.55;"></div>
-            </div>
-          </div>
-          <div id="exBox" style="padding:6px 4px 2px;"></div>
         </section>
 
         <!-- Slim ledger strip: engraved figures, quiet staleness line. No alarm wall. -->
@@ -989,6 +968,60 @@
 
       </div>
 
+      <!-- ============ EXPLORE TAB ============ -->
+      <div class="tabblock" data-tabblock="explore" hidden>
+        <div class="sec-banner tab-banner">
+          <img src="assets/a_8d8164911198.webp" alt="Artwork: a river of glowing green and cyan candlesticks flowing like lava between black obsidian cliffs, a horned silhouette in the mist above" />
+          <div class="sec-banner-shade"></div>
+          <div class="sec-banner-copy">
+            <div class="sec-banner-kicker">EXPLORE · ANY TOKEN</div>
+            <div class="sec-banner-title">The whole market, <em>one search away.</em></div>
+            <div class="sec-banner-sub">Chart 2 lives on this tab — search any token, filter by what is about to fire, and watch it move live. Chart 1 stays on the LIVE tab, following your positions. Artwork: the candle river.</div>
+          </div>
+        </div>
+        <!-- CHART 2: EXPLORE. Normally yours via the clean search below — one box,
+             two filter rows, big tap targets. But when an open position gets close
+             to firing, this chart takes itself over and shows that position's
+             action live, and says so in the banner. A manual pick takes control
+             back until FOLLOW THE ACTION is tapped or a position turns urgent. -->
+        <section class="panel" id="explorePanel" style="margin-top:10px; overflow:hidden;" aria-label="Explore chart — search any token">
+          <div style="padding:12px 12px 8px; border-bottom:1px solid var(--line);">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="fd" style="font-size:11px; font-weight:800; letter-spacing:0.18em; color:var(--ember);">CHART 2 · EXPLORE ANY TOKEN</span>
+              <button id="exResume" class="ctl-btn" aria-pressed="true" style="margin-left:auto;">⚡ FOLLOWING THE ACTION</button>
+            </div>
+            <div id="exBanner" class="ex-banner" role="status">Watching your positions…</div>
+            <div class="ex-rowlabel">QUICK SELECT · WHAT WE HOLD</div>
+            <div id="exHoldRow" style="display:flex; gap:7px; flex-wrap:wrap; margin-top:6px;" role="group" aria-label="Quick select — only what the desks hold: open positions and resting entry orders"></div>
+            <p style="margin:6px 0 0; font-size:10.5px; line-height:1.5;" class="dim">Only what the desks hold right now gets a button — an open trade, or an entry order still resting on the book. Everything else is found with the search below.</p>
+            <div class="ex-searchrow">
+              <input id="exSearch" class="ex-search" type="text" autocomplete="off" spellcheck="false" placeholder="Search a token — e.g. DOGE" aria-label="Search a token to chart on the explore chart" />
+              <button id="exGo" class="ctl-btn ex-go">CHART IT →</button>
+            </div>
+            <div class="ex-rowlabel">ACTION</div>
+            <div id="exActions" class="ex-chiprow" role="group" aria-label="Action filter — in a position, about to fire, biggest movers"></div>
+            <div class="ex-rowlabel">CATEGORY</div>
+            <div id="exCats" class="ex-chiprow" role="group" aria-label="Token category filter"></div>
+            <div class="ex-rowlabel">PLATFORM · MARKET</div>
+            <div id="exPlats" class="ex-chiprow" role="group" aria-label="Platform and market filter"></div>
+            <div class="ex-rowlabel">RANGE · CANDLE TIMEFRAME · ZOOM</div>
+            <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:6px; align-items:center;"><span id="exRanges" class="ex-chiprow" role="group" aria-label="Explore chart range" style="margin-top:0;"></span><span id="exTfSize" class="ex-chiprow" role="group" aria-label="Explore candle timeframe — 1 minute, 5 minutes, 15 minutes, 1 hour candles" style="margin-top:0;"></span><button id="exViewReset" class="ctl-btn" style="display:none;">RESET VIEW</button><span id="exZoomState" class="dim" style="font-size:10px; font-family:'JetBrains Mono',monospace;"></span></div>
+            <div id="exResults" class="ex-grid" role="group" aria-label="Tokens — tap to chart"></div>
+            <div style="display:flex; align-items:flex-start; gap:14px; margin-top:12px; flex-wrap:wrap;">
+              <div style="min-width:0;">
+                <div style="display:flex; align-items:baseline; gap:9px; flex-wrap:wrap;">
+                  <span id="exIdentSym" style="font-family:'Outfit',sans-serif; font-size:25px; font-weight:900; line-height:1;">ETH/USDT</span>
+                  <span id="exLast" class="fig-num" style="font-size:30px;">—</span>
+                </div>
+                <div id="exMeta" style="font-size:11px;" class="dim"></div>
+              </div>
+              <div id="exPosLine" style="margin-left:auto; text-align:right; font-size:11px; line-height:1.55;"></div>
+            </div>
+          </div>
+          <div id="exBox" style="padding:6px 4px 2px;"></div>
+        </section>
+      </div>
+
       <!-- ============ DESKS TAB ============ -->
       <div class="tabblock" data-tabblock="desks" hidden>
         <div class="sec-banner tab-banner">
@@ -1003,12 +1036,12 @@
         <h2 class="sec-title">ALL THE DESKS</h2>
         <div id="deskGrid" style="display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));"></div>
         <div class="sec-banner">
-          <video autoplay muted loop playsinline preload="metadata" poster="assets/a_ec7ac9af8cbb.webp" aria-label="Motion artwork: glowing green and cyan market data streams on a near-black field"><source src="assets/a_db7e476068f1.mp4" type="video/mp4" /></video>
+          <img src="assets/a_ec7ac9af8cbb.webp" alt="Abstract artwork of glowing green and cyan market data streams and candlestick waves on a near-black field" />
           <div class="sec-banner-shade"></div>
           <div class="sec-banner-copy">
             <div class="sec-banner-kicker">SYSTEM EXPANSION</div>
             <div class="sec-banner-title">New desks rise, <em>or say ABSENT.</em></div>
-            <div class="sec-banner-sub">New desks and boards appear here as they are built — anything not ready says so, plainly. Motion artwork: the market stream.</div>
+            <div class="sec-banner-sub">New desks and boards appear here as they are built — anything not ready says so, plainly. Artwork: the market stream.</div>
           </div>
         </div>
         <h2 class="sec-title">NEW DESKS &amp; BOARDS · NOT LIVE YET SAYS SO</h2>
@@ -1054,11 +1087,12 @@
       </div>
 
       <footer style="margin-top:22px; font-size:11px; line-height:1.6;" class="dim">
+        <p style="margin:0 0 10px;"><a href="https://dannyyachtclub.github.io/betbot-dashboard/obsidian-desk/" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border:1px solid rgba(0,229,160,0.5); border-radius:999px; background:rgba(0,229,160,0.08); color:var(--sage); font-family:'JetBrains Mono',monospace; font-weight:800; font-size:11.5px; letter-spacing:0.08em; text-decoration:none;">OPEN IN CHROME ↗</a> <span style="margin-left:6px;">The same desk as a plain browser page — dannyyachtclub.github.io/betbot-dashboard/obsidian-desk/</span></p>
         <p id="surfaceLine" style="margin:0 0 6px;"></p>
         <p style="margin:0 0 6px;">In plain words: prices on the charts are real and move live. Everything about the desks — balances, trades, blocks — comes from a snapshot that refreshes about every minute, and says so where it sits. Paper money only: no real orders, no real money.</p>
         <details>
           <summary style="cursor:pointer; font-weight:700; color:var(--bone-dim); padding:4px 0;">How this page works — the full details</summary>
-          <p style="margin:6px 0 0;">Two layers, labelled where they sit. MARKET: chart prices and the print tape come from the venue's public feed. When the chart shows one of our positions it uses THAT position's own venue first — Bybit USDT-perp websocket for the TD-001 / TD-034 perp positions, then the Coinbase spot stream, then Bybit REST polling, then Binance — because the take-profit is a resting order on that venue, and only that venue's own prices can say whether it was reached. Free browsing starts on Coinbase spot, then Binance. REST polling is labelled polling, never streaming; only when every route fails does the chart fall back to the snapshot's price levels, and it says so. DESK: every desk figure, event and label is rendered from one feed snapshot (<span id="footWhen"></span>) on a ~1 min cadence; nothing about the desk is reconstructed or filled in, and the desk layer is never presented as streaming. Sections the snapshot does not carry show NOT YET LIVE with the feed's own reason. SHADOW and PRACTICE labels are the feed's, unedited. Green explosive bursts fire only on a real win — price actually reaching a take-profit level, or a take-profit close on the snapshot tape; red marks a stop, cyan an entry. Depth is one venue's displayed liquidity — advertised interest, not a promise. The flow strip is computed from the venue feed's own aggressor flags. The desk treemap is snapshot data: area is balance, colour is realised P&amp;L, always with the signed figure in the tile. The token search charts any symbol through the same route chain — the position's own venue first for held tokens, then Coinbase, then Binance, then REST polling — and a symbol the venues don't list fails honestly into snapshot mode like any other dead route. AUTO-FOLLOW moves the hero chart to the open trade closest to its entry or its take-profit and states the move on the proximity board and in the chart header; the distances there are live for every streamable symbol and snapshot-marked only where no route streams, labelled per row. Every position row and quick-pick chip reprices from the position feed — Coinbase spot and Bybit perp legs, REST-polled when a websocket dies — with floating P&amp;L recomputed from the position's own entry, quantity and side on every print; only the count-only desks, whose snapshot carries no symbol, stay snapshot-labelled. Every data surface re-renders on the stream event itself — print, book delta, cross — not on a timer; surfaces fed by the desk snapshot keep their snapshot-age labels. In the neural vortex, a pulse travels only on a real event: a live print reaching a market desk, a fill, veto or exit on this snapshot's tape, or a take-profit cross; ABSENT neurons stay dim and dashed. Section banners are artwork of this system — citadel, vault, crucible, core web — labelled as artwork where they sit, never data. Paper only — no real orders, no real money.</p>
+          <p style="margin:6px 0 0;">Two layers, labelled where they sit. MARKET: chart prices and the print tape come from the venue's public feed. When the chart shows one of our positions it uses THAT position's own venue first — Bybit USDT-perp websocket for the TD-001 / TD-034 perp positions, then the Coinbase spot stream, then Bybit REST polling, then Binance — because the take-profit is a resting order on that venue, and only that venue's own prices can say whether it was reached. Free browsing starts on Coinbase spot, then Binance. REST polling is labelled polling, never streaming; only when every route fails does the chart fall back to the snapshot's price levels, and it says so. DESK: every desk figure, event and label is rendered from one feed snapshot (<span id="footWhen"></span>) on a ~1 min cadence; nothing about the desk is reconstructed or filled in, and the desk layer is never presented as streaming. Sections the snapshot does not carry show NOT YET LIVE with the feed's own reason. SHADOW and PRACTICE labels are the feed's, unedited. Green explosive bursts fire only on a real win — price actually reaching a take-profit level, or a take-profit close on the snapshot tape; red marks a stop, cyan an entry. Depth is one venue's displayed liquidity — advertised interest, not a promise. The flow strip is computed from the venue feed's own aggressor flags. The desk treemap is snapshot data: area is balance, colour is realised P&amp;L, always with the signed figure in the tile. The token search lives on the EXPLORE tab and charts any symbol through the same route chain — the position's own venue first for held tokens, then Coinbase, then Binance, then Kraken — refetching every 15 seconds while the tab is open, and a symbol the venues don't list fails honestly into snapshot mode like any other dead route. AUTO-FOLLOW moves the hero chart to the open trade closest to its entry or its take-profit and states the move on the proximity board and in the chart header; the distances there are live for every streamable symbol and snapshot-marked only where no route streams, labelled per row. Every position row and quick-pick chip reprices from the position feed — Coinbase spot and Bybit perp legs, REST-polled when a websocket dies — with floating P&amp;L recomputed from the position's own entry, quantity and side on every print; only the count-only desks, whose snapshot carries no symbol, stay snapshot-labelled. Every data surface re-renders on the stream event itself — print, book delta, cross — not on a timer; surfaces fed by the desk snapshot keep their snapshot-age labels. In the neural vortex, a pulse travels only on a real event: a live print reaching a market desk, a fill, veto or exit on this snapshot's tape, or a take-profit cross; ABSENT neurons stay dim and dashed. Section banners are artwork of this system — citadel, vault, crucible, core web — labelled as artwork where they sit, never data. Paper only — no real orders, no real money.</p>
         </details>
       </footer>
     </div>
@@ -1071,6 +1105,7 @@
 
     <nav class="tabbar" role="tablist" aria-label="Terminal sections">
       <button role="tab" data-tab="live" aria-selected="true"><span class="glyph">◉</span>LIVE</button>
+      <button role="tab" data-tab="explore" aria-selected="false"><span class="glyph">⌖</span>EXPLORE</button>
       <button role="tab" data-tab="desks" aria-selected="false"><span class="glyph">▦</span>DESKS</button>
       <button role="tab" data-tab="positions" aria-selected="false"><span class="glyph">▤</span>POSITIONS</button>
       <button role="tab" data-tab="log" aria-selected="false"><span class="glyph">≣</span>LOG</button>
@@ -1079,7 +1114,7 @@
     <!-- The feed payload, verbatim (redaction applied at bake: generic paper-wallet IDs,
          no decisions board, no personal names), seeded at build time from the current
          ~/workspace/trade_desk_feed_push/last_payload.json. -->
-    <script id="payload" type="application/json">{"heartbeat_ms": 1795660763040, "balance": "982.086034480", "balance_usdt": "982.086034480", "realised_pnl": "-17.832369960", "realised_pnl_usdt": "-17.832369960", "flatten_now_unrealised": "-0.742675200", "flatten_now_unrealised_usdt": "-0.742675200", "fees_paid_usdt": "23.775065520", "wins": 264, "losses": 167, "open_positions": {"BTCUSDT": {"side": "long", "qty": "0.002", "entry_price": "60949.90", "tp_quote": "61132.7", "flatten_now_pnl_usdt": "-0.224324800", "opened_ms": 1795659536919, "reason": "Maker fill at touch 60949.90 after queue cleared (TD-001)"}, "ETHUSDT": {"side": "long", "qty": "0.08", "entry_price": "1701.20", "tp_quote": "1706.30", "flatten_now_pnl_usdt": "-0.03844160", "opened_ms": 1795660024300, "reason": "Maker fill at touch 1701.20 after queue cleared (TD-001)"}, "SOLUSDT": {"side": "long", "qty": "2.1", "entry_price": "71.420", "tp_quote": "71.63", "flatten_now_pnl_usdt": "-0.47990880", "opened_ms": 1795659418358, "reason": "Maker fill at touch 71.420 after queue cleared (TD-001)"}}, "prices": {"BTCUSDT": {"bid": "60862.10", "ask": "60862.20", "last": "60862.10", "mark": "60879.50"}, "ETHUSDT": {"bid": "1701.40", "ask": "1701.41", "last": "1701.48", "mark": "1701.79"}, "SOLUSDT": {"bid": "71.220", "ask": "71.230", "last": "71.230", "mark": "71.250"}}, "events": [{"ts": 1795660019826, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.3791400348634514816966879721"}, {"ts": 1795660020369, "symbol": "ETHUSDT", "kind": "veto", "reason": "bid quote vetoed by TD-006 imbalance -0.9182103451766373114687721429"}, {"ts": 1795660020373, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1701.41 x 0.08 (queue ahead 58.98)"}, {"ts": 1795660021763, "symbol": "ETHUSDT", "kind": "quote", "reason": "bid quote 1701.00 x 0.08 (queue ahead 89.61)"}, {"ts": 1795660022373, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.5434654050857480780603193377"}, {"ts": 1795660022575, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1701.19 x 0.08 (queue ahead 19.70)"}, {"ts": 1795660023096, "symbol": "ETHUSDT", "kind": "veto", "reason": "bid quote vetoed by TD-006 imbalance -0.6805130032062700391877449234"}, {"ts": 1795660023360, "symbol": "ETHUSDT", "kind": "quote", "reason": "bid quote 1701.20 x 0.08 (queue ahead 19.92)"}, {"ts": 1795660024174, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.3669830568615275436884591502"}, {"ts": 1795660024499, "symbol": "ETHUSDT", "kind": "fill", "reason": "LONG 0.08 @ 1701.20 filled (queue cleared); fee $0.02721920", "price": "1701.20", "qty": "0.08"}, {"ts": 1795660024513, "symbol": "ETHUSDT", "kind": "exit_quote", "reason": "TP quote 1706.30 posted for long 0.08 (entry 1701.20)"}, {"ts": 1795660763040, "symbol": "engine", "kind": "reconnect", "reason": "WS dropped (ConnectionClosedError: no close frame received or sent); reconnecting in 2s"}], "engine_tick_ms": 0.01, "engine_latency_ms": 30, "loop_hz": 150.1, "decisions_per_min": 0, "evaluations_per_min": 699, "wallet_id": "td001-paper-wallet", "feed_connected": false, "take_profit_markers": [{"symbol": "BTCUSDT", "side": "long", "entry_price": "60949.90", "tp_quote": "61132.7"}, {"symbol": "ETHUSDT", "side": "long", "entry_price": "1701.20", "tp_quote": "1706.30"}, {"symbol": "SOLUSDT", "side": "long", "entry_price": "71.420", "tp_quote": "71.63"}], "tp_markers": [{"symbol": "BTCUSDT", "side": "long", "entry_price": "60949.90", "tp_quote": "61132.7"}, {"symbol": "ETHUSDT", "side": "long", "entry_price": "1701.20", "tp_quote": "1706.30"}, {"symbol": "SOLUSDT", "side": "long", "entry_price": "71.420", "tp_quote": "71.63"}], "desks": {"crypto": {"desk_id": "TD-001", "wallet_id": "td001-paper-wallet", "balance": "982.086034480", "realised_pnl": "-17.832369960", "fees_paid": "23.775065520", "wins": 264, "losses": 167, "open_positions_count": 3, "flatten_now_unrealised": "-0.742675200", "heartbeat_ms": 1795660763040, "feed_connected": false}, "fx": {"desk_id": "TD-010", "wallet_id": "td010-paper-wallet", "balance": "999.334006970446", "balance_cad": "1420.478340857966205550", "realised_pnl": "-0.665993029554", "fees_paid": "0.012012529554", "wins": 0, "losses": 2, "open_positions_count": 0, "flatten_now_unrealised": "0", "heartbeat_ms": 1795660762083, "session": "asia", "feed_connected": true}, "prediction": {"desk_id": "TD-002", "wallet_id": "td002-paper-wallet", "balance": "854.87199463", "balance_cad": "1215.13642496694775", "realised_pnl": "-120.71200537", "fees_paid": "1.96700537", "wins": 3, "losses": 15, "fills": 21, "open_positions_count": 1, "flatten_now_unrealised": "-0.33046160", "heartbeat_ms": 1795660760421, "feed_connected": true}}, "basis_desk": {"desk_id": "TD-034", "wallet_id": "td034-paper-wallet", "balance": "997.46201805659846555", "realised_pnl": "0", "fees_paid": "2.56471533449250", "wins": null, "losses": null, "open_positions_count": 3, "flatten_now_unrealised": "-2.81169062831150", "heartbeat_ms": 1795660762564, "heartbeat_age_s": 191.6, "feed_connected": false, "state": "live", "equity_flatten_now": "994.65032742828696555", "funding_net_usdt": "0.02673339109096555", "funding_booked_usdt": "0.02673339109096555", "settlements_booked_count": 6, "evaluation_bar": "kill evaluation at the later of 100 settlements or 30 days: net <= 0 after both legs' fees -> retire", "spot_source": "kraken (public REST/WS verified reachable from this VM 2026-11-25T14:07Z)", "perp_source": "bybit (public WS tickers)", "stop_file_active": false, "positions": {"BTC/USD": {"perp_symbol": "BTCUSDT", "qty": "0.001715", "spot_entry_price": "58281.7", "perp_entry_price": "58341.80", "entry_basis_bps": "10.31198472247720982744154683", "current_basis_usdt": "67.50", "funding_booked_usdt": "0.020361354650", "flatten_now_pnl_usdt": "-0.9043814458000", "neutrality": {"spot_delta_qty": "0.001715", "perp_delta_qty": "-0.001715", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.12442325", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}, "ETH/USD": {"perp_symbol": "ETHUSDT", "qty": "0.061138", "spot_entry_price": "1635.63", "perp_entry_price": "1636.90", "entry_basis_bps": "7.764592236630533800431637962", "current_basis_usdt": "1.86", "funding_booked_usdt": "0.0100789230868480", "flatten_now_pnl_usdt": "-0.9246963846890", "neutrality": {"spot_delta_qty": "0.061138", "perp_delta_qty": "-0.061138", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.106685810", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}, "SOL/USD": {"perp_symbol": "SOLUSDT", "qty": "1.492091", "spot_entry_price": "67.02", "perp_entry_price": "67.050", "entry_basis_bps": "4.476275738585496866606982990", "current_basis_usdt": "0.080", "funding_booked_usdt": "-0.00370688664588245", "flatten_now_pnl_usdt": "-0.98261279782250", "neutrality": {"spot_delta_qty": "1.492091", "perp_delta_qty": "-1.492091", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.111906825", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}}, "events": [{"ts": 1795653651384, "kind": "start", "reason": "TD-034 spot-vs-perp basis paper desk starting (PAPER ONLY, public data, no order endpoints, no keys); spot leg Kraken, perp leg Bybit, funding booked only from Funding Tape settled rows"}, {"ts": 1795653657545, "kind": "connected_perp", "reason": "Connected to Bybit public WS; tickers for BTCUSDT, ETHUSDT, SOLUSDT"}, {"ts": 1795653657791, "kind": "connected_spot", "reason": "Connected to Kraken public WS v2; ticker for BTC/USD, ETH/USD, SOL/USD"}], "label": "PAPER \u2014 spot-vs-perp basis, market-neutral by construction"}, "placebo_desk": {"desk_id": "TD-036", "wallet_id": "td036-paper-wallet", "balance": "973.879034220", "realised_pnl": "-26.039330780", "fees_paid": "13.688465780", "wins": 138, "losses": 111, "open_positions_count": 3, "flatten_now_unrealised": "-0.427714680", "heartbeat_ms": 1795660763030, "heartbeat_age_s": 191.2, "feed_connected": false, "state": "live", "champion_concurrent": {"status": "OK", "window_start_ms": 1795616703132, "window_note": "identical wall-clock window since placebo launch; champion figures are deltas vs the baseline snapshotted at placebo first start", "placebo": {"balance_usdt": "973.879034220", "net_vs_start_usdt": "-26.120965780", "realised_pnl_usdt": "-26.039330780", "fees_paid_usdt": "13.688465780", "entry_fills": 252, "exit_fills": 249}, "champion_concurrent": {"balance_usdt": "982.086034480", "net_over_window_usdt": "-19.233324840", "realised_delta_usdt": "-19.234039200", "fees_delta_usdt": "14.016524840", "entry_fills": 256, "exit_fills": 256}}, "label": "NULL CONTROL \u2014 random entries, champion exits; never a crown candidate"}, "xsection_desk": {"desk_id": "TD-045", "wallet_id": "td045-paper-wallet", "balance": "1000", "realised_pnl": "0", "fees_paid": "0", "wins": null, "losses": null, "open_positions_count": 0, "flatten_now_unrealised": "0", "heartbeat_ms": 1795660761973, "heartbeat_age_s": 192.2, "feed_connected": false, "state": "live", "label": "PAPER \u2014 cross-sectional multi-factor, dollar-neutral baskets"}, "vol_desk": {"desk_id": "TD-043", "wallet_id": "td043-paper-wallet", "balance": null, "realised_pnl": null, "fees_paid": null, "wins": 0, "losses": 0, "open_positions_count": 0, "flatten_now_unrealised": null, "heartbeat_ms": null, "heartbeat_age_s": null, "feed_connected": false, "state": "live", "label": "PAPER \u2014 ARMED-NOT-ENTERING until the VRP gate opens (earliest \u22482026-12-02)"}, "countdown_board": {"state": "live", "generated_utc": "2026-11-26T02:27:14Z", "gates": [{"id": "truth_factor_fills", "title": "Truth-factor rescore accrual (TD-001 Snapshot #3, v3-format fills)", "bar": 100, "progress": 704, "pct": 704.0, "bar_met": true, "stale": false}, {"id": "td013_cases", "title": "TD-013 cross-market: frozen cases toward 100-case bar", "bar": 100, "progress": 89, "pct": 89.0, "bar_met": false, "stale": false}, {"id": "td019_funding", "title": "TD-019 funding cross-section: kill-window evaluation (later of 100 rebalances or 30 days)", "bar": 100, "progress": 2, "pct": 2.0, "bar_met": false, "stale": false}, {"id": "seasoning_coverage", "title": "Seasoning acquisition: symbol-days sealed (5-year total 5,478 = core 1,095 + extension 4,383)", "bar": 5478, "progress": 217, "pct": 3.96, "bar_met": false, "stale": false}, {"id": "forward_desks_rule5", "title": "Forward desks: Rule-5 progress + 30-day forward clock (Rule 6 leg b)", "bar": 100, "progress": null, "pct": null, "bar_met": null, "stale": false}, {"id": "vault_opening_2", "title": "Vault Opening #2 \u2014 PENDING decision (live_readiness F3/A12)", "bar": 901, "progress": 4589, "pct": null, "bar_met": false, "stale": false}, {"id": "m7_contra_flow_grid", "title": "TD-001.m7 contra-flow replay grid: cases graded of 480", "bar": 480, "progress": 480, "pct": 100.0, "bar_met": true, "stale": false}, {"id": "td010_fx_e10", "title": "TD-010 FX: E10 bar \u2014 >=150 trades, profit factor >1.2 (report.md S12 / live_readiness A8)", "bar": 150, "progress": 4, "pct": 2.7, "bar_met": false, "stale": true}], "label": "LIVE PROGRESS \u2014 every gate's bar read from primary records"}, "stress_board": {"state": "live", "generated_ms": 1795660542701, "mode": "PAPER \u2014 read-only stress measurement; never trades", "worst_scenario": {"scenario": "S3_BTC_PLUS_10", "combined_extended_equity_usd": "10129.079849816058432544"}, "combined_stressed_equity_usd": {"S1_BTC_MINUS_10": "4767.584968146660292544", "S2_BTC_MINUS_5": "4794.677222220259827544", "S3_BTC_PLUS_10": "4875.953984441058432544", "S4_VOL_SPIKE_PREDICTION_BOUND": "4797.683937893859362544"}, "btc_equiv_delta_pct_of_equity": "11.24775858717174757242863054911891552713", "desks_covered": 12, "unpriced_positions_count": 0, "label": "STRESS \u2014 frozen scenarios (TD-033); marks, not trades"}, "attribution": {"state": "live", "generated_ms": 1795657250173, "coverage": {"closed_trades": 2380, "fully_decomposed": 344, "partial_unmeasured_markout": 2036}, "unreconciled_desk_days": [], "desks": {"TD-001": {"closed": 424, "gross_usdt": "4.3611", "fees_usdt": "-23.31291476", "adverse_selection_usdt": "4.8247", "spread_capture_usdt": "-5.5562"}, "TD-001-ASIA": {"closed": 67, "gross_usdt": "-3.13365", "fees_usdt": "-3.68237909", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M1": {"closed": 341, "gross_usdt": "-5.3316", "fees_usdt": "-18.83847024", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M2": {"closed": 315, "gross_usdt": "-8.407", "fees_usdt": "-17.28434374", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M4": {"closed": 285, "gross_usdt": "-21.07675", "fees_usdt": "-15.65504487", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M4L": {"closed": 287, "gross_usdt": "1.8947", "fees_usdt": "-15.70416218", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M6": {"closed": 340, "gross_usdt": "-4.1666", "fees_usdt": "-18.64718406", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-OKX": {"closed": 321, "gross_usdt": "-19.733995", "fees_usdt": "-19.094287889", "adverse_selection_usdt": null, "spread_capture_usdt": null}}, "label": "ATTRIBUTION \u2014 components must sum to realised to the cent, or the day is stamped UNRECONCILED"}, "allocator_shadow": {"state": "live", "label": "SHADOW \u2014 moves no money; no figure inside the shadow carries authority", "generated_at_utc": "2026-11-25T14:22:36.271042+00:00", "shadow_clock": {"first_publication": "2026-11-25", "completes": "2026-12-25", "law": "30 consecutive days from first publication; weekly publications; no figure inside the shadow carries authority"}, "envelope_usd": "4898.919025100400115650", "cash_weight_pct": "100", "cash_shadow_usd": "4898.919025100400115650", "weights_sum_pct": "100", "global_regime_td001_latest": {"regime": "CALM", "instrument": "SOLUSDT", "computed_at": "2026-11-25T14:18:06.852638+00:00", "desk": "td001", "file": "forward_labels_td001.jsonl"}, "desks": [{"desk_id": "champion", "label": "TD-001 Crypto champion (Bybit perps, maker)", "standing": "CHAMPION-PROVISIONAL (Crypto, registry TD-001)", "truth_stamp": "MEASURED", "truth_factor": "0.00", "balance": "1002.056101120", "realised": "2.138286660", "discounted_expectancy": "0E-43", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "asia", "label": "TD-001 Asia-session shadow", "standing": "SHADOW-COMPARISON (Asia-session shadow of TD-001; no separate crown)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "997.870608190", "realised": "-2.129391810", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m1", "label": "TD-001.m1 morph (TD-006 veto)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "1002.183975440", "realised": "2.266205480", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m2", "label": "TD-001.m2 morph (spread clause)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.542951620", "realised": "-0.427575360", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m4", "label": "TD-001.m4 morph (shorts-only side-split)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "1001.106750950", "realised": "1.188883790", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m4l", "label": "TD-001.m4l morph (longs-mirror)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "992.702984100", "realised": "-7.214625160", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m6", "label": "TD-001.m6 morph (regime gate)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "993.983844860", "realised": "-5.933888000", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "okx", "label": "TD-001 OKX-executor shadow", "standing": "SHADOW-COMPARISON (venue shadow, TD-030 differ)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "987.8925985650", "realised": "-12.0184766550", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "basis", "label": "TD-034 Spot-vs-Perp Basis paper desk", "standing": "REGISTERED (TD-034, paper desk; registered 2026-11-25)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "997.43528466550750", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "funding", "label": "TD-019 Funding Cross-Section (TD-005 build)", "standing": "CHALLENGER (registry TD-019 / TD-005)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.693060515372115650", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "fx", "label": "TD-010 FX champion", "standing": "CHAMPION-PROVISIONAL (FX, registry TD-010)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.994000275028", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "prediction", "label": "TD-002 Prediction champion (paper)", "standing": "CHAMPION-PROVISIONAL (Prediction, paper; registry TD-002)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "899.305255", "realised": "-100.694745", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "breadth", "label": "TD-001-BREADTH (wide-universe variant)", "standing": "STOOD DOWN (STOP file; Chief Analyst stand-down, realised -$339.59)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "660.4050260780", "realised": "-339.5949739220", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}]}, "compounding_board": {"state": "live", "label": "SHADOW \u2014 nothing compounds on an unproven number", "generated_utc": "2026-11-26T02:27:15Z", "epoch_start_utc": "2026-11-25T14:26:24Z", "next_rebase_utc": "2026-12-01T00:00:00Z", "cross_desk_transfers": 0, "total_shadow_capital": 12000.0, "total_shadow_growth": 0.0, "growth_eligible_desks": [], "rows": [{"desk": "TD-001 (champion)", "desk_key": "champion", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": -0.0496, "factor_status": "MEASURED", "status": "OK", "stale": false, "realised_now": -17.83236996, "balance_now": 982.08603448, "closed": 431, "retained_since_epoch": -19.2340392, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 factor MEASURED but NEGATIVE (-0.0496, rescore 2026-11-25): promotion math uses the strict figure itself (+0.154854520 over the rescore snapshot), never a multiple of the recorded figure; no growth credit is taken from a negative-times-negative product."}, {"desk": "TD-001-ASIA", "desk_key": "asia", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -6.90397825, "balance_now": 993.01439743, "closed": 73, "retained_since_epoch": -4.77458644, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001-OKX", "desk_key": "okx", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -38.588089905, "balance_now": 961.352664055, "closed": 329, "retained_since_epoch": -26.569613249999996, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m1", "desk_key": "m1", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -22.98925426, "balance_now": 976.92912118, "closed": 347, "retained_since_epoch": -25.25545974, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m2", "desk_key": "m2", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -26.11953834, "balance_now": 973.79882598, "closed": 322, "retained_since_epoch": -25.69196298, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m4", "desk_key": "m4", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -38.70748237, "balance_now": 961.24091251, "closed": 292, "retained_since_epoch": -38.53921896, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m4l", "desk_key": "m4l", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -12.89277052, "balance_now": 987.02555144, "closed": 293, "retained_since_epoch": -5.678145359999999, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m6", "desk_key": "m6", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -24.82421934, "balance_now": 975.0942275, "closed": 348, "retained_since_epoch": -18.89033134, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-019 (funding xsection)", "desk_key": "funding", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": true, "realised_now": -0.9581949438, "balance_now": 998.3284984534226, "closed": null, "retained_since_epoch": -0.9581949438, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-034 (basis spot-perp)", "desk_key": "basis", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": true, "realised_now": 0.0, "balance_now": 997.4620180565985, "closed": null, "retained_since_epoch": 0.0, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-010 (FX)", "desk_key": "fx", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -0.665993029554, "balance_now": 999.334006970446, "closed": 2, "retained_since_epoch": -0.665993029554, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-002 (prediction)", "desk_key": "prediction", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -120.71200537, "balance_now": 854.87199463, "closed": 18, "retained_since_epoch": -20.017260370000002, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}], "excluded": [{"desk": "TD-001-BREADTH", "status": "EXCLUDED \u2014 STOOD DOWN", "realised": -339.594973922, "reason": "Stood down by the overseer 2026-11-25 after -$337.996 realised (balance $660.41 at stand-down read). A stood-down desk holds no engine capital; printed as the cautionary line."}, {"desk": "TD-036 Placebo", "status": "EXCLUDED \u2014 MEASURING INSTRUMENT", "realised": null, "reason": "Null control. Its own registration forbids it ever being sized or capitalised; Registry Rule 5 applies THROUGH it to champion claims, never TO it."}]}, "crucible_board": {"state": "live", "label": "LIVE PROGRESS \u2014 candidates ranked by distance to proof", "generated_utc": "2026-11-26T02:27:15Z", "gate_stack": ["G1 Registration", "G2 Replay/bench verdict", "G3 Forward fills bar", "G4 Truth & evidence bars", "G5 Judge gate"], "ranking_rule": "unproven gates ascending (IN PROGRESS / NO BENCH BY DESIGN / NOT STARTED / NOT REGISTERED / UNREADABLE all count unproven), then active-gate completion % descending, then name", "rows": [{"name": "TD-001.m4 (shorts-only)", "key": "m4", "rank": 1, "distance_to_proof": 2, "unproven_gates": 2, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m6 (VIOLENT-regime stand-down)", "key": "m6", "rank": 2, "distance_to_proof": 2, "unproven_gates": 2, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m4l (longs-only mirror)", "key": "m4l", "rank": 3, "distance_to_proof": 3, "unproven_gates": 3, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m7 (contra-flow entry veto)", "key": "m7", "rank": 4, "distance_to_proof": 4, "unproven_gates": 4, "pct": 100.0, "active_gate_pct": 100.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "IN PROGRESS", "pct": 100.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-002 (prediction maker)", "key": "prediction", "rank": 5, "distance_to_proof": 4, "unproven_gates": 4, "pct": 20.5, "active_gate_pct": 20.5, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 20.5}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-034 (spot-vs-perp basis)", "key": "basis", "rank": 6, "distance_to_proof": 4, "unproven_gates": 4, "pct": 6.0, "active_gate_pct": 6.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 6.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-019 (funding cross-section)", "key": "funding", "rank": 7, "distance_to_proof": 4, "unproven_gates": 4, "pct": 2.0, "active_gate_pct": 2.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 2.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-010 (FX)", "key": "fx", "rank": 8, "distance_to_proof": 4, "unproven_gates": 4, "pct": 1.3, "active_gate_pct": 1.3, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 1.3}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "Cross-sectional multi-factor desk (Wave 4)", "key": "xsection", "rank": 9, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "Deribit volatility desk (Wave 4)", "key": "vol", "rank": 10, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m8 (opponent-conditioned quoting)", "key": "m8", "rank": 11, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}]}, "simulator_state": {"state": "building", "params_derived": true, "runs_completed": 14, "calibration_verdict": null, "reason": "TD-031 build in flight (Wave 4 Item 1); calibration gate \u2014 in-sim champion must reproduce \u221263,650.44 within \u00b110% \u2014 not yet graded. Simulator results earn zero crowning credit (Doctrine).", "label": "PRACTICE \u2014 simulator; zero crowning credit"}, "surface_integration": {"version": "v1-2026-11-25", "generated_ms": 1795660954210, "law": "WEBSITE REFLECTS EVERYTHING \u2014 a source that has not landed ships as an explicit ABSENT state, never a fabricated zero"}}</script>
+    <script id="payload" type="application/json">{"heartbeat_ms": 1795662894072, "balance": "980.257892480", "balance_usdt": "980.257892480", "realised_pnl": "-19.660827960", "realised_pnl_usdt": "-19.660827960", "flatten_now_unrealised": "-0.274066920", "flatten_now_unrealised_usdt": "-0.274066920", "fees_paid_usdt": "23.937607520", "wins": 264, "losses": 170, "open_positions": {"BTCUSDT": {"side": "long", "qty": "0.002", "entry_price": "60645.20", "tp_quote": "60827.1", "flatten_now_pnl_usdt": "0.165241080", "opened_ms": 1795661772832, "reason": "Maker fill at touch 60645.20 after queue cleared (TD-001)"}, "ETHUSDT": {"side": "short", "qty": "0.08", "entry_price": "1697.73", "tp_quote": "1692.64", "flatten_now_pnl_usdt": "-0.08553360", "opened_ms": 1795662737483, "reason": "Maker fill at touch 1697.73 after queue cleared (TD-001)"}, "SOLUSDT": {"side": "short", "qty": "2.1", "entry_price": "71.090", "tp_quote": "70.88", "flatten_now_pnl_usdt": "-0.35377440", "opened_ms": 1795661768807, "reason": "Maker fill at touch 71.090 after queue cleared (TD-001)"}}, "prices": {"BTCUSDT": {"bid": "60752.10", "ask": "60752.20", "last": "60752.20", "mark": "60752.41"}, "ETHUSDT": {"bid": "1698.11", "ask": "1698.12", "last": "1698.09", "mark": "1698.00"}, "SOLUSDT": {"bid": "71.220", "ask": "71.230", "last": "71.220", "mark": "71.225"}}, "events": [{"ts": 1795662727320, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1697.37 x 0.08 (queue ahead 51.40)"}, {"ts": 1795662729276, "symbol": "ETHUSDT", "kind": "quote", "reason": "bid quote 1697.36 x 0.08 (queue ahead 35.48)"}, {"ts": 1795662729276, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.3564604185623293903548680619"}, {"ts": 1795662730081, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1697.53 x 0.08 (queue ahead 18.50)"}, {"ts": 1795662730371, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.8688771665410700828937452901"}, {"ts": 1795662732885, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1697.53 x 0.08 (queue ahead 24.53)"}, {"ts": 1795662733481, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.4673657323385091080190898703"}, {"ts": 1795662734079, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1697.79 x 0.08 (queue ahead 37.71)"}, {"ts": 1795662734588, "symbol": "ETHUSDT", "kind": "veto", "reason": "ask quote vetoed by TD-006 imbalance 0.6570921592547410446933569923"}, {"ts": 1795662737085, "symbol": "ETHUSDT", "kind": "quote", "reason": "ask quote 1697.73 x 0.08 (queue ahead 21.83)"}, {"ts": 1795662737501, "symbol": "ETHUSDT", "kind": "fill", "reason": "SHORT 0.08 @ 1697.73 filled (queue cleared); fee $0.02716368", "price": "1697.73", "qty": "0.08"}, {"ts": 1795662737675, "symbol": "ETHUSDT", "kind": "exit_quote", "reason": "TP quote 1692.64 posted for short 0.08 (entry 1697.73)"}], "engine_tick_ms": 0.229, "engine_latency_ms": 58, "loop_hz": 126.7, "decisions_per_min": 0, "evaluations_per_min": 673, "wallet_id": "td001-paper-wallet", "feed_connected": true, "take_profit_markers": [{"symbol": "BTCUSDT", "side": "long", "entry_price": "60645.20", "tp_quote": "60827.1"}, {"symbol": "ETHUSDT", "side": "short", "entry_price": "1697.73", "tp_quote": "1692.64"}, {"symbol": "SOLUSDT", "side": "short", "entry_price": "71.090", "tp_quote": "70.88"}], "tp_markers": [{"symbol": "BTCUSDT", "side": "long", "entry_price": "60645.20", "tp_quote": "60827.1"}, {"symbol": "ETHUSDT", "side": "short", "entry_price": "1697.73", "tp_quote": "1692.64"}, {"symbol": "SOLUSDT", "side": "short", "entry_price": "71.090", "tp_quote": "70.88"}], "desks": {"crypto": {"desk_id": "TD-001", "wallet_id": "td001-paper-wallet", "balance": "980.257892480", "realised_pnl": "-19.660827960", "fees_paid": "23.937607520", "wins": 264, "losses": 170, "open_positions_count": 3, "flatten_now_unrealised": "-0.274066920", "heartbeat_ms": 1795662894072, "feed_connected": true}, "fx": {"desk_id": "TD-010", "wallet_id": "td010-paper-wallet", "balance": "999.334006970446", "balance_cad": "1421.267814723472857890", "realised_pnl": "-0.665993029554", "fees_paid": "0.012012529554", "wins": 0, "losses": 2, "open_positions_count": 0, "flatten_now_unrealised": "0", "heartbeat_ms": 1795662894799, "session": "asia", "feed_connected": false}, "prediction": {"desk_id": "TD-002", "wallet_id": "td002-paper-wallet", "balance": "854.87199463", "balance_cad": "1215.81177384270545", "realised_pnl": "-120.71200537", "fees_paid": "1.96700537", "wins": 3, "losses": 15, "fills": 21, "open_positions_count": 1, "flatten_now_unrealised": "0", "heartbeat_ms": 1795662890718, "feed_connected": true}}, "basis_desk": {"desk_id": "TD-034", "wallet_id": "td034-paper-wallet", "balance": "997.46201805659846555", "realised_pnl": "0", "fees_paid": "2.56471533449250", "wins": null, "losses": null, "open_positions_count": 3, "flatten_now_unrealised": "-2.78170065397950", "heartbeat_ms": 1795662893993, "heartbeat_age_s": 0.8, "feed_connected": true, "state": "live", "equity_flatten_now": "994.68031740261896555", "funding_net_usdt": "0.02673339109096555", "funding_booked_usdt": "0.02673339109096555", "settlements_booked_count": 6, "evaluation_bar": "kill evaluation at the later of 100 settlements or 30 days: net <= 0 after both legs' fees -> retire", "spot_source": "kraken (public REST/WS verified reachable from this VM 2026-11-25T14:07Z)", "perp_source": "bybit (public WS tickers)", "stop_file_active": false, "positions": {"BTC/USD": {"perp_symbol": "BTCUSDT", "qty": "0.001715", "spot_entry_price": "58281.7", "perp_entry_price": "58341.80", "entry_basis_bps": "10.31198472247720982744154683", "current_basis_usdt": "64.80", "funding_booked_usdt": "0.020361354650", "flatten_now_pnl_usdt": "-0.8979961406500", "neutrality": {"spot_delta_qty": "0.001715", "perp_delta_qty": "-0.001715", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.11140640", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}, "ETH/USD": {"perp_symbol": "ETHUSDT", "qty": "0.061138", "spot_entry_price": "1635.63", "perp_entry_price": "1636.90", "entry_basis_bps": "7.764592236630533800431637962", "current_basis_usdt": "1.75", "funding_booked_usdt": "0.0100789230868480", "flatten_now_pnl_usdt": "-0.9161484057880", "neutrality": {"spot_delta_qty": "0.061138", "perp_delta_qty": "-0.061138", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.09537528", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}, "SOL/USD": {"perp_symbol": "SOLUSDT", "qty": "1.492091", "spot_entry_price": "67.02", "perp_entry_price": "67.050", "entry_basis_bps": "4.476275738585496866606982990", "current_basis_usdt": "0.070", "funding_booked_usdt": "-0.00370688664588245", "flatten_now_pnl_usdt": "-0.96755610754150", "neutrality": {"spot_delta_qty": "1.492091", "perp_delta_qty": "-1.492091", "delta_net_qty": "0.000000", "delta_net_usdt_at_marks": "-0.089525460", "tolerance": "|net_qty| <= 0.1% of qty AND |net_usdt| <= 2% of leg notional", "neutrality_within_tolerance": true}}}, "events": [{"ts": 1795661752779, "kind": "start", "reason": "TD-034 spot-vs-perp basis paper desk starting (PAPER ONLY, public data, no order endpoints, no keys); spot leg Kraken, perp leg Bybit, funding booked only from Funding Tape settled rows"}, {"ts": 1795661766772, "kind": "connected_spot", "reason": "Connected to Kraken public WS v2; ticker for BTC/USD, ETH/USD, SOL/USD"}, {"ts": 1795661767302, "kind": "connected_perp", "reason": "Connected to Bybit public WS; tickers for BTCUSDT, ETHUSDT, SOLUSDT"}], "label": "PAPER \u2014 spot-vs-perp basis, market-neutral by construction"}, "placebo_desk": {"desk_id": "TD-036", "wallet_id": "td036-paper-wallet", "balance": "972.796964560", "realised_pnl": "-27.121770480", "fees_paid": "13.851035440", "wins": 139, "losses": 113, "open_positions_count": 3, "flatten_now_unrealised": "0.039553160", "heartbeat_ms": 1795662893901, "heartbeat_age_s": 0.9, "feed_connected": true, "state": "live", "champion_concurrent": {"status": "OK", "window_start_ms": 1795616703132, "window_note": "identical wall-clock window since placebo launch; champion figures are deltas vs the baseline snapshotted at placebo first start", "placebo": {"balance_usdt": "972.796964560", "net_vs_start_usdt": "-27.203035440", "realised_pnl_usdt": "-27.121770480", "fees_paid_usdt": "13.851035440", "entry_fills": 255, "exit_fills": 252}, "champion_concurrent": {"balance_usdt": "980.257892480", "net_over_window_usdt": "-21.061466840", "realised_delta_usdt": "-21.062497200", "fees_delta_usdt": "14.179066840", "entry_fills": 259, "exit_fills": 259}}, "label": "NULL CONTROL \u2014 random entries, champion exits; never a crown candidate"}, "xsection_desk": {"desk_id": "TD-045", "wallet_id": "td045-paper-wallet", "balance": "1000", "realised_pnl": "0", "fees_paid": "0", "wins": null, "losses": null, "open_positions_count": 0, "flatten_now_unrealised": "0", "heartbeat_ms": 1795662894505, "heartbeat_age_s": 0.3, "feed_connected": true, "state": "live", "label": "PAPER \u2014 cross-sectional multi-factor, dollar-neutral baskets"}, "vol_desk": {"desk_id": "TD-043", "wallet_id": "td043-paper-wallet", "balance": null, "realised_pnl": null, "fees_paid": null, "wins": 0, "losses": 0, "open_positions_count": 0, "flatten_now_unrealised": null, "heartbeat_ms": null, "heartbeat_age_s": null, "feed_connected": false, "state": "live", "label": "PAPER \u2014 ARMED-NOT-ENTERING until the VRP gate opens (earliest \u22482026-12-02)"}, "countdown_board": {"state": "live", "generated_utc": "2026-11-26T03:11:39Z", "gates": [{"id": "truth_factor_fills", "title": "Truth-factor rescore accrual (TD-001 Snapshot #3, v3-format fills)", "bar": 100, "progress": 708, "pct": 708.0, "bar_met": true, "stale": false}, {"id": "td013_cases", "title": "TD-013 cross-market: frozen cases toward 100-case bar", "bar": 100, "progress": 103, "pct": 103.0, "bar_met": true, "stale": false}, {"id": "td019_funding", "title": "TD-019 funding cross-section: kill-window evaluation (later of 100 rebalances or 30 days)", "bar": 100, "progress": 2, "pct": 2.0, "bar_met": false, "stale": false}, {"id": "seasoning_coverage", "title": "Seasoning acquisition: symbol-days sealed (5-year total 5,478 = core 1,095 + extension 4,383)", "bar": 5478, "progress": 217, "pct": 3.96, "bar_met": false, "stale": false}, {"id": "forward_desks_rule5", "title": "Forward desks: Rule-5 progress + 30-day forward clock (Rule 6 leg b)", "bar": 100, "progress": null, "pct": null, "bar_met": null, "stale": false}, {"id": "vault_opening_2", "title": "Vault Opening #2 \u2014 PENDING decision (live_readiness F3/A12)", "bar": 901, "progress": 4629, "pct": null, "bar_met": false, "stale": false}, {"id": "m7_contra_flow_grid", "title": "TD-001.m7 contra-flow replay grid: cases graded of 480", "bar": 480, "progress": 480, "pct": 100.0, "bar_met": true, "stale": false}, {"id": "td010_fx_e10", "title": "TD-010 FX: E10 bar \u2014 >=150 trades, profit factor >1.2 (report.md S12 / live_readiness A8)", "bar": 150, "progress": 4, "pct": 2.7, "bar_met": false, "stale": true}], "label": "LIVE PROGRESS \u2014 every gate's bar read from primary records"}, "stress_board": {"state": "live", "generated_ms": 1795662699109, "mode": "PAPER \u2014 read-only stress measurement; never trades", "worst_scenario": {"scenario": "S3_BTC_PLUS_10", "combined_extended_equity_usd": "10066.436982158305817544"}, "combined_stressed_equity_usd": {"S1_BTC_MINUS_10": "4768.793701463953607544", "S2_BTC_MINUS_5": "4794.454139676291660044", "S3_BTC_PLUS_10": "4871.435454313305817544", "S4_VOL_SPIKE_PREDICTION_BOUND": "4795.698577888629712544"}, "btc_equiv_delta_pct_of_equity": "10.65752643799347115009848404345086123982", "desks_covered": 12, "unpriced_positions_count": 0, "label": "STRESS \u2014 frozen scenarios (TD-033); marks, not trades"}, "attribution": {"state": "live", "generated_ms": 1795661754504, "coverage": {"closed_trades": 2437, "fully_decomposed": 351, "partial_unmeasured_markout": 2086}, "unreconciled_desk_days": [], "desks": {"TD-001": {"closed": 431, "gross_usdt": "5.8611", "fees_usdt": "-23.69346996", "adverse_selection_usdt": "4.8525", "spread_capture_usdt": "-4.084"}, "TD-001-ASIA": {"closed": 73, "gross_usdt": "-2.89025", "fees_usdt": "-4.01372825", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M1": {"closed": 347, "gross_usdt": "-3.8251", "fees_usdt": "-19.16415426", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M2": {"closed": 322, "gross_usdt": "-8.4548", "fees_usdt": "-17.66473834", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M4": {"closed": 292, "gross_usdt": "-22.67505", "fees_usdt": "-16.03243237", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M4L": {"closed": 293, "gross_usdt": "3.1372", "fees_usdt": "-16.02997052", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-M6": {"closed": 349, "gross_usdt": "-6.4408", "fees_usdt": "-19.13627354", "adverse_selection_usdt": null, "spread_capture_usdt": null}, "TD-001-OKX": {"closed": 330, "gross_usdt": "-18.578935", "fees_usdt": "-19.628441945", "adverse_selection_usdt": null, "spread_capture_usdt": null}}, "label": "ATTRIBUTION \u2014 components must sum to realised to the cent, or the day is stamped UNRECONCILED"}, "allocator_shadow": {"state": "live", "label": "SHADOW \u2014 moves no money; no figure inside the shadow carries authority", "generated_at_utc": "2026-11-25T14:22:36.271042+00:00", "shadow_clock": {"first_publication": "2026-11-25", "completes": "2026-12-25", "law": "30 consecutive days from first publication; weekly publications; no figure inside the shadow carries authority"}, "envelope_usd": "4898.919025100400115650", "cash_weight_pct": "100", "cash_shadow_usd": "4898.919025100400115650", "weights_sum_pct": "100", "global_regime_td001_latest": {"regime": "CALM", "instrument": "SOLUSDT", "computed_at": "2026-11-25T14:18:06.852638+00:00", "desk": "td001", "file": "forward_labels_td001.jsonl"}, "desks": [{"desk_id": "champion", "label": "TD-001 Crypto champion (Bybit perps, maker)", "standing": "CHAMPION-PROVISIONAL (Crypto, registry TD-001)", "truth_stamp": "MEASURED", "truth_factor": "0.00", "balance": "1002.056101120", "realised": "2.138286660", "discounted_expectancy": "0E-43", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "asia", "label": "TD-001 Asia-session shadow", "standing": "SHADOW-COMPARISON (Asia-session shadow of TD-001; no separate crown)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "997.870608190", "realised": "-2.129391810", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m1", "label": "TD-001.m1 morph (TD-006 veto)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "1002.183975440", "realised": "2.266205480", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m2", "label": "TD-001.m2 morph (spread clause)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.542951620", "realised": "-0.427575360", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m4", "label": "TD-001.m4 morph (shorts-only side-split)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "1001.106750950", "realised": "1.188883790", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m4l", "label": "TD-001.m4l morph (longs-mirror)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "992.702984100", "realised": "-7.214625160", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "m6", "label": "TD-001.m6 morph (regime gate)", "standing": "CHALLENGER / shadow-comparison (TD-001 morph)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "993.983844860", "realised": "-5.933888000", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "okx", "label": "TD-001 OKX-executor shadow", "standing": "SHADOW-COMPARISON (venue shadow, TD-030 differ)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "987.8925985650", "realised": "-12.0184766550", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "basis", "label": "TD-034 Spot-vs-Perp Basis paper desk", "standing": "REGISTERED (TD-034, paper desk; registered 2026-11-25)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "997.43528466550750", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "funding", "label": "TD-019 Funding Cross-Section (TD-005 build)", "standing": "CHALLENGER (registry TD-019 / TD-005)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.693060515372115650", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "fx", "label": "TD-010 FX champion", "standing": "CHAMPION-PROVISIONAL (FX, registry TD-010)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "999.994000275028", "realised": "0", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "prediction", "label": "TD-002 Prediction champion (paper)", "standing": "CHAMPION-PROVISIONAL (Prediction, paper; registry TD-002)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "899.305255", "realised": "-100.694745", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}, {"desk_id": "breadth", "label": "TD-001-BREADTH (wide-universe variant)", "standing": "STOOD DOWN (STOP file; Chief Analyst stand-down, realised -$339.59)", "truth_stamp": "UNMEASURED", "truth_factor": "UNMEASURED", "balance": "660.4050260780", "realised": "-339.5949739220", "discounted_expectancy": "0", "shadow_weight_pct": "0", "shadow_usd": "0E-18"}]}, "compounding_board": {"state": "live", "label": "SHADOW \u2014 nothing compounds on an unproven number", "generated_utc": "2026-11-26T03:11:39Z", "epoch_start_utc": "2026-11-25T14:26:24Z", "next_rebase_utc": "2026-12-01T00:00:00Z", "cross_desk_transfers": 0, "total_shadow_capital": 12000.0, "total_shadow_growth": 0.0, "growth_eligible_desks": [], "rows": [{"desk": "TD-001 (champion)", "desk_key": "champion", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": -0.0496, "factor_status": "MEASURED", "status": "OK", "stale": false, "realised_now": -19.26445796, "balance_now": 980.65420696, "closed": 433, "retained_since_epoch": -20.666127200000002, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 factor MEASURED but NEGATIVE (-0.0496, rescore 2026-11-25): promotion math uses the strict figure itself (+0.154854520 over the rescore snapshot), never a multiple of the recorded figure; no growth credit is taken from a negative-times-negative product."}, {"desk": "TD-001-ASIA", "desk_key": "asia", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -7.92899095, "balance_now": 991.98975321, "closed": 76, "retained_since_epoch": -5.79959914, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001-OKX", "desk_key": "okx", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -37.446521769, "balance_now": 962.464445979, "closed": 332, "retained_since_epoch": -25.428045114, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m1", "desk_key": "m1", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -24.07614218, "balance_now": 975.84260198, "closed": 350, "retained_since_epoch": -26.34234766, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m2", "desk_key": "m2", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -27.79786374, "balance_now": 972.1208047, "closed": 324, "retained_since_epoch": -27.37028838, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m4", "desk_key": "m4", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -37.65528281, "balance_now": 962.26350083, "closed": 295, "retained_since_epoch": -37.4870194, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m4l", "desk_key": "m4l", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -15.16060562, "balance_now": 984.75813666, "closed": 296, "retained_since_epoch": -7.94598046, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-001.m6", "desk_key": "m6", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -25.22340506, "balance_now": 974.69526478, "closed": 350, "retained_since_epoch": -19.28951706, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-019 (funding xsection)", "desk_key": "funding", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": true, "realised_now": -0.9581949438, "balance_now": 998.3284984534226, "closed": null, "retained_since_epoch": -0.9581949438, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-034 (basis spot-perp)", "desk_key": "basis", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": true, "realised_now": 0.0, "balance_now": 997.4620180565985, "closed": null, "retained_since_epoch": 0.0, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-010 (FX)", "desk_key": "fx", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -0.665993029554, "balance_now": 999.334006970446, "closed": 2, "retained_since_epoch": -0.665993029554, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}, {"desk": "TD-002 (prediction)", "desk_key": "prediction", "value": 1000.0, "shadow_capital": 1000.0, "start_capital": 1000.0, "floor": 500.0, "factor": null, "factor_status": "UNMEASURED", "status": "OK", "stale": false, "realised_now": -120.71200537, "balance_now": 854.87199463, "closed": 18, "retained_since_epoch": -20.017260370000002, "discounted_retained": 0.0, "eligible_to_grow": false, "reason": "INELIGIBLE \u2014 UNMEASURED: no truth-gap scoring exists for this desk; its raw retained profit carries no capital consequence."}], "excluded": [{"desk": "TD-001-BREADTH", "status": "EXCLUDED \u2014 STOOD DOWN", "realised": -339.594973922, "reason": "Stood down by the overseer 2026-11-25 after -$337.996 realised (balance $660.41 at stand-down read). A stood-down desk holds no engine capital; printed as the cautionary line."}, {"desk": "TD-036 Placebo", "status": "EXCLUDED \u2014 MEASURING INSTRUMENT", "realised": null, "reason": "Null control. Its own registration forbids it ever being sized or capitalised; Registry Rule 5 applies THROUGH it to champion claims, never TO it."}]}, "crucible_board": {"state": "live", "label": "LIVE PROGRESS \u2014 candidates ranked by distance to proof", "generated_utc": "2026-11-26T03:11:39Z", "gate_stack": ["G1 Registration", "G2 Replay/bench verdict", "G3 Forward fills bar", "G4 Truth & evidence bars", "G5 Judge gate"], "ranking_rule": "unproven gates ascending (IN PROGRESS / NO BENCH BY DESIGN / NOT STARTED / NOT REGISTERED / UNREADABLE all count unproven), then active-gate completion % descending, then name", "rows": [{"name": "TD-001.m4 (shorts-only)", "key": "m4", "rank": 1, "distance_to_proof": 2, "unproven_gates": 2, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m6 (VIOLENT-regime stand-down)", "key": "m6", "rank": 2, "distance_to_proof": 2, "unproven_gates": 2, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100.0}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m4l (longs-only mirror)", "key": "m4l", "rank": 3, "distance_to_proof": 3, "unproven_gates": 3, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "PROVEN", "pct": 100}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m7 (contra-flow entry veto)", "key": "m7", "rank": 4, "distance_to_proof": 4, "unproven_gates": 4, "pct": 100.0, "active_gate_pct": 100.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "IN PROGRESS", "pct": 100.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-002 (prediction maker)", "key": "prediction", "rank": 5, "distance_to_proof": 4, "unproven_gates": 4, "pct": 20.5, "active_gate_pct": 20.5, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 20.5}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-034 (spot-vs-perp basis)", "key": "basis", "rank": 6, "distance_to_proof": 4, "unproven_gates": 4, "pct": 6.0, "active_gate_pct": 6.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 6.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-019 (funding cross-section)", "key": "funding", "rank": 7, "distance_to_proof": 4, "unproven_gates": 4, "pct": 2.0, "active_gate_pct": 2.0, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 2.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-010 (FX)", "key": "fx", "rank": 8, "distance_to_proof": 4, "unproven_gates": 4, "pct": 1.3, "active_gate_pct": 1.3, "gates": [{"status": "PROVEN", "pct": 100.0}, {"status": "NO BENCH BY DESIGN", "pct": null}, {"status": "IN PROGRESS", "pct": 1.3}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "Cross-sectional multi-factor desk (Wave 4)", "key": "xsection", "rank": 9, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "Deribit volatility desk (Wave 4)", "key": "vol", "rank": 10, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}, {"name": "TD-001.m8 (opponent-conditioned quoting)", "key": "m8", "rank": 11, "distance_to_proof": 5, "unproven_gates": 5, "pct": 0.0, "active_gate_pct": 0.0, "gates": [{"status": "IN PROGRESS", "pct": null}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}, {"status": "IN PROGRESS", "pct": 0.0}, {"status": "NOT STARTED", "pct": 0.0}]}]}, "simulator_state": {"state": "building", "params_derived": true, "runs_completed": 14, "calibration_verdict": null, "reason": "TD-031 build in flight (Wave 4 Item 1); calibration gate \u2014 in-sim champion must reproduce \u221263,650.44 within \u00b110% \u2014 not yet graded. Simulator results earn zero crowning credit (Doctrine).", "label": "PRACTICE \u2014 simulator; zero crowning credit"}, "surface_integration": {"version": "v1-2026-11-25", "generated_ms": 1795662894811, "law": "WEBSITE REFLECTS EVERYTHING \u2014 a source that has not landed ships as an explicit ABSENT state, never a fabricated zero"}}</script>
     <script>
       "use strict";
       var P = JSON.parse(document.getElementById("payload").textContent);
@@ -1225,7 +1260,7 @@
       /* Candle timeframe, named the way traders name it: 60s -> "1m". Both
          charts aggregate / fetch at these sizes; 1m is the native size of
          the venue feed itself, so the 1M view is the raw stream, unmerged. */
-      function tfName(tf) { return tf >= 3600 ? (tf / 3600) + "h" : (tf / 60) + "m"; }
+      function tfName(tf) { return tf >= 3600 ? (tf / 3600) + "h" : tf >= 60 ? (tf / 60) + "m" : tf + "s"; }
       var uniPx = {}; /* sym -> {px, chg} from the live tickers list (Bybit; Binance 24h fallback) — explorer rows + movers strip */
       var exPick = null; /* the explorer's select function, registered by its IIFE so the movers strip can hand it a token */
       var burstSeen = {};
@@ -1629,13 +1664,89 @@
         c.strokeStyle = color; c.lineWidth = width || 1;
         c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
       }
+      /* A level line that cannot be missed: a wide soft halo, a mid glow
+         pass, then a thick bright core — the TP / ENTRY / LAST lines read
+         as lit rails across the plot, not hairlines. */
+      function cLevelLine(X0, X1, y, color, glow, dash) {
+        cLine(X0, y, X1, y, glow, 15);
+        cLine(X0, y, X1, y, glow, 8);
+        cLine(X0, y, X1, y, color, 4.2, dash);
+      }
+      /* Level tags are BADGES: a big solid block in the level's own
+         colour, glowing against the plot, with the name and the price in
+         heavy dark type — TP ORDER, ENTRY and LAST must be readable on a
+         phone at arm's length, never fine print. */
       function cTag(X1, y, color, label, v) {
         var c = chartCtx;
+        var price = fmtPrice(v);
+        c.font = "900 13.5px 'JetBrains Mono', monospace";
+        var w = Math.max(c.measureText(label).width, c.measureText(price).width) + 22;
+        var x = X1 + 5, h = 44, top = y - h / 2;
+        c.save();
+        c.shadowColor = color; c.shadowBlur = 16;
+        c.beginPath();
+        if (c.roundRect) c.roundRect(x, top, w, h, 8); else c.rect(x, top, w, h);
+        c.fillStyle = color; c.fill();
+        c.restore();
+        c.beginPath();
+        if (c.roundRect) c.roundRect(x, top, w, h, 8); else c.rect(x, top, w, h);
+        c.strokeStyle = "rgba(2,4,9,0.9)"; c.lineWidth = 2; c.stroke();
+        c.fillStyle = "#020409"; c.textAlign = "left";
+        c.fillText(label, x + 11, top + 18);
+        c.fillText(price, x + 11, top + 36);
+      }
+      /* Event markers, drawn UNMISSABLE: a TP hit or a stop is a fat
+         glowing ringed dot carrying a solid pill badge with its money in
+         heavy dark type; an entry fill is a big glowing triangle welded
+         to a solid BUY or SELL pill. Readable at arm's length — an order
+         on this chart is never a small mark. */
+      function cPill(cx, cy, color, txt, font) {
+        var c = chartCtx;
+        c.font = font;
+        var w = c.measureText(txt).width + 26, h = 30, x0 = cx - w / 2, y0 = cy - h / 2;
+        c.save();
+        c.shadowColor = color; c.shadowBlur = 18;
+        c.beginPath();
+        if (c.roundRect) c.roundRect(x0, y0, w, h, 9); else c.rect(x0, y0, w, h);
+        c.fillStyle = color; c.fill();
+        c.restore();
+        c.beginPath();
+        if (c.roundRect) c.roundRect(x0, y0, w, h, 9); else c.rect(x0, y0, w, h);
+        c.strokeStyle = "rgba(2,4,9,0.9)"; c.lineWidth = 2; c.stroke();
+        c.fillStyle = "#020409"; c.textAlign = "center";
+        c.fillText(txt, cx, cy + 5.5);
+        return w;
+      }
+      function cEventMark(x, y, kind, txt, long) {
+        var c = chartCtx;
+        if (kind === "fill") {
+          var col = long ? COL.sage : COL.blood;
+          c.save();
+          c.shadowColor = col; c.shadowBlur = 16;
+          c.fillStyle = col;
+          c.beginPath();
+          if (long) { c.moveTo(x, y - 17); c.lineTo(x - 13, y + 9); c.lineTo(x + 13, y + 9); }
+          else { c.moveTo(x, y + 17); c.lineTo(x - 13, y - 9); c.lineTo(x + 13, y - 9); }
+          c.closePath(); c.fill();
+          c.restore();
+          c.strokeStyle = "rgba(2,4,9,0.9)"; c.lineWidth = 2;
+          c.beginPath();
+          if (long) { c.moveTo(x, y - 17); c.lineTo(x - 13, y + 9); c.lineTo(x + 13, y + 9); }
+          else { c.moveTo(x, y + 17); c.lineTo(x - 13, y - 9); c.lineTo(x + 13, y - 9); }
+          c.closePath(); c.stroke();
+          cPill(x, long ? y + 32 : y - 32, col, long ? "BUY" : "SELL", "900 15px 'JetBrains Mono', monospace");
+        } else {
+          var col2 = kind === "tp" ? COL.gold : COL.blood;
+          cPill(x, y - 34, col2, txt, "900 14.5px 'JetBrains Mono', monospace");
+          c.save();
+          c.shadowColor = col2; c.shadowBlur = 18;
+          c.beginPath(); c.arc(x, y, 8.5, 0, 6.2832); c.fillStyle = col2; c.fill();
+          c.restore();
+          c.beginPath(); c.arc(x, y, 8.5, 0, 6.2832);
+          c.strokeStyle = "#020409"; c.lineWidth = 3; c.stroke();
+          c.beginPath(); c.arc(x, y, 3, 0, 6.2832); c.fillStyle = "#020409"; c.fill();
+        }
         c.textAlign = "left";
-        c.fillStyle = color; c.font = "600 8.5px 'JetBrains Mono', monospace";
-        c.fillText(label, X1 + 7, y - 3);
-        c.fillStyle = COL.bone; c.font = "9px 'JetBrains Mono', monospace";
-        c.fillText(fmtPrice(v), X1 + 7, y + 9);
       }
       /* Level tags (TP / ENTRY / LAST) are two text lines each; when two
          levels sit within a tag's height — entry and last are often a few
@@ -1645,15 +1756,15 @@
       function drawLevelTags(tags, X1, Y0, Y1) {
         if (!tags.length) return;
         tags.sort(function (a, b) { return a.y - b.y; });
-        var gap = 26, ys = tags.map(function (t) { return t.y; }), i;
+        var gap = 52, ys = tags.map(function (t) { return t.y; }), i;
         for (i = 1; i < ys.length; i++) if (ys[i] < ys[i - 1] + gap) ys[i] = ys[i - 1] + gap;
         for (i = ys.length - 1; i >= 0; i--) {
-          if (ys[i] > Y1 - 6) ys[i] = Y1 - 6;
+          if (ys[i] > Y1 - 26) ys[i] = Y1 - 26;
           if (i < ys.length - 1 && ys[i] > ys[i + 1] - gap) ys[i] = ys[i + 1] - gap;
         }
-        for (i = 0; i < ys.length; i++) if (ys[i] < Y0 + 10) ys[i] = Y0 + 10;
+        for (i = 0; i < ys.length; i++) if (ys[i] < Y0 + 26) ys[i] = Y0 + 26;
         tags.forEach(function (t, j) {
-          if (Math.abs(ys[j] - t.y) > 3) cLine(X1 + 1, t.y, X1 + 5, ys[j], t.color, 1);
+          if (Math.abs(ys[j] - t.y) > 3) cLine(X1 + 1, t.y, X1 + 5, ys[j], t.color, 2.5);
           cTag(X1, ys[j], t.color, t.label, t.v);
         });
       }
@@ -1666,7 +1777,7 @@
           /* Skip the grid's own price label when a level tag (TP / ENTRY /
              LAST) sits at nearly the same height — both print in the right
              margin and used to land on top of each other. The line stays. */
-          var clash = (avoidYs || []).some(function (ay) { return Math.abs(ay - gy) < 14; });
+          var clash = (avoidYs || []).some(function (ay) { return Math.abs(ay - gy) < 20; });
           if (!clash) c.fillText(fmtPrice(gv), X1 + 7, gy + 3);
         }
       }
@@ -1696,7 +1807,7 @@
         var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
         var span = hi - lo; if (span <= 0) span = hi * 0.01 || 1;
         lo -= span * 0.22; hi += span * 0.22; span = hi - lo;
-        var X0 = 6, X1 = W - 66, Y0 = 14, Y1 = H - 24;
+        var X0 = 6, X1 = W - 112, Y0 = 14, Y1 = H - 24;
         function Y(v) { return Y0 + (hi - v) / span * (Y1 - Y0); }
         var tsList = evs.map(function (e) { return e.ts; });
         var tMin = tsList.length ? Math.min.apply(null, tsList) : 0, tMax = tsList.length ? Math.max.apply(null, tsList) : 1;
@@ -1714,33 +1825,22 @@
           chartCtx.fillRect(X0, Y(ask), X1 - X0, Math.max(2, Y(bid) - Y(ask)));
         }
         var snapTags = [];
-        if (pos) { var tpY = Y(num(pos.tp_quote)); cLine(X0, tpY, X1, tpY, COL.gold, 1.2, [5, 4]); snapTags.push({ y: tpY, color: COL.gold, label: "TP ORDER", v: num(pos.tp_quote) }); }
-        if (pos) { var enY = Y(num(pos.entry_price)); cLine(X0, enY, X1, enY, COL.bone, 1.2); snapTags.push({ y: enY, color: COL.bonedim, label: "ENTRY", v: num(pos.entry_price) }); }
-        if (snapBasis !== null) { var sbY = Y(snapBasis); cLine(X0, sbY, X1, sbY, COL.ember, 1, [2, 4]); snapTags.push({ y: sbY, color: COL.ember, label: "BASIS IN", v: snapBasis }); }
+        if (pos) { var tpY = Y(num(pos.tp_quote)); cLevelLine(X0, X1, tpY, COL.gold, "rgba(255,176,32,0.30)", [9, 5]); snapTags.push({ y: tpY, color: COL.gold, label: "TP ORDER", v: num(pos.tp_quote) }); }
+        if (pos) { var enY = Y(num(pos.entry_price)); cLevelLine(X0, X1, enY, COL.bone, "rgba(242,247,255,0.20)"); snapTags.push({ y: enY, color: COL.bonedim, label: "ENTRY", v: num(pos.entry_price) }); }
+        if (snapBasis !== null) { var sbY = Y(snapBasis); cLine(X0, sbY, X1, sbY, COL.ember, 2, [3, 4]); snapTags.push({ y: sbY, color: COL.ember, label: "BASIS IN", v: snapBasis }); }
         if (mark !== null && mark !== last) cLine(X0, Y(mark), X1, Y(mark), "rgba(200,220,255,0.3)", 1, [2, 4]);
-        if (last !== null) { var laY = Y(last); cLine(X0, laY, X1, laY, COL.sage, 1.2); snapTags.push({ y: laY, color: COL.sage, label: "LAST", v: last }); }
+        if (last !== null) { var laY = Y(last); cLevelLine(X0, X1, laY, COL.sage, "rgba(0,229,160,0.22)"); snapTags.push({ y: laY, color: COL.sage, label: "LAST", v: last }); }
         drawLevelTags(snapTags, X1, Y0, Y1);
         evs.forEach(function (e) {
           var p = num(e.price); if (p === null) return;
           var x = X(e.ts), y = Y(p);
-          x = Math.max(44, Math.min(W - 76, x)); /* a marker at the plot's edge keeps its label on the chart, never clipped at the border */
+          x = Math.max(76, Math.min(W - 122, x)); /* a marker at the plot's edge keeps its big pill badge on the chart, never clipped at the border */
           if (e.kind === "take_profit") {
-            chartCtx.fillStyle = COL.gold; chartCtx.font = "700 9px 'JetBrains Mono', monospace"; chartCtx.textAlign = "center";
-            chartCtx.fillText("TP " + fmtMoney(e.pnl_usdt, true), x, y - 6);
-            chartCtx.beginPath(); chartCtx.arc(x, y, 2.5, 0, 6.2832); chartCtx.fill();
-            chartCtx.textAlign = "left";
+            cEventMark(x, y, "tp", "TP " + fmtMoney(e.pnl_usdt, true), false);
           } else if (/stop/i.test(e.kind)) {
-            chartCtx.fillStyle = COL.blood; chartCtx.font = "700 9px 'JetBrains Mono', monospace"; chartCtx.textAlign = "center";
-            chartCtx.fillText("STOP " + fmtMoney(e.pnl_usdt, true), x, y - 6);
-            chartCtx.beginPath(); chartCtx.arc(x, y, 2.5, 0, 6.2832); chartCtx.fill();
-            chartCtx.textAlign = "left";
+            cEventMark(x, y, "stop", "STOP " + fmtMoney(e.pnl_usdt, true), false);
           } else if (e.kind === "fill") {
-            var long = /LONG/.test(e.reason || "");
-            chartCtx.fillStyle = long ? COL.sage : COL.blood;
-            chartCtx.beginPath();
-            if (long) { chartCtx.moveTo(x, y - 5); chartCtx.lineTo(x - 4, y + 3); chartCtx.lineTo(x + 4, y + 3); }
-            else { chartCtx.moveTo(x, y + 5); chartCtx.lineTo(x - 4, y - 3); chartCtx.lineTo(x + 4, y - 3); }
-            chartCtx.closePath(); chartCtx.fill();
+            cEventMark(x, y, "fill", "", /LONG/.test(e.reason || ""));
           }
         });
         $("chartLast").textContent = fmtPrice(last);
@@ -1786,7 +1886,7 @@
          when every route fails does the chart show the snapshot's price levels,
          labelled as such. The DESK layer never uses any of this. */
       var mkt = { mode: "connecting", venue: null, ws: null, sym: null, gen: 0, route: 0,
-                  candles: [], prints: [], pollTicks: [], last: null, bid: null, ask: null, prevPrint: null,
+                  candles: [], prints: [], pollTicks: [], tickHist: [], last: null, bid: null, ask: null, prevPrint: null,
                   gotData: false, dirty: false, tapeDirty: false, failTimer: null, pollTimer: null, pollFails: 0,
                   book: null, bookDirty: false, retryTimer: null };
       var SNAPSHOT_NOTE = "The live feed is down, so this is the snapshot's prices — where we bought, the take-profit, the last price. The page keeps retrying the live routes on its own — the moment one answers, the candles, the tape and the fireworks come back by themselves.";
@@ -1973,6 +2073,13 @@
            relies on the panel header to say what was bought or sold. */
         mkt.prints.unshift({ p: price, q: qty, qn: num(qty) || 0, ts: tsMs, up: up, agg: agg === "sell" ? "sell" : "buy", sym: mkt.sym || "", pair: mkt.sym ? (mkt.venue === "COINBASE" ? mkt.sym + "-USD" : mkt.sym + "USDT") : "", venue: mkt.venue || "" });
         if (mkt.prints.length > 40) mkt.prints.length = 40;
+        /* Sub-minute candles (1S / 30S) cannot be split out of the 1-minute
+           base, so every print also lands on a tick history kept for the
+           last ~35 minutes — the raw material those candle sizes are built
+           from, nothing backfilled. */
+        mkt.tickHist.push({ ts: tsMs, p: price });
+        while (mkt.tickHist.length && mkt.tickHist[0].ts < tsMs - 2100000) mkt.tickHist.shift();
+        if (mkt.tickHist.length > 60000) mkt.tickHist.splice(0, mkt.tickHist.length - 60000);
         mkt.tapeDirty = true;
         tapeBeat(tsMs);
         window.__feedAt = Date.now();
@@ -2219,6 +2326,12 @@
                 if (mkt.last === null || newLast !== mkt.last) {
                   mkt.pollTicks.unshift({ p: newLast, ts: Date.now(), up: mkt.last === null ? true : newLast >= mkt.last });
                   if (mkt.pollTicks.length > 40) mkt.pollTicks.length = 40;
+                  /* A polled check is a real price arrival: it also feeds the
+                     tick history, so the sub-minute candles still form on
+                     the polling route — sparsely, one tick per check, which
+                     is the truth of that feed. */
+                  mkt.tickHist.push({ ts: Date.now(), p: newLast });
+                  while (mkt.tickHist.length && mkt.tickHist[0].ts < Date.now() - 2100000) mkt.tickHist.shift();
                   mkt.tapeDirty = true;
                   tapeBeat(Date.now());
                 }
@@ -2274,7 +2387,7 @@
         teardownWs();
         if (mkt.retryTimer) { clearTimeout(mkt.retryTimer); mkt.retryTimer = null; }
         mkt.mode = "connecting"; mkt.venue = null; mkt.sym = chartState.sym; mkt.route = 0;
-        mkt.candles = []; mkt.prints = []; mkt.pollTicks = []; mkt.last = null; mkt.bid = null; mkt.ask = null; mkt.prevPrint = null;
+        mkt.candles = []; mkt.prints = []; mkt.pollTicks = []; mkt.tickHist = []; mkt.last = null; mkt.bid = null; mkt.ask = null; mkt.prevPrint = null;
         mkt.gotData = false; mkt.dirty = false; mkt.tapeDirty = false; mkt.pollFails = 0; mkt.book = null; mkt.bookDirty = true;
         mkt.chain = chartChainFor(mkt.sym);
         tapeBuckets = {};
@@ -2282,13 +2395,26 @@
         openRoute(gen);
       }
       function aggCandles(tfSec) {
-        var bucketMs = tfSec * 1000, out = [], cur = null;
+        var bucketMs = tfSec * 1000, out = [], cur = null, lim = chartState.zoomBars || chartState.bars || 64;
+        if (tfSec < 60) {
+          /* Sub-minute sizes are built from the tick history — the actual
+             prints (and polled checks) as they arrived — bucketed at 1 or
+             30 seconds. There is no deeper history to show: the series
+             starts when the feed connected and grows tick by tick. */
+          var ticks = mkt.tickHist.slice().sort(function (a, b) { return a.ts - b.ts; });
+          ticks.forEach(function (tk) {
+            var b = Math.floor(tk.ts / bucketMs) * bucketMs;
+            if (!cur || cur.t !== b) { cur = { t: b, o: tk.p, h: tk.p, l: tk.p, c: tk.p }; out.push(cur); }
+            else { if (tk.p > cur.h) cur.h = tk.p; if (tk.p < cur.l) cur.l = tk.p; cur.c = tk.p; }
+          });
+          return out.slice(-lim);
+        }
         mkt.candles.forEach(function (c) {
           var b = Math.floor(c.t / bucketMs) * bucketMs;
           if (!cur || cur.t !== b) { cur = { t: b, o: c.o, h: c.h, l: c.l, c: c.c }; out.push(cur); }
           else { if (c.h > cur.h) cur.h = c.h; if (c.l < cur.l) cur.l = c.l; cur.c = c.c; }
         });
-        return out.slice(-(chartState.zoomBars || chartState.bars || 64));
+        return out.slice(-lim);
       }
       var lastShownPrice = null;
       function trimQty(v) { return String(Number(v.toFixed(4))); }
@@ -2347,7 +2473,9 @@
         var d = ensureChartCanvas(), W = d.W, H = d.H;
         if (!cs.length) {
           chartCtx.fillStyle = COL.dim; chartCtx.font = "12px 'JetBrains Mono', monospace"; chartCtx.textAlign = "center";
-          chartCtx.fillText((mkt.venue || "") + " route open — waiting for the first candles on " + sym + "…", W / 2, H / 2);
+          chartCtx.fillText(chartState.tf < 60
+            ? "waiting for the first prints on " + sym + " — " + tfName(chartState.tf) + " candles build live from the stream, tick by tick…"
+            : (mkt.venue || "") + " route open — waiting for the first candles on " + sym + "…", W / 2, H / 2);
           chartCtx.textAlign = "left";
           if (mkt.last !== null) $("chartLast").textContent = fmtPrice(mkt.last);
           renderFloatPnl(mkt.mode === "polling" ? "poll" : "live");
@@ -2374,7 +2502,7 @@
         if (drawBasis) { lo = Math.min(lo, bEntry); hi = Math.max(hi, bEntry); }
         var span = hi - lo; if (span <= 0) span = hi * 0.01 || 1;
         lo -= span * 0.14; hi += span * 0.14; span = hi - lo;
-        var X0 = 6, X1 = W - 66, Y0 = 14, Y1 = H - 24;
+        var X0 = 6, X1 = W - 112, Y0 = 14, Y1 = H - 24;
         function Y(v) { return Y0 + (hi - v) / span * (Y1 - Y0); }
         var step = (X1 - X0) / (chartState.zoomBars || chartState.bars || 64), bw = Math.max(2, step * 0.62);
         var xOff = X1 - step * cs.length;
@@ -2408,9 +2536,9 @@
             if (idx < 0) return;
             var cx = xOff + idx * step + step / 2, cy = Y(pr.p);
             if (cy < Y0 - 6 || cy > Y1 + 6) return;
-            var r = 2 + 5 * Math.sqrt(pr.qn / qmax);
+            var r = 3 + 6.5 * Math.sqrt(pr.qn / qmax);
             chartCtx.beginPath(); chartCtx.arc(cx, cy, r, 0, 6.2832);
-            chartCtx.fillStyle = pr.agg === "buy" ? "rgba(0,229,160,0.45)" : "rgba(255,59,92,0.45)";
+            chartCtx.fillStyle = pr.agg === "buy" ? "rgba(0,229,160,0.5)" : "rgba(255,59,92,0.5)";
             chartCtx.fill();
             chartCtx.strokeStyle = pr.agg === "buy" ? COL.sage : COL.blood; chartCtx.lineWidth = 1; chartCtx.stroke();
           });
@@ -2422,18 +2550,11 @@
           var idx = Math.floor((e.ts - t0) / bucketMs2);
           if (idx < 0 || idx >= cs.length) return;
           var x = xOff + idx * step + step / 2, y = Y(num(e.price));
-          x = Math.max(44, Math.min(W - 76, x));
+          x = Math.max(76, Math.min(W - 122, x));
           if (e.kind === "take_profit") {
-            chartCtx.fillStyle = COL.gold; chartCtx.font = "700 9px 'JetBrains Mono', monospace"; chartCtx.textAlign = "center";
-            chartCtx.fillText("TP " + fmtMoney(e.pnl_usdt, true), x, y - 6);
-            chartCtx.beginPath(); chartCtx.arc(x, y, 2.5, 0, 6.2832); chartCtx.fill(); chartCtx.textAlign = "left";
+            cEventMark(x, y, "tp", "TP " + fmtMoney(e.pnl_usdt, true), false);
           } else if (e.kind === "fill") {
-            var long = /LONG/.test(e.reason || "");
-            chartCtx.fillStyle = long ? COL.sage : COL.blood;
-            chartCtx.beginPath();
-            if (long) { chartCtx.moveTo(x, y - 5); chartCtx.lineTo(x - 4, y + 3); chartCtx.lineTo(x + 4, y + 3); }
-            else { chartCtx.moveTo(x, y + 5); chartCtx.lineTo(x - 4, y - 3); chartCtx.lineTo(x + 4, y - 3); }
-            chartCtx.closePath(); chartCtx.fill();
+            cEventMark(x, y, "fill", "", /LONG/.test(e.reason || ""));
           }
         });
         /* PROFIT POP-UPS, live mode: a take-profit close on the tape whose
@@ -2455,10 +2576,10 @@
           }, 500 + ti * 380);
         });
         var liveTags = [];
-        if (drawTp) { var tpY = Y(tp); cLine(X0, tpY, X1, tpY, COL.gold, 1.2, [5, 4]); liveTags.push({ y: tpY, color: COL.gold, label: "TP ORDER", v: tp }); }
-        if (drawEntry) { var enY = Y(entry); cLine(X0, enY, X1, enY, COL.bone, 1.2); liveTags.push({ y: enY, color: COL.bonedim, label: "ENTRY", v: entry }); }
-        if (drawBasis) { var bY = Y(bEntry); cLine(X0, bY, X1, bY, COL.ember, 1, [2, 4]); liveTags.push({ y: bY, color: COL.ember, label: "BASIS IN", v: bEntry }); }
-        if (mkt.last !== null) { var laY = Y(mkt.last); cLine(X0, laY, X1, laY, COL.sage, 1); liveTags.push({ y: laY, color: COL.sage, label: "LAST", v: mkt.last }); }
+        if (drawTp) { var tpY = Y(tp); cLevelLine(X0, X1, tpY, COL.gold, "rgba(255,176,32,0.30)", [9, 5]); liveTags.push({ y: tpY, color: COL.gold, label: "TP ORDER", v: tp }); }
+        if (drawEntry) { var enY = Y(entry); cLevelLine(X0, X1, enY, COL.bone, "rgba(242,247,255,0.20)"); liveTags.push({ y: enY, color: COL.bonedim, label: "ENTRY", v: entry }); }
+        if (drawBasis) { var bY = Y(bEntry); cLine(X0, bY, X1, bY, COL.ember, 2, [3, 4]); liveTags.push({ y: bY, color: COL.ember, label: "BASIS IN", v: bEntry }); }
+        if (mkt.last !== null) { var laY = Y(mkt.last); cLevelLine(X0, X1, laY, COL.sage, "rgba(0,229,160,0.22)"); liveTags.push({ y: laY, color: COL.sage, label: "LAST", v: mkt.last }); }
         drawLevelTags(liveTags, X1, Y0, Y1);
         chartCtx.fillStyle = COL.dim; chartCtx.font = "9px 'JetBrains Mono', monospace"; chartCtx.textAlign = "left";
         chartCtx.fillText(timeFmt.format(new Date(cs[0].t)) + " UTC · " + tfName(chartState.tf) + " candles · " + chartState.range + " VIEW · " + (mkt.venue || "") + (mkt.mode === "polling" ? " · POLLING 5s" : "") + " · bubbles = prints by qty", X0, H - 5);
@@ -2876,12 +2997,14 @@
         });
         /* CANDLE TIMEFRAME: the candle size itself, picked directly —
            1M is the venue feed's native candle (the raw stream, unmerged);
-           5M / 15M / 1H aggregate the same 1-minute base. Picking a size
-           keeps the window the range describes: the bar count rescales so
-           1H of 1-minute candles and 1H of 5-minute candles cover the same
-           hour. The chart re-aggregates from the held 1-minute candles —
-           no refetch, no invented history. */
-        var TFSIZES = [{ id: "1M", tf: 60 }, { id: "5M", tf: 300 }, { id: "15M", tf: 900 }, { id: "1H", tf: 3600 }];
+           5M / 15M / 1H aggregate the same 1-minute base. 1S / 30S go the
+           other way: they are built tick by tick from the print history
+           the stream has actually delivered since it connected — the
+           closest look at the action there is, with no backfilled past.
+           Picking a size keeps the window the range describes: the bar
+           count rescales so 1H of 1-minute candles and 1H of 5-minute
+           candles cover the same hour. No refetch, no invented history. */
+        var TFSIZES = [{ id: "1S", tf: 1 }, { id: "30S", tf: 30 }, { id: "1M", tf: 60 }, { id: "5M", tf: 300 }, { id: "15M", tf: 900 }, { id: "1H", tf: 3600 }];
         function syncTfSize() {
           var host = $("tfSize"); if (!host) return;
           Array.prototype.forEach.call(host.querySelectorAll("button"), function (x) {
@@ -2985,7 +3108,7 @@
           for (var k in EX_CAT_SETS) { if (EX_CAT_SETS[k].indexOf(sym) >= 0) return k; }
           return "OTHER";
         }
-        var EX_PLATS = [["AUTO", "Auto"], ["BYBIT", "Bybit · Perps"], ["COINBASE", "Coinbase · Spot"], ["BINANCE", "Binance · Perps"]];
+        var EX_PLATS = [["AUTO", "Auto"], ["BYBIT", "Bybit · Perps"], ["COINBASE", "Coinbase · Spot"], ["BINANCE", "Binance · Perps"], ["KRAKEN", "Kraken · Spot"]];
         var ex = { sym: "ETH", mode: "auto", cat: "ALL", plat: "AUTO", action: "ALL", range: "1H", tf: 60, bars: 60, zoomBars: null, all: [], last: null, venue: null, gen: 0 };
         var exCv = null, exCtx = null;
         function exBanner(html, manual) {
@@ -3032,7 +3155,7 @@
           [en, tp, be].forEach(function (v) { if (v !== null && span0 > 0 && v >= lo - span0 * 0.35 && v <= hi + span0 * 0.35) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
           var span = hi - lo; if (span <= 0) span = hi * 0.01 || 1;
           lo -= span * 0.12; hi += span * 0.12; span = hi - lo;
-          var X0 = 6, X1 = W - 66, Y0 = 12, Y1 = H - 18;
+          var X0 = 6, X1 = W - 112, Y0 = 12, Y1 = H - 18;
           function Y(v) { return Y0 + (hi - v) / span * (Y1 - Y0); }
           exCtx.font = "9px 'JetBrains Mono', monospace"; exCtx.textAlign = "left";
           for (var gi = 0; gi <= 4; gi++) {
@@ -3051,13 +3174,36 @@
           function exLine(v, color, dash, label) {
             if (v === null) return;
             var y = Y(v);
-            exCtx.strokeStyle = color; exCtx.lineWidth = 1.2; exCtx.setLineDash(dash || []);
+            /* Same lit rail as Chart 1: a wide soft halo, a mid glow pass,
+               then a thick bright core. */
+            exCtx.globalAlpha = 0.28;
+            exCtx.strokeStyle = color; exCtx.lineWidth = 15; exCtx.setLineDash(dash || []);
+            exCtx.beginPath(); exCtx.moveTo(X0, y); exCtx.lineTo(X1, y); exCtx.stroke();
+            exCtx.lineWidth = 8;
+            exCtx.beginPath(); exCtx.moveTo(X0, y); exCtx.lineTo(X1, y); exCtx.stroke();
+            exCtx.globalAlpha = 1;
+            exCtx.lineWidth = 4.2;
             exCtx.beginPath(); exCtx.moveTo(X0, y); exCtx.lineTo(X1, y); exCtx.stroke();
             exCtx.setLineDash([]); exCtx.lineWidth = 1;
-            exCtx.fillStyle = color; exCtx.font = "600 8.5px 'JetBrains Mono', monospace";
-            exCtx.fillText(label, X1 + 7, y - 3);
-            exCtx.fillStyle = COL.bone; exCtx.font = "9px 'JetBrains Mono', monospace";
-            exCtx.fillText(fmtPrice(v), X1 + 7, y + 9);
+            /* Same badges as Chart 1: a big glowing solid block with the
+               name and price in heavy dark type — the TP and entry orders
+               read from across the room. */
+            var price = fmtPrice(v);
+            exCtx.font = "900 13.5px 'JetBrains Mono', monospace";
+            var bw2 = Math.max(exCtx.measureText(label).width, exCtx.measureText(price).width) + 22;
+            var bx = X1 + 5, bt = y - 22;
+            exCtx.save();
+            exCtx.shadowColor = color; exCtx.shadowBlur = 16;
+            exCtx.beginPath();
+            if (exCtx.roundRect) exCtx.roundRect(bx, bt, bw2, 44, 8); else exCtx.rect(bx, bt, bw2, 44);
+            exCtx.fillStyle = color; exCtx.fill();
+            exCtx.restore();
+            exCtx.beginPath();
+            if (exCtx.roundRect) exCtx.roundRect(bx, bt, bw2, 44, 8); else exCtx.rect(bx, bt, bw2, 44);
+            exCtx.strokeStyle = "rgba(2,4,9,0.9)"; exCtx.lineWidth = 2; exCtx.stroke();
+            exCtx.fillStyle = "#020409"; exCtx.textAlign = "left";
+            exCtx.fillText(label, bx + 11, bt + 18);
+            exCtx.fillText(price, bx + 11, bt + 36);
           }
           exLine(tp, COL.gold, [5, 4], "TP ORDER");
           exLine(en, COL.bone, [], "ENTRY");
@@ -3072,10 +3218,11 @@
              like Chart 1; a forced platform wins; free browsing starts on
              Coinbase spot. */
           var order;
-          if (ex.plat === "BYBIT") order = ["BYBIT", "COINBASE", "BINANCE"];
-          else if (ex.plat === "BINANCE") order = ["BINANCE", "BYBIT", "COINBASE"];
-          else if (ex.plat === "COINBASE") order = ["COINBASE", "BYBIT", "BINANCE"];
-          else order = posForSym(sym).length ? ["BYBIT", "COINBASE", "BINANCE"] : ["COINBASE", "BINANCE", "BYBIT"];
+          if (ex.plat === "BYBIT") order = ["BYBIT", "COINBASE", "BINANCE", "KRAKEN"];
+          else if (ex.plat === "BINANCE") order = ["BINANCE", "BYBIT", "COINBASE", "KRAKEN"];
+          else if (ex.plat === "COINBASE") order = ["COINBASE", "BYBIT", "BINANCE", "KRAKEN"];
+          else if (ex.plat === "KRAKEN") order = ["KRAKEN", "COINBASE", "BINANCE", "BYBIT"];
+          else order = posForSym(sym).length ? ["BYBIT", "COINBASE", "BINANCE", "KRAKEN"] : ["COINBASE", "BINANCE", "BYBIT", "KRAKEN"];
           function tryVenue(i) {
             if (gen !== ex.gen) return;
             if (i >= order.length) {
@@ -3089,11 +3236,25 @@
               ? "https://api.exchange.coinbase.com/products/" + sym + "-USD/candles?granularity=" + ex.tf
               : v === "BYBIT"
               ? "https://api.bybit.com/v5/market/kline?category=linear&symbol=" + sym + "USDT&interval=" + (ex.tf / 60) + "&limit=240"
+              : v === "KRAKEN"
+              ? "https://api.kraken.com/0/public/OHLC?pair=" + (sym === "BTC" ? "XBTUSD" : sym + "USD") + "&interval=" + ({ 60: 1, 300: 5, 900: 15, 3600: 60 }[ex.tf] || 1)
               : "https://api.binance.com/api/v3/klines?symbol=" + sym + "USDT&interval=" + binInt + "&limit=240";
             fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (rows) {
               if (gen !== ex.gen) return;
               if (v === "BYBIT") {
                 rows = (rows && rows.result && rows.result.list) ? rows.result.list.slice().reverse().map(function (row) { return [num(row[0]), row[1], row[2], row[3], row[4]]; }) : null;
+              }
+              if (v === "KRAKEN") {
+                /* Kraken answers {result: {PAIR: [[ts, o, h, l, c, ...]], last}}
+                   — normalise to the same [ms, o, h, l, c] rows as the rest.
+                   It is the route of last resort: a fourth independent venue
+                   (the basis desk's own spot source) for the networks where
+                   the first three are blocked, so search still lands. */
+                var kj = rows; rows = null;
+                if (kj && kj.result) {
+                  var kk = Object.keys(kj.result).filter(function (k) { return k !== "last"; })[0];
+                  if (kk && kj.result[kk] && kj.result[kk].length) rows = kj.result[kk].map(function (row) { return [row[0] * 1000, row[1], row[2], row[3], row[4]]; });
+                }
               }
               if (!rows || !rows.length) { tryVenue(i + 1); return; }
               var cs = [];
@@ -3167,6 +3328,12 @@
             el.textContent = rowPxTxt(s);
             el.className = "xpr " + (u && u.chg !== null ? pnlClass(u.chg) : "dim");
           });
+          /* The tickers call also carries Chart 2's live price: when the
+             explore chart is open and its candles came from the same
+             venues the tickers list reads (Bybit / Binance), its LAST
+             line and price ride every tickers update between refetches. */
+          var eu = uniPx[ex.sym], eblk = document.querySelector('[data-tabblock="explore"]');
+          if (eu && eu.px !== null && eu.px !== ex.last && (ex.venue === "BYBIT" || ex.venue === "BINANCE") && eblk && !eblk.hidden) { ex.last = eu.px; exRender(); }
         }
         function uniFetch() {
           fetch("https://api.bybit.com/v5/market/tickers?category=linear")
@@ -3300,7 +3467,7 @@
         });
         exSyncZoom();
         uniFetch();
-        setInterval(function () { if (!document.hidden) uniFetch(); }, 30000);
+        setInterval(function () { if (!document.hidden) uniFetch(); }, 20000);
         $("exCats").innerHTML = EX_CATS.map(function (c) {
           return '<button class="ex-chip" data-cat="' + c[0] + '" aria-pressed="' + (c[0] === ex.cat ? "true" : "false") + '">' + c[1] + "</button>";
         }).join("");
@@ -3328,12 +3495,34 @@
             if (first) { exSelect(first.getAttribute("data-pick"), "manual"); $("exSearch").blur(); }
           }
         });
+        /* CHART IT: the same pick as Enter, as a real tap target — search
+           must work with a thumb, not only a keyboard. */
+        $("exGo").addEventListener("click", function () {
+          var first = $("exResults").querySelector("[data-pick]");
+          if (first) { exSelect(first.getAttribute("data-pick"), "manual"); $("exSearch").blur(); }
+        });
         $("exResume").addEventListener("click", function () {
           ex.mode = "auto";
           this.setAttribute("aria-pressed", "true");
           this.textContent = "⚡ FOLLOWING THE ACTION";
           exMirrorTick();
         });
+        /* Chart 2 lives on its own tab now. Opening the tab re-sizes the
+           canvas to its real width (it was hidden at first load), retries
+           a fetch that failed earlier, and re-checks the follow-cam; while
+           the tab stays open the candles refetch every 15 seconds so the
+           chart moves with the market at full speed instead of freezing
+           at whatever it loaded first. */
+        window.exTabOpen = function () {
+          exRender();
+          if (!ex.all.length) exFetch();
+          exMirrorTick();
+        };
+        setInterval(function () {
+          var blk = document.querySelector('[data-tabblock="explore"]');
+          if (document.hidden || !blk || blk.hidden) return;
+          exFetch();
+        }, 15000);
         /* QUICK SELECT = WHAT WE HOLD, AND NOTHING ELSE: every open
            position across the desks plus every resting entry order the
            tape still shows open — the same two sources as Chart 1's
@@ -3440,9 +3629,8 @@
           Array.prototype.forEach.call(host.querySelectorAll("[data-mover]"), function (b) {
             b.addEventListener("click", function () {
               if (exPick) exPick(b.getAttribute("data-mover"), "manual");
-              switchTab("live");
-              var ep = $("explorePanel");
-              if (ep) ep.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
+              switchTab("explore");
+              window.scrollTo({ top: 0, behavior: RM ? "auto" : "smooth" });
             });
           });
           all.forEach(function (m) { moverFetchSpark(m.sym); });
@@ -4943,6 +5131,7 @@
       function switchTab(t) {
         Array.prototype.forEach.call(document.querySelectorAll(".tabbar [data-tab]"), function (x) { x.setAttribute("aria-selected", x.getAttribute("data-tab") === t ? "true" : "false"); });
         Array.prototype.forEach.call(document.querySelectorAll("[data-tabblock]"), function (blk) { blk.hidden = blk.getAttribute("data-tabblock") !== t; });
+        if (t === "explore" && window.exTabOpen) window.exTabOpen();
       }
       (function () {
         Array.prototype.forEach.call(document.querySelectorAll(".tabbar [data-tab]"), function (b) {
