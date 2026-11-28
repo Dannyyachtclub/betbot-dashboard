@@ -3465,7 +3465,7 @@ function renderQueueUpgrade(p){
             +'<div class="redact-wrap"><div class="redact" style="width:'+redactW(pk.id,1)+'px"></div><span class="vs">v</span><div class="redact" style="width:'+redactW(pk.id,2)+'px"></div></div>'
             + qFieldsHTML(pk, p)
             +'<div class="qstatus"><span class="stage-pill '+stageCls(pk.stage)+'">'+(STAGE_LABEL[pk.stage]||pk.stage.toUpperCase())+'</span>'
-            + meta + polls + park + '</div><div class="qbottom">' + pipeHTML(pk.stage) + segBoxesHTML(pk.segments,{intervalsOnly:true,totalText:(pk.live_score||''),windowLive:(pk.stage==='window_open'||pk.stage==='decision'||pk.stage==='placing')}) + '</div>' + note + '</div>';
+            + meta + polls + park + '</div><div class="qbottom">' + pipeHTML(pk.stage) + segBoxesHTML(pk.segments,{intervalsOnly:true,totalText:(pk.live_score||''),windowLive:(pk.stage==='window_open'||pk.stage==='decision'||pk.stage==='placing')}) + (window.staleTagHTML?window.staleTagHTML(pk):'') + '</div>' + note + '</div>';
         }).join('');
       }
     }
@@ -4673,7 +4673,7 @@ function applyNextWindow(p){
       var b=ob[0]||{};
       var nm=String(b.game||'').trim()||'BET IN PLAY';
       if(b.live_score){
-        chip.textContent=nm+' \u00b7 '+b.live_score+(b.live_clock?' \u00b7 '+b.live_clock:'');
+        chip.textContent=nm+' \u00b7 '+b.live_score+(b.live_clock?' \u00b7 '+b.live_clock:'')+(b.live_stale?' \u00b7 STALE':'');
       } else {
         chip.textContent=nm+' \u00b7 IN PLAY';
       }
@@ -4825,6 +4825,13 @@ window.applyNextWindow=applyNextWindow;
   function fmtCount(ms){ ms=Math.max(0,ms); var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0? h+':'+p2(m)+':'+p2(s%60) : m+':'+p2(s%60); }
   function fmtElapsed(ms){ var m=Math.max(0,Math.floor(ms/60000)); return m<60? m+'m' : Math.floor(m/60)+'h '+p2(m%60)+'m'; }
   function field(l,v,c){ return '<span class="nc-f"><label>'+l+'</label><b'+(c?' class="'+c+'"':'')+'>'+v+'</b></span>'; }
+  /* r100 (P4): the exporter stamps live_stale + live_age_s on a
+     queue pick or open bet whose published live read is older than
+     300s (dashboard_export._mark_live_stale). The page must stop
+     dressing that read as live: this tag is the visible marker,
+     shared by the banner and the queue cards. */
+  function fmtStaleAge(s){ s=+s||0; if(s<90) return Math.round(s)+'s'; var m=Math.round(s/60); if(m<90) return m+'m'; return Math.floor(m/60)+'h '+(m%60<10?'0':'')+(m%60)+'m'; }
+  window.staleTagHTML=function(item){ if(!item||item.live_stale!==true) return ''; return '<span class="stale-tag">STALE READ \u00b7 '+fmtStaleAge(item.live_age_s)+' OLD</span>'; };
   function sealedHtml(pk){
     var w1=74,w2=74;
     if(pk&&pk.id&&typeof redactW==='function'){ w1=redactW(pk.id,1); w2=redactW(pk.id,2); }
@@ -4846,7 +4853,18 @@ window.applyNextWindow=applyNextWindow;
       if(typeof b.stake==='number') f+=field('STAKE','$'+b.stake.toFixed(2));
       if(typeof b.odds==='number') f+=field('ODDS',b.odds.toFixed(2),'gold');
       var jid=b.journey_id||b.id, j=(p.game_journeys||{})[jid||''];
-      if(j&&j.kickoff){
+      /* r100 (P2): the bet's own pick stage is looked up FIRST and
+         decides the WINDOW field — the exporter's stage is the
+         authority. The viewer's clock (KO+73/+93) is only the
+         fallback for an open bet with no pick on the board; a
+         viewer's skewed clock must never relabel the window. */
+      var bStage='placed', bFound=false;
+      var allQ=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).concat(Array.isArray(p.sealed_completed)?p.sealed_completed:[]);
+      for(var qi=0;qi<allQ.length;qi++){ if(allQ[qi]&&b.journey_id&&allQ[qi].id===b.journey_id){ bStage=allQ[qi].stage; bFound=true; break; } }
+      if(bFound){
+        if(LIVE[bStage]) f+=field('WINDOW','IN THE WINDOW','green');
+        else if(DONE[bStage]) f+=field('WINDOW','WINDOW PASSED');
+      } else if(j&&j.kickoff){
         var ko=Date.parse(j.kickoff);
         if(!isNaN(ko)){ var now=Date.now();
           if(now>=ko+73*60000&&now<ko+93*60000) f+=field('WINDOW','IN THE WINDOW','green');
@@ -4859,11 +4877,8 @@ window.applyNextWindow=applyNextWindow;
          (looked up by journey id across queue + completed; an open
          bet with no pick on the board is at the placed stage by
          definition). */
-      var bStage='placed';
-      var allQ=(Array.isArray(p.sealed_queue)?p.sealed_queue:[]).concat(Array.isArray(p.sealed_completed)?p.sealed_completed:[]);
-      for(var qi=0;qi<allQ.length;qi++){ if(allQ[qi]&&b.journey_id&&allQ[qi].id===b.journey_id){ bStage=allQ[qi].stage; break; } }
       var bPipe=(typeof pipeHTML==='function')?'<div class="nc-pipe">'+pipeHTML(bStage)+'</div>':'';
-      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(b.segments||null, sc, clk, true, true)+bPipe;
+      card.innerHTML='<span class="nc-tag">\u25cf BET IN PLAY</span>'+nameHtml+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(b.segments||null, sc, clk, true, true)+(window.staleTagHTML?window.staleTagHTML(b):'')+bPipe;
       return;
     }
     card.classList.remove('live');
@@ -4875,7 +4890,10 @@ window.applyNextWindow=applyNextWindow;
     var pick={pk:pk,i:0,ko:ko0,open:(ko0===null?null:ko0+73*60000),close:(ko0===null?null:ko0+93*60000)};
     var pk=pick.pk;
     card.hidden=false;
-    var working=!!LIVE[pk.stage]||(pick.open!==null&&now>=pick.open&&now<pick.close);
+    /* r100 (P2): the exporter's stage decides whether the bot is
+       working this game; the viewer's clock is only the fallback
+       for a legacy pick carrying no stage at all. */
+    var working=(pk.stage!==undefined&&pk.stage!==null&&String(pk.stage)!=='')? !!LIVE[pk.stage] : (pick.open!==null&&now>=pick.open&&now<pick.close);
     var f='';
     if(pk.market) f+=field('MARKET',e82(pk.market),'teal');
     if(pk.kickoff) f+=field('KICKOFF',e82(String(pk.kickoff).trim()),'gold');
@@ -4893,7 +4911,7 @@ window.applyNextWindow=applyNextWindow;
        pick object the first queue card renders, so banner and
        queue progress lines are identical for the featured game. */
     var nPipe=(typeof pipeHTML==='function')?'<div class="nc-pipe">'+pipeHTML(pk.stage)+'</div>':'';
-    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(pk.segments||null, pk.live_score||'', '', working, true)+nPipe;
+    card.innerHTML='<span class="nc-tag">'+(working?'NEXT GAME \u00b7 IN THE WINDOW':'NEXT GAME')+'</span>'+sealedHtml(pk)+'<span class="nc-fields">'+f+'</span>'+bannerScoreHTML(pk.segments||null, pk.live_score||'', '', working, true)+(window.staleTagHTML?window.staleTagHTML(pk):'')+nPipe;
   }
   function decorateQueue(p){
     var list=document.getElementById('sealedList'); if(!list||!p) return;
@@ -5393,7 +5411,7 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
          fields row — the strip clock alone was too easy to miss
          (user, 2026-11-23: "I still dont see the time on the banner
          game card"). Same anchor, same tick as the strip clock. */
-      function bannerClockField(a){
+      function bannerClockField(a, stale){
         var fields=card.querySelector('.nc-fields'); if(!fields) return;
         var f=card.querySelector('.mclk-field');
         if(!a){ if(f) f.remove(); return; }
@@ -5403,12 +5421,17 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
           f.innerHTML='<label>MATCH CLOCK</label><b class="mclk-big"></b>';
           fields.appendChild(f);
         }
+        /* r100 (P4): a stale read (exporter's live_stale) colours
+           the clock amber and labels it — a frozen clock must not
+           dress as a live one. stamp() already freezes its tick. */
+        f.classList.toggle('stale', !!stale);
         stamp(f.querySelector('.mclk-big'), a);
       }
       if(ob.length){
         var a0=anchorFor(ob[0], p);
         if(a0 && clkEl) stamp(clkEl, a0);
-        bannerClockField(a0);
+        if(clkEl) clkEl.classList.toggle('stale', !!(ob[0]&&ob[0].live_stale));
+        bannerClockField(a0, ob[0]&&ob[0].live_stale);
       } else {
         /* next-game banner: match the featured pick by the kickoff
            instant the card itself carries (data-nc-ko), then give
@@ -5425,13 +5448,14 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
             var kt=j&&j.kickoff?Date.parse(j.kickoff):NaN;
             if(isNaN(kt) || Math.abs(kt-ko)>=1000) continue;
             var a1=anchorFor(pk, p);
-            bannerClockField(a1);
+            bannerClockField(a1, pk.live_stale);
             if(a1){
               if(!clkEl){
                 clkEl=document.createElement('span');
                 clkEl.className='nc-clk'; clkEl.style.marginLeft='10px';
                 strip.insertBefore(clkEl, strip.firstChild?strip.firstChild.nextSibling:null);
               }
+              clkEl.classList.toggle('stale', !!pk.live_stale);
               stamp(clkEl, a1);
             }
             break;
@@ -5459,6 +5483,7 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
             qb.insertBefore(chip, qb.firstChild||null);
           }
         }
+        chip.classList.toggle('stale', !!pk.live_stale);
         stamp(chip, a);
       });
     }
@@ -5489,6 +5514,17 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
 .qstatus{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%}
 .sealed-row .stage-meta{font-size:11.5px;color:var(--dim)}
 .nm-meta{line-height:1.55}
+</style>
+<style id="r100css">
+/* r100 (P4): stale live reads are marked, never dressed as live.
+   Amber = the exporter's live_stale flag on that item. */
+.stale-tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.12em;color:#f0a13c;border:1px solid rgba(240,161,60,.55);border-radius:99px;padding:1px 8px;margin-left:10px;vertical-align:2px}
+.qbottom .stale-tag{margin:6px 0 0 10px}
+.nc-score84 .nc-clk.stale{color:#f0a13c}
+.mclk-field.stale .mclk-big{color:#f0a13c}
+.mclk-field.stale label::after{content:' \00b7 STALE';color:#f0a13c}
+.mclk-chip.stale{color:#f0a13c;border-color:rgba(240,161,60,.55)}
+.mclk-chip.stale::after{content:' STALE'}
 </style>
 </body>
 </html>
