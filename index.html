@@ -1055,6 +1055,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
     <div class="brand">DI QUANTUM<span>CORE</span></div>
     <div class="live-dot" id="liveDot"><i></i>SYSTEM LIVE</div>
   </div>
+  <span class="fix-pill unknown" id="fixPill" hidden>STATUS UNKNOWN</span>
   <span class="mode-badge next-window" id="nextWindowChip" title="Next betting window">NEXT WINDOW &middot; &mdash;</span>
   <div class="clocks">
     <div>CALGARY <b id="clkCal">--:--:--</b></div>
@@ -1080,6 +1081,7 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
     <button class="deck-btn" data-deck="performance"><i></i>PERFORMANCE</button>
     <button class="deck-btn" data-deck="history"><i></i>HISTORY</button>
     <button class="deck-btn" data-deck="system"><i></i>SYSTEM</button>
+    <button class="deck-btn" data-deck="syslog"><i></i>SYSTEM LOG</button>
   </nav>
 <section class="deck-panel" id="deck-overview">
 <section class="hero">
@@ -1302,6 +1304,14 @@ b.addEventListener('pointerdown',skip);window.addEventListener('keydown',skip);}
   <div class="gh-list" id="gameList"></div>
   <div class="hist-pager" id="ghPager"></div>
   <p class="bet-note">Settled games only. In-play and upcoming picks never appear here — they stay on the sealed board with identities hidden until settlement. Scores are exporter-supplied (<span class="mono">home_score / away_score</span>); a dash means the pipeline has not captured that score yet.</p>
+</section>
+<section class="deck-panel" id="deck-syslog" hidden>
+<div class="sec-title"><h2>SYSTEM <em>LOG</em></h2><span class="sub">THE VERIFIED FIX RECORD &middot; BROKEN FOUND &rarr; PAUSED &rarr; FIXING &rarr; FIX LANDED &rarr; BACK ON</span></div>
+  <section class="panel">
+    <div class="panel-head"><h2>FIX <em>LIFECYCLE</em></h2><span class="sub" id="sysLogSince"></span></div>
+    <div class="syslog-list" id="sysLogList"><div class="act-empty">&mdash;</div></div>
+    <p class="sealed-sub" style="margin-top:10px">Every entry is written to the status ledger at the moment the transition happens and posted to Discord #status in the same action. The evidence rides on the entry — file hashes, balances, service state — never added later.</p>
+  </section>
 </section>
 <section class="deck-panel" id="deck-system" hidden>
 <div class="band-ticker" aria-hidden="true"><div class="band-track"><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span><span>ALPHA GOAL</span><span class="bd">◆</span><span>NEURAL CORE</span><span class="bd">◆</span><span>PHONE EXEC</span><span class="bd">◆</span><span>LIVE GATE</span><span class="bd">◆</span><span>SETTLEMENT</span><span class="bd">◆</span><span>NO EMOTION</span><span class="bd">◆</span><span>NO CHASING</span><span class="bd">◆</span><span>MACHINE DISCIPLINE</span><span class="bd">◆</span></div></div>
@@ -1883,6 +1893,71 @@ function applyHeaderState(p){
   return false;
 }
 /* Q11PAUSED-END */
+/* STATUSREC-BEGIN — fix-lifecycle record (user order 2026-11-28):
+   the header pill + SYSTEM LOG deck render ONLY from the payload's
+   system_status record fields (state / current_fix / service_active /
+   entries), which the exporter derives from the overseer's status
+   ledger, cross-checked against systemctl at export time. The pill
+   ticks RECORD = REALITY when the recorded state and the live
+   service state agree, and flags a mismatch instead of hiding it. */
+var SYSLOG_LABEL={defect_found:'BROKEN FOUND',paused:'PAUSED',fix_started:'FIXING',fix_landed:'FIX LANDED',resumed:'BACK ON',proof_earned:'PROOF EARNED',proof_failed:'PROOF FAILED',note:'NOTE'};
+var SYSLOG_CLS={defect_found:'bad',paused:'bad',fix_started:'fix',fix_landed:'ok',resumed:'ok',proof_earned:'ok',proof_failed:'bad',note:'note'};
+function sysLogTime(ts){
+  try{ var d=new Date(ts); if(!ts||isNaN(d)) return ts||'';
+    return new Intl.DateTimeFormat('en-US',{timeZone:'America/Edmonton',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(d);
+  }catch(e){ return ts||''; }
+}
+function sysLogEvidence(ev){
+  if(!ev||typeof ev!=='object') return '';
+  var parts=[]; Object.keys(ev).forEach(function(k){ parts.push(k.replace(/_/g,' ')+': '+ev[k]); });
+  return parts.join(' · ');
+}
+function applyFixPill(p){
+  var pill=document.getElementById('fixPill'); if(!pill) return;
+  var ss=(p&&p.system_status)||{};
+  var state=ss.state||'unknown';
+  var label, cls;
+  if(state==='live'){ label='● LIVE'; cls='live'; }
+  else if(state==='paused_fix'){ label='PAUSED — FIXING: '+(ss.current_fix||'—'); cls='fixing'; }
+  else if(state==='paused'){ label='PAUSED'; cls='paused'; }
+  else { label='STATUS UNKNOWN'; cls='unknown'; }
+  pill.hidden=false;
+  pill.className='fix-pill '+cls;
+  pill.textContent=label;
+  if(typeof ss.service_active==='boolean'){
+    var agree=null;
+    if(state==='live') agree=(ss.service_active===true);
+    else if(state==='paused'||state==='paused_fix') agree=(ss.service_active===false);
+    if(agree===true){ var t=document.createElement('span'); t.className='fix-tick'; t.textContent='✓ RECORD = REALITY'; pill.appendChild(t); }
+    else if(agree===false){ var w=document.createElement('span'); w.className='fix-warn'; w.textContent='⚠ RECORD ≠ REALITY'; pill.appendChild(w); }
+  }
+}
+function renderSysLog(p){
+  var list=document.getElementById('sysLogList'); if(!list) return;
+  var ss=(p&&p.system_status)||{};
+  var entries=Array.isArray(ss.entries)?ss.entries.slice().reverse():[];
+  list.innerHTML='';
+  if(!entries.length){
+    var em=document.createElement('div'); em.className='act-empty';
+    em.textContent='NO STATUS RECORDS YET'; list.appendChild(em);
+  } else {
+    entries.forEach(function(e){
+      var row=document.createElement('div'); row.className='syslog-row';
+      var t=document.createElement('span'); t.className='syslog-t'; t.textContent=sysLogTime(e.ts_utc);
+      var tag=document.createElement('span'); tag.className='syslog-tag '+(SYSLOG_CLS[e.type]||'note'); tag.textContent=SYSLOG_LABEL[e.type]||'NOTE';
+      var body=document.createElement('span'); body.className='syslog-body';
+      var b=document.createElement('b'); b.textContent=e.title||''; body.appendChild(b);
+      if(e.detail) body.appendChild(document.createTextNode(' — '+e.detail));
+      row.appendChild(t); row.appendChild(tag); row.appendChild(body);
+      var ev=sysLogEvidence(e.evidence);
+      if(ev){ var evd=document.createElement('div'); evd.className='syslog-ev'; evd.textContent='EVIDENCE · '+ev; row.appendChild(evd); }
+      list.appendChild(row);
+    });
+  }
+  var since=document.getElementById('sysLogSince');
+  if(since) since.textContent=ss.state_since_utc?('STATE SINCE '+sysLogTime(ss.state_since_utc).toUpperCase()+' · CALGARY'):'';
+}
+/* STATUSREC-END */
 function applyPayload(p){
   if(!p) return;
   var _pl=document.getElementById('statPotLine');
@@ -1969,6 +2044,8 @@ function applyPayload(p){
   }
   if(p.exported_at) LAST_EXPORTED_AT=p.exported_at;
   applyHeaderState(p);
+  applyFixPill(p);
+  renderSysLog(p);
   if(window.applyNextWindow) applyNextWindow(p);
 }
 function pollData(){
@@ -5525,6 +5602,31 @@ function bannerScoreHTML(seg, totalText, clockText, windowLive, force){
 .mclk-field.stale label::after{content:' \00b7 STALE';color:#f0a13c}
 .mclk-chip.stale{color:#f0a13c;border-color:rgba(240,161,60,.55)}
 .mclk-chip.stale::after{content:' STALE'}
+</style>
+<style id="r101css">
+/* r101: fix-lifecycle status record — header pill + SYSTEM LOG deck.
+   Driven by dashboard.json system_status.state, which the exporter
+   derives from the overseer's status ledger and cross-checks
+   against systemctl (service_active) at export time. */
+.fix-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.12em;padding:4px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--dim);background:rgba(255,255,255,.03)}
+.fix-pill.live{color:var(--green);border-color:rgba(57,255,106,.5);background:var(--green-soft)}
+.fix-pill.fixing{color:var(--gold);border-color:rgba(255,201,77,.55);background:rgba(255,201,77,.08)}
+.fix-pill.paused{color:var(--red);border-color:rgba(255,59,92,.55);background:var(--red-soft)}
+.fix-pill.unknown{color:var(--dim)}
+.fix-pill .fix-tick{color:var(--green);letter-spacing:.08em}
+.fix-pill .fix-warn{color:var(--red);letter-spacing:.08em}
+.syslog-list{display:flex;flex-direction:column}
+.syslog-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.syslog-row:last-child{border-bottom:none}
+.syslog-t{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap;min-width:138px}
+.syslog-tag{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.1em;padding:2px 8px;border-radius:99px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
+.syslog-tag.ok{color:var(--green);border-color:rgba(57,255,106,.5)}
+.syslog-tag.bad{color:var(--red);border-color:rgba(255,59,92,.55)}
+.syslog-tag.fix{color:var(--gold);border-color:rgba(255,201,77,.55)}
+.syslog-body{color:var(--dim);line-height:1.5;flex:1;min-width:220px}
+.syslog-body b{color:var(--bone)}
+.syslog-ev{flex-basis:100%;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;padding-left:150px}
+@media(max-width:760px){.syslog-ev{padding-left:0}.syslog-t{min-width:0}}
 </style>
 </body>
 </html>
